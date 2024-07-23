@@ -1,0 +1,20 @@
+[package]
+name = "ome_zarr_metadata"
+version = "0.1.0"
+authors = ["Lachlan Deakin <ljdgit@gmail.com>"]
+edition = "2021"
+rust-version = "1.75"
+description = "A library for OME-Zarr (previously OME-NGFF) metadata"
+documentation = "https://docs.rs/ome_zarr_metadata"
+repository = "https://github.com/LDeakin/rust_ome_zarr_metadata"
+license = "MIT OR Apache-2.0"
+keywords = ["ome", "zarr", "ome-zarr", "ome-ngff", "ngff"]
+categories = ["parsing", "science", "science::bioinformatics"]
+exclude = [
+    "ome-zarr"
+]
+
+[dependencies]
+monostate = "0.1.0"
+serde = { version = "1.0.184", features = ["derive"] }
+serde_json = { version = "1.0.71", features = ["float_roundtrip", "preserve_order"] }
