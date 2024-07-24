@@ -1,6 +1,7 @@
 # ome_zarr_metadata
 
 [![Latest Version](https://img.shields.io/crates/v/ome_zarr_metadata.svg)](https://crates.io/crates/ome_zarr_metadata)
+[![ome_zarr_metadata documentation](https://docs.rs/ome_zarr_metadata/badge.svg)](https://docs.rs/ome_zarr_metadata)
 ![msrv](https://img.shields.io/crates/msrv/ome_zarr_metadata)
 [![build](https://github.com/LDeakin/rust_ome_zarr_metadata/actions/workflows/ci.yml/badge.svg)](https://github.com/LDeakin/rust_ome_zarr_metadata/actions/workflows/ci.yml)
 
