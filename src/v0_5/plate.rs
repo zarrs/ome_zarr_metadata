@@ -41,7 +41,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/plate_strict/plate_2wells.json"
         ));
-        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
         let plate = ome_metadata.get("plate").unwrap();
         let _plate: Plate = serde_json::from_value(plate.clone()).unwrap();
@@ -53,7 +54,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/plate_strict/plate_6wells.json"
         ));
-        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
         let plate = ome_metadata.get("plate").unwrap();
         let _plate: Plate = serde_json::from_value(plate.clone()).unwrap();

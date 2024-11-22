@@ -33,7 +33,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/label_strict/colors_properties.json"
         ));
-        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
         let image_label = ome_metadata.get("image-label").unwrap();
         let _image_label: ImageLabel = serde_json::from_value(image_label.clone()).unwrap();

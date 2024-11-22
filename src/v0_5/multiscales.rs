@@ -44,7 +44,8 @@ mod tests {
         .filter(|line| !line.contains("//")) // Remove comments
         .collect::<String>();
 
-        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(&json).unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(&json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
         let multiscales = ome_metadata.get("multiscales").unwrap();
         let _multiscales: Vec<MultiscaleImage> =
@@ -57,7 +58,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/multiscales_strict/multiscales_transformations.json"
         ));
-        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
         let multiscales = ome_metadata.get("multiscales").unwrap();
         let _multiscales: Vec<MultiscaleImage> =
