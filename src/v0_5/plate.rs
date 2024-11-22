@@ -1,6 +1,6 @@
 //! "plate" metadata
 //!
-//! <https://ngff.openmicroscopy.org/latest/#plate-md>.
+//! <https://ngff.openmicroscopy.org/0.5/#plate-md>.
 
 use std::num::NonZeroU64;
 
@@ -12,8 +12,6 @@ use super::{PlateAcquisition, PlateColumn, PlateRow, PlateWell};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct Plate {
-    /// The version of the multiscale metadata of the image.
-    pub version: monostate::MustBe!("0.5-dev"),
     /// A list of JSON objects defining the acquisitions for a given plate to which wells can refer to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acquisitions: Option<Vec<PlateAcquisition>>,
@@ -33,16 +31,20 @@ pub struct Plate {
 
 #[cfg(test)]
 mod tests {
+    use crate::v0_5::get_ome_attribute_from_zarr_group_metadata;
+
     use super::*;
 
     #[test]
     fn plate_2wells() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/latest/examples/plate_strict/plate_2wells.json"
+            "/ome-zarr/0.5/examples/plate_strict/plate_2wells.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let plate = map.get("plate").unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(json).unwrap();
+        let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
+        let plate = ome_metadata.get("plate").unwrap();
         let _plate: Plate = serde_json::from_value(plate.clone()).unwrap();
     }
 
@@ -50,10 +52,12 @@ mod tests {
     fn plate_6wells() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/latest/examples/plate_strict/plate_6wells.json"
+            "/ome-zarr/0.5/examples/plate_strict/plate_6wells.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let plate = map.get("plate").unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(json).unwrap();
+        let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
+        let plate = ome_metadata.get("plate").unwrap();
         let _plate: Plate = serde_json::from_value(plate.clone()).unwrap();
     }
 }

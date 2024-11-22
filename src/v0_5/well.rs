@@ -1,6 +1,6 @@
 //! "well" metadata.
 //!
-//! <https://ngff--242.org.readthedocs.build/latest/index.html#well-md>.
+//! <https://ngff.openmicroscopy.org/0.5/#well-md>.
 
 use serde::{Deserialize, Serialize};
 
@@ -16,43 +16,16 @@ pub struct Well {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_5_rfc2::get_ome_attribute_from_zarr_group_metadata;
+    use crate::v0_5::get_ome_attribute_from_zarr_group_metadata;
 
     use super::*;
 
     #[test]
-    fn well_0_5_rfc2_spec0() {
-        let json = r#"
-{
-  "zarr_format": 3,
-  "node_type": "group",
-  "attributes": {
-    "ome": {
-      "version": "0.5",
-      "well": {
-        "images": [
-          {
-            "acquisition": 1,
-            "path": "0"
-          },
-          {
-            "acquisition": 1,
-            "path": "1"
-          },
-          {
-            "acquisition": 2,
-            "path": "2"
-          },
-          {
-            "acquisition": 2,
-            "path": "3"
-          }
-        ]
-      }
-    }
-  }
-}
-"#;
+    fn well_2fields() {
+        let json = include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/ome-zarr/0.5/examples/well_strict/well_2fields.json"
+        ));
         let group_metadata: serde_json::Map<String, serde_json::Value> =
             serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
@@ -61,30 +34,11 @@ mod tests {
     }
 
     #[test]
-    fn well_0_5_rfc2_spec1() {
-        let json = r#"
-{
-  "zarr_format": 3,
-  "node_type": "group",
-  "attributes": {
-    "ome": {
-      "version": "0.5",
-      "well": {
-        "images": [
-          {
-            "acquisition": 0,
-            "path": "0"
-          },
-          {
-            "acquisition": 3,
-            "path": "1"
-          }
-        ]
-      }
-    }
-  }
-}
-"#;
+    fn well_4fields() {
+        let json = include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/ome-zarr/0.5/examples/well_strict/well_4fields.json"
+        ));
         let group_metadata: serde_json::Map<String, serde_json::Value> =
             serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
