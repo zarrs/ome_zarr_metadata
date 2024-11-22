@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add version `0.5`
+
+### Removed
+- Remove the `0.5-dev1` interim version https://github.com/ome/ngff/pull/249
+- Remove the `0.5-dev` interim version
+- Remove the `0.5+RFC-2` interim version https://github.com/ome/ngff/pull/242
+
 ## [0.1.0] - 2024-07-24
 
 ### Added

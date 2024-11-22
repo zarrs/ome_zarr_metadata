@@ -1,6 +1,6 @@
 //! "multiscales" metadata.
 //!
-//! <https://ngff.openmicroscopy.org/latest/#multiscale-md>.
+//! <https://ngff.openmicroscopy.org/0.5/#multiscale-md>.
 
 use serde::{Deserialize, Serialize};
 
@@ -10,8 +10,6 @@ use super::{Axis, CoordinateTransform, MultiscaleImageDataset, MultiscaleImageMe
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImage {
-    /// The version of the multiscale metadata of the image.
-    pub version: monostate::MustBe!("0.5-dev"),
     /// The name of the multiscale image (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -32,20 +30,23 @@ pub struct MultiscaleImage {
 
 #[cfg(test)]
 mod tests {
+    use crate::v0_5::get_ome_attribute_from_zarr_group_metadata;
+
     use super::*;
 
     #[test]
     fn multiscales_example() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/latest/examples/multiscales_strict/multiscales_example.json"
+            "/ome-zarr/0.5/examples/multiscales_strict/multiscales_example.json"
         ))
         .lines()
         .filter(|line| !line.contains("//")) // Remove comments
         .collect::<String>();
 
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(&json).unwrap();
-        let multiscales = map.get("multiscales").unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(&json).unwrap();
+        let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
+        let multiscales = ome_metadata.get("multiscales").unwrap();
         let _multiscales: Vec<MultiscaleImage> =
             serde_json::from_value(multiscales.clone()).unwrap();
     }
@@ -54,10 +55,11 @@ mod tests {
     fn multiscales_transformations() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/latest/examples/multiscales_strict/multiscales_transformations.json"
+            "/ome-zarr/0.5/examples/multiscales_strict/multiscales_transformations.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let multiscales = map.get("multiscales").unwrap();
+        let group_metadata: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+        let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
+        let multiscales = ome_metadata.get("multiscales").unwrap();
         let _multiscales: Vec<MultiscaleImage> =
             serde_json::from_value(multiscales.clone()).unwrap();
     }
