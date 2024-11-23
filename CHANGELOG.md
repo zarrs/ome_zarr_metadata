@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-11-23
+
 ### Added
-- Add version `0.5`
+- Add version `0.5` (22 November 2024)
 
 ### Removed
 - Remove the `0.5-dev1` interim version https://github.com/ome/ngff/pull/249
@@ -18,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2024-07-24
 
 ### Added
- - Initial public release
+- Initial public release
 
-[unreleased]: https://github.com/LDeakin/rust_ome_zarr_metadata/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/LDeakin/rust_ome_zarr_metadata/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/LDeakin/rust_ome_zarr_metadata/releases/tag/v0.2.0
 [0.1.0]: https://github.com/LDeakin/rust_ome_zarr_metadata/releases/tag/v0.1.0
