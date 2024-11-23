@@ -10,12 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2024-11-23
 
 ### Added
-- Add version `0.5` (22 November 2024)
+- Add OME-Zarr version `0.5` (22 November 2024)
 
 ### Removed
-- Remove the `0.5-dev1` interim version https://github.com/ome/ngff/pull/249
-- Remove the `0.5-dev` interim version
-- Remove the `0.5+RFC-2` interim version https://github.com/ome/ngff/pull/242
+- Remove the OME-Zarr `0.5-dev1` interim version https://github.com/ome/ngff/pull/249
+- Remove the OME-Zarr `0.5-dev` interim version
+- Remove the OME-Zarr `0.5+RFC-2` interim version https://github.com/ome/ngff/pull/242
 
 ## [0.1.0] - 2024-07-24
 
