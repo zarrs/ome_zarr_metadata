@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 /// `coordinate_transformations` element metadata. Represents a single coordinate transformation.
 ///
 /// It must contain the field "type".
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum CoordinateTransform {
     /// The identity transformation.
@@ -22,7 +22,7 @@ pub enum CoordinateTransform {
 
 /// [`CoordinateTransform`] `translation` type metadata.
 #[allow(missing_docs)]
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum CoordinateTransformTranslation {
     /// A list of floats.
@@ -45,7 +45,7 @@ impl From<PathBuf> for CoordinateTransformTranslation {
 
 /// [`CoordinateTransform`] `scale` type metadata.
 #[allow(missing_docs)]
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum CoordinateTransformScale {
     /// A list of floats.

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::{Axis, CoordinateTransform, MultiscaleImageDataset, MultiscaleImageMetadata};
 
 /// `multiscales` element metadata. Describes a multiscale image.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImage {
     /// The name of the multiscale image (optional).

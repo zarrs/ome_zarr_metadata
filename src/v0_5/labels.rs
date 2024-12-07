@@ -8,7 +8,7 @@ pub use crate::v0_4::{ImageLabelColor, ImageLabelProperties, ImageLabelSource, L
 use serde::{Deserialize, Serialize};
 
 /// `image-label` metadata. Stores information about the display colors, source image, and optionally, further arbitrary properties of a label image.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// Describes the color information for the unique label values.

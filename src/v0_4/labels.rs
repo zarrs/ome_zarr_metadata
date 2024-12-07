@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 pub type Labels = Vec<String>;
 
 /// `image-label` metadata. Stores information about the display colors, source image, and optionally, further arbitrary properties of a label image.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// The version of the OME-NGFF "image-label" schema.
@@ -26,7 +26,7 @@ pub struct ImageLabel {
 }
 
 /// [`ImageLabel`] `colors` element metadata. The colour of a unique image label.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabelColor {
     #[serde(alias = "label-value")]
@@ -35,7 +35,7 @@ pub struct ImageLabelColor {
 }
 
 /// [`ImageLabel`] `properties` element metadata. Arbitrary metadata of a unique image label.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelProperties {
     #[serde(alias = "label-value")]
     label_value: u64,
@@ -44,7 +44,7 @@ pub struct ImageLabelProperties {
 }
 
 /// [`ImageLabel`] `source` metadata. Information about the source of a label image.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelSource {
     image: Option<PathBuf>,
     #[serde(flatten)]

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::{PlateAcquisition, PlateColumn, PlateRow, PlateWell};
 
 /// `plate` metadata. For high-content screening datasets.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Plate {
     /// A list of JSON objects defining the acquisitions for a given plate to which wells can refer to

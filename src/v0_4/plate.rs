@@ -7,7 +7,7 @@ use std::{num::NonZeroU64, path::PathBuf};
 use serde::{Deserialize, Serialize};
 
 /// `plate` metadata. For high-content screening datasets.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Plate {
     /// The version of the multiscale metadata of the image.
@@ -30,7 +30,7 @@ pub struct Plate {
 }
 
 /// [`Plate`] `acquisitions` element metadata. Defines a plate acquisition.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct PlateAcquisition {
     /// A unique integer identifier that fields of view can refer to.
@@ -53,7 +53,7 @@ pub struct PlateAcquisition {
 }
 
 /// [`Plate`] `columns` element metadata. Defines a plate column.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct PlateColumn {
     /// Specifies the unique column mame.
@@ -61,7 +61,7 @@ pub struct PlateColumn {
 }
 
 /// [`Plate`] `rows` element metadata. Defines a plate row.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct PlateRow {
     /// Specifies the unique row mame.
@@ -69,7 +69,7 @@ pub struct PlateRow {
 }
 
 /// [`Plate`] `wells` element metadata. Defines a plate well.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct PlateWell {
     /// A string specifying the path to the well subgroup.

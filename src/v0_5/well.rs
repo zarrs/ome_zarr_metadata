@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::WellImage;
 
 /// `well` metadata. Describes all fields of views under a given well.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Well {
     /// Specifies the fields of views of the well.

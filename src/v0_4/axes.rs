@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 /// `axis` element metadata. Represents a dimension (axis) of a physical coordinate space.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Axis {
     /// The name for this dimension.

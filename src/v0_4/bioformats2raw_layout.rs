@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Top level group metadata indicating with the transitional `bioformats2raw.layout` metadata.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Bioformats2rawLayout {
     /// The top-level identifier metadata added by bioformats2raw
     #[serde(rename = "bioformats2raw.layout")]

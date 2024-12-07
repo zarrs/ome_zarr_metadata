@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::{Axis, CoordinateTransform};
 
 /// `multiscales` element metadata. Describes a multiscale image.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImage {
     /// The version of the multiscale metadata of the image.
@@ -31,7 +31,7 @@ pub struct MultiscaleImage {
 }
 
 /// [`MultiscaleImage`] `datasets` element metadata. Describes an individual resolution level.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImageDataset {
     /// The path to the array for this resolution relative to the current zarr group.
@@ -43,7 +43,7 @@ pub struct MultiscaleImageDataset {
 /// [`MultiscaleImage`] `metadata` metadata. Information about the downscaling method.
 ///
 /// E.g. fields: `description`, `method`, `version`, `args`, `kwargs`.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MultiscaleImageMetadata(pub serde_json::Map<String, serde_json::Value>);
 
 #[cfg(test)]
