@@ -22,7 +22,6 @@ pub struct Axis {
 #[non_exhaustive]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "lowercase")]
-
 pub enum AxisType {
     /// The `space` axis type.
     Space,
