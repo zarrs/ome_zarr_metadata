@@ -15,22 +15,29 @@ pub use plate::*;
 use serde::{Deserialize, Serialize};
 pub use well::*;
 
+/// OME-NGFF top-level group attributes.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Ome {
+pub struct OmeNgffGroupAttributes {
+    /// Transitional `bioformats2raw.layout` metadata.
     #[serde(
         flatten,
         skip_serializing_if = "Option::is_none",
         rename = "bioformats2raw.layout"
     )]
-    bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    pub bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    multiscales: Option<Vec<MultiscaleImage>>,
+    pub multiscales: Option<Vec<MultiscaleImage>>,
+    /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    labels: Option<Vec<Labels>>,
+    pub labels: Option<Vec<Labels>>,
+    /// Image label metadata.
     #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
-    image_label: Option<ImageLabel>,
+    pub image_label: Option<ImageLabel>,
+    /// Plate metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    plate: Option<Plate>,
+    pub plate: Option<Plate>,
+    /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    well: Option<Well>,
+    pub well: Option<Well>,
 }

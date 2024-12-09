@@ -19,26 +19,48 @@ pub use well::*;
 
 use serde::de::Error;
 
+/// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-struct Ome {
-    version: monostate::MustBe!("0.5"),
+pub struct OmeFields {
+    /// OME-Zarr version.
+    pub version: monostate::MustBe!("0.5"),
+    /// Transitional `bioformats2raw.layout` metadata.
     #[serde(
         flatten,
         skip_serializing_if = "Option::is_none",
         rename = "bioformats2raw.layout"
     )]
-    bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    pub bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    multiscales: Option<Vec<MultiscaleImage>>,
+    pub multiscales: Option<Vec<MultiscaleImage>>,
+    /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    labels: Option<Vec<Labels>>,
+    pub labels: Option<Vec<Labels>>,
+    /// Image label metadata.
     #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
-    image_label: Option<ImageLabel>,
+    pub image_label: Option<ImageLabel>,
+    /// Plate metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    plate: Option<Plate>,
+    pub plate: Option<Plate>,
+    /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    well: Option<Well>,
+    pub well: Option<Well>,
+}
+
+/// OME-Zarr top-level group attributes.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OmeZarrGroupAttributes {
+    /// OME-Zarr "ome" fields.
+    pub ome: OmeFields,
+}
+
+/// OME-Zarr top-level group metadata.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OmeZarrGroupMetadata {
+    /// Zarr attributes with "ome" metadata.
+    pub attributes: OmeZarrGroupAttributes,
 }
 
 /// Return the `ome` attribute from Zarr group metadata.
@@ -47,6 +69,7 @@ struct Ome {
 /// Returns an error if:
 ///  - the `attributes`, `attributes.ome`, or `attributes.ome.version` keys do not exist, or
 ///  - the `attributes.ome.version` key is not equal to `"0.5"`.
+// TODO: Deprecate this
 pub fn get_ome_attribute_from_zarr_group_metadata(
     group_metadata: &serde_json::Map<String, serde_json::Value>,
 ) -> Result<&serde_json::Value, serde_json::Error> {

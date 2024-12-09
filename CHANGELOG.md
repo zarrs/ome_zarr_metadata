@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Add 0.4/0.5 `Ome` struct for top-level OME-Zarr 0.4/0.5 "ome" attributes
+- Add top-level OME-NGFF/OME-Zarr structs
+  - Add `v0_4::OmeNgffGroupAttributes`
+  - Add `v0_5::{OmeFields,OmeZarrGroupAttributes,OmeZarrGroupMetadata}`
 
 ## [0.2.1] - 2024-12-07
 
