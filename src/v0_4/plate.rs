@@ -84,6 +84,10 @@ pub struct PlateWell {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::Value;
+
+    use crate::v0_4::Ome;
+
     use super::*;
 
     #[test]
@@ -92,9 +96,9 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/plate_strict/plate_2wells.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let plate = map.get("plate").unwrap();
-        let _plate: Plate = serde_json::from_value(plate.clone()).unwrap();
+        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _plate: Plate = ome_metadata.plate.unwrap();
     }
 
     #[test]
@@ -103,8 +107,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/plate_strict/plate_6wells.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let plate = map.get("plate").unwrap();
-        let _plate: Plate = serde_json::from_value(plate.clone()).unwrap();
+        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _plate: Plate = ome_metadata.plate.unwrap();
     }
 }

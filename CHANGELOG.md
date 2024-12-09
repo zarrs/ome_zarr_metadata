@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add 0.4/0.5 `Ome` struct for top-level OME-Zarr 0.4/0.5 "ome" attributes
+
 ## [0.2.1] - 2024-12-07
 
 ### Added

@@ -16,7 +16,7 @@ pub struct Well {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_5::get_ome_attribute_from_zarr_group_metadata;
+    use crate::v0_5::{get_ome_attribute_from_zarr_group_metadata, Ome};
 
     use super::*;
 
@@ -29,8 +29,8 @@ mod tests {
         let group_metadata: serde_json::Map<String, serde_json::Value> =
             serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
-        let well = ome_metadata.get("well").unwrap();
-        let _well: Well = serde_json::from_value(well.clone()).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _well: Well = ome_metadata.well.unwrap();
     }
 
     #[test]
@@ -42,7 +42,7 @@ mod tests {
         let group_metadata: serde_json::Map<String, serde_json::Value> =
             serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
-        let well = ome_metadata.get("well").unwrap();
-        let _well: Well = serde_json::from_value(well.clone()).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _well: Well = ome_metadata.well.unwrap();
     }
 }

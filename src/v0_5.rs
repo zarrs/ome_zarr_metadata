@@ -13,9 +13,33 @@ pub use crate::v0_4::well::WellImage;
 pub use labels::*;
 pub use multiscales::*;
 pub use plate::*;
+use serde::Deserialize;
+use serde::Serialize;
 pub use well::*;
 
 use serde::de::Error;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+struct Ome {
+    version: monostate::MustBe!("0.5"),
+    #[serde(
+        flatten,
+        skip_serializing_if = "Option::is_none",
+        rename = "bioformats2raw.layout"
+    )]
+    bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    multiscales: Option<Vec<MultiscaleImage>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    labels: Option<Vec<Labels>>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
+    image_label: Option<ImageLabel>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    plate: Option<Plate>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    well: Option<Well>,
+}
 
 /// Return the `ome` attribute from Zarr group metadata.
 ///
