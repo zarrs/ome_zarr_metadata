@@ -37,7 +37,7 @@ pub struct OmeFields {
     pub multiscales: Option<Vec<MultiscaleImage>>,
     /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub labels: Option<Vec<Labels>>,
+    pub labels: Option<Labels>,
     /// Image label metadata.
     #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
     pub image_label: Option<ImageLabel>,
