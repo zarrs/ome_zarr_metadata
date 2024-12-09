@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 pub use well::*;
 
 /// OME-NGFF top-level group attributes.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeNgffGroupAttributes {
     /// Transitional `bioformats2raw.layout` metadata.
     #[serde(

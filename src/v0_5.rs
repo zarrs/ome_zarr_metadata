@@ -20,7 +20,7 @@ pub use well::*;
 use serde::de::Error;
 
 /// OME-Zarr "ome" fields.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct OmeFields {
     /// OME-Zarr version.
@@ -89,5 +89,18 @@ pub fn get_ome_attribute_from_zarr_group_metadata(
         Err(serde_json::Error::custom(
             "the group does not contain the attributes key.".to_string(),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fields_default() {
+        let _ome_fields = OmeFields {
+            labels: Some(vec!["x".to_string(), "y".to_string()]),
+            ..OmeFields::default()
+        };
     }
 }

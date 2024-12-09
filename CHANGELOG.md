@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Implement `Default` for `v0_4::OmeNgffGroupAttributes` and `v0_5::OmeFields`
+
 ### Fixed
 - Fix incorrect labels field in `v0_4::OmeNgffGroupAttributes` and `v0_5::OmeFields`
 
