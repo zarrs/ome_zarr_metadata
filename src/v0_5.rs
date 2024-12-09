@@ -24,10 +24,11 @@ use serde::de::Error;
 struct Ome {
     version: monostate::MustBe!("0.5"),
     #[serde(
+        flatten,
         skip_serializing_if = "Option::is_none",
         rename = "bioformats2raw.layout"
     )]
-    bioformats2raw_layout: Option<monostate::MustBe!(3u8)>,
+    bioformats2raw_layout: Option<Bioformats2rawLayout>,
     #[serde(skip_serializing_if = "Option::is_none")]
     multiscales: Option<Vec<MultiscaleImage>>,
     #[serde(skip_serializing_if = "Option::is_none")]
