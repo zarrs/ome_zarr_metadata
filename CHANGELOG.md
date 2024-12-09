@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2024-12-10
+
 ### Added
 - Implement `Default` for `v0_4::OmeNgffGroupAttributes` and `v0_5::OmeFields`
 
@@ -14,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix incorrect labels field in `v0_4::OmeNgffGroupAttributes` and `v0_5::OmeFields`
 
 ## [0.2.2] - 2024-12-10
+
+*This release was yanked.*
 
 ### Added
 - Add top-level OME-NGFF/OME-Zarr structs
@@ -40,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial public release
 
-[unreleased]: https://github.com/LDeakin/rust_ome_zarr_metadata/compare/v0.2.2...HEAD
+[unreleased]: https://github.com/LDeakin/rust_ome_zarr_metadata/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/LDeakin/rust_ome_zarr_metadata/releases/tag/v0.2.3
 [0.2.2]: https://github.com/LDeakin/rust_ome_zarr_metadata/releases/tag/v0.2.2
 [0.2.1]: https://github.com/LDeakin/rust_ome_zarr_metadata/releases/tag/v0.2.1
 [0.2.0]: https://github.com/LDeakin/rust_ome_zarr_metadata/releases/tag/v0.2.0
