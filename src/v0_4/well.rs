@@ -33,9 +33,7 @@ pub struct WellImage {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::Value;
-
-    use crate::v0_4::Ome;
+    use crate::v0_4::OmeNgffGroupAttributes;
 
     use super::*;
 
@@ -45,8 +43,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/well_strict/well_2fields.json"
         ));
-        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
-        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _well: Well = ome_metadata.well.unwrap();
     }
 
@@ -56,8 +53,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/well_strict/well_4fields.json"
         ));
-        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
-        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _well: Well = ome_metadata.well.unwrap();
     }
 }
