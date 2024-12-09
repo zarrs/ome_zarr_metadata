@@ -53,6 +53,10 @@ pub struct ImageLabelSource {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::Value;
+
+    use crate::v0_4::Ome;
+
     use super::*;
 
     #[test]
@@ -61,8 +65,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/label_strict/colors_properties.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let image_label = map.get("image-label").unwrap();
-        let _image_label: ImageLabel = serde_json::from_value(image_label.clone()).unwrap();
+        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _image_label: ImageLabel = ome_metadata.image_label.unwrap();
     }
 }

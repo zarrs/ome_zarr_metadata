@@ -33,6 +33,10 @@ pub struct WellImage {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::Value;
+
+    use crate::v0_4::Ome;
+
     use super::*;
 
     #[test]
@@ -41,9 +45,9 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/well_strict/well_2fields.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let well = map.get("well").unwrap();
-        let _well: Well = serde_json::from_value(well.clone()).unwrap();
+        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _well: Well = ome_metadata.well.unwrap();
     }
 
     #[test]
@@ -52,8 +56,8 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.4/examples/well_strict/well_4fields.json"
         ));
-        let map: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-        let well = map.get("well").unwrap();
-        let _well: Well = serde_json::from_value(well.clone()).unwrap();
+        let ome_metadata: Value = serde_json::from_str(&json).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _well: Well = ome_metadata.well.unwrap();
     }
 }
