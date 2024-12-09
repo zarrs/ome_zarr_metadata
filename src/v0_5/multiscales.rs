@@ -30,7 +30,7 @@ pub struct MultiscaleImage {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_5::get_ome_attribute_from_zarr_group_metadata;
+    use crate::v0_5::{get_ome_attribute_from_zarr_group_metadata, Ome};
 
     use super::*;
 
@@ -47,9 +47,8 @@ mod tests {
         let group_metadata: serde_json::Map<String, serde_json::Value> =
             serde_json::from_str(&json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
-        let multiscales = ome_metadata.get("multiscales").unwrap();
-        let _multiscales: Vec<MultiscaleImage> =
-            serde_json::from_value(multiscales.clone()).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _multiscales: Vec<MultiscaleImage> = ome_metadata.multiscales.unwrap();
     }
 
     #[test]
@@ -61,8 +60,7 @@ mod tests {
         let group_metadata: serde_json::Map<String, serde_json::Value> =
             serde_json::from_str(json).unwrap();
         let ome_metadata = get_ome_attribute_from_zarr_group_metadata(&group_metadata).unwrap();
-        let multiscales = ome_metadata.get("multiscales").unwrap();
-        let _multiscales: Vec<MultiscaleImage> =
-            serde_json::from_value(multiscales.clone()).unwrap();
+        let ome_metadata: Ome = serde_json::from_value(ome_metadata.clone()).unwrap();
+        let _multiscales: Vec<MultiscaleImage> = ome_metadata.multiscales.unwrap();
     }
 }

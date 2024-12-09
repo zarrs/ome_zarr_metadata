@@ -12,4 +12,24 @@ pub use coordinate_transformations::*;
 pub use labels::*;
 pub use multiscales::*;
 pub use plate::*;
+use serde::{Deserialize, Serialize};
 pub use well::*;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct Ome {
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "bioformats2raw.layout"
+    )]
+    bioformats2raw_layout: Option<monostate::MustBe!(3u8)>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    multiscales: Option<Vec<MultiscaleImage>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    labels: Option<Vec<Labels>>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
+    image_label: Option<ImageLabel>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    plate: Option<Plate>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    well: Option<Well>,
+}
