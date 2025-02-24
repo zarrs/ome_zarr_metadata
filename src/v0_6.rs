@@ -17,7 +17,7 @@ use serde::Serialize;
 #[serde(deny_unknown_fields)]
 pub struct OmeFields {
     /// OME-Zarr version.
-    pub version: monostate::MustBe!("0.5"),
+    pub version: monostate::MustBe!("0.6"),
     /// Transitional `bioformats2raw.layout` metadata.
     #[serde(
         flatten,
@@ -67,7 +67,7 @@ mod tests {
   "node_type": "group",
   "attributes": {
     "ome": {
-      "version": "0.5",
+      "version": "0.6",
       "multiscale": {
         "name": "example",
         "axes": [
