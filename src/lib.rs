@@ -9,7 +9,10 @@
 /// <https://ngff.openmicroscopy.org/0.4/>.
 pub mod v0_4;
 
-/// Version `0.5` (OME-Zarr) metadata.
+/// Version `0.5` metadata.
 ///
 /// <https://ngff.openmicroscopy.org/0.5/>.
 pub mod v0_5;
+
+/// Version `0.6` metadata.
+pub mod v0_6;
