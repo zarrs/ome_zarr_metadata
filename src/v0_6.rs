@@ -110,4 +110,55 @@ mod tests {
 
         serde_json::from_str::<OmeZarrGroupMetadata>(&json).unwrap();
     }
+
+    #[test]
+    fn rfc_4_and_6() {
+        let json = r#"{
+  "zarr_format": 3,
+  "node_type": "group",
+  "attributes": {
+    "ome": {
+      "version": "0.6",
+      "multiscale": {
+        "name": "example",
+        "axes": [
+          { "name": "t", "type": "time", "unit": "millisecond" },
+          { "name": "c", "type": "channel" },
+          { "name": "z", "type": "space", "unit": "micrometer", "anatomicalOrientation": "inferior-to-superior" },
+          { "name": "y", "type": "space", "unit": "micrometer", "anatomicalOrientation": "posterior-to-anterior" },
+          { "name": "x", "type": "space", "unit": "micrometer", "anatomicalOrientation": "left-to-right" }
+        ],
+        "datasets": [
+          {
+            "path": "0",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [1.0, 1.0, 0.5, 0.5, 0.5]
+              }
+            ]
+          },
+          {
+            "path": "1",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [1.0, 1.0, 1.0, 1.0, 1.0]
+              }
+            ]
+          }
+        ],
+        "coordinateTransformations": [
+          {
+            "type": "scale",
+            "scale": [0.1, 1.0, 1.0, 1.0, 1.0]
+          }
+        ]
+      }
+    }
+  }
+}"#;
+
+        serde_json::from_str::<OmeZarrGroupMetadata>(&json).unwrap();
+    }
 }
