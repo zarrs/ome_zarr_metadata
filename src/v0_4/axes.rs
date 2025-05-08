@@ -16,6 +16,12 @@ pub struct Axis {
     /// The optional physical unit of this dimension.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<AxisUnit>,
+    /// The anatomical orientation of the dimension ([RFC 4](https://ngff.openmicroscopy.org/rfc/4/index.html)).
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "anatomicalOrientation"
+    )]
+    pub anatomical_orientation: Option<AnatomicalOrientation>,
 }
 
 /// [`Axis`] `type` metadata. Represents the type of an axis.
@@ -109,4 +115,29 @@ pub enum AxisUnitTime {
     Yottasecond,
     Zeptosecond,
     Zettasecond,
+}
+
+/// `anatomicalOrientation` metadata. Represents an anotomical orientation.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "kebab-case")]
+#[allow(missing_docs)]
+pub enum AnatomicalOrientation {
+    LeftToRight,
+    RightToLeft,
+    AnteriorToPosterior,
+    PosteriorToAnterior,
+    InferiorToSuperior,
+    SuperiorToInferior,
+    DorsalToVentral,
+    VentralToDorsal,
+    DorsalToPalmar,
+    PalmarToDorsal,
+    DorsalToPlantar,
+    PlantarToDorsal,
+    RostralToCaudal,
+    CaudalToRostral,
+    CranialToCaudal,
+    CaudalToCranial,
+    ProximalToDistal,
+    DistalToProximal,
 }
