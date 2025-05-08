@@ -1,13 +1,16 @@
-pub use crate::v0_4::axes::*;
 pub use crate::v0_4::bioformats2raw_layout::*;
 pub use crate::v0_4::coordinate_transformations::*;
 pub use crate::v0_4::multiscales::{MultiscaleImageDataset, MultiscaleImageMetadata};
 pub use crate::v0_4::plate::{PlateAcquisition, PlateColumn, PlateRow, PlateWell};
 pub use crate::v0_4::well::WellImage;
 pub use crate::v0_5::labels::*;
-pub use crate::v0_5::multiscales::*;
 pub use crate::v0_5::plate::*;
 pub use crate::v0_5::well::*;
+pub use crate::v0_6::axes::*;
+pub use crate::v0_6::multiscale::*;
+
+mod axes;
+mod multiscale;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -76,6 +79,57 @@ mod tests {
           { "name": "z", "type": "space", "unit": "micrometer" },
           { "name": "y", "type": "space", "unit": "micrometer" },
           { "name": "x", "type": "space", "unit": "micrometer" }
+        ],
+        "datasets": [
+          {
+            "path": "0",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [1.0, 1.0, 0.5, 0.5, 0.5]
+              }
+            ]
+          },
+          {
+            "path": "1",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [1.0, 1.0, 1.0, 1.0, 1.0]
+              }
+            ]
+          }
+        ],
+        "coordinateTransformations": [
+          {
+            "type": "scale",
+            "scale": [0.1, 1.0, 1.0, 1.0, 1.0]
+          }
+        ]
+      }
+    }
+  }
+}"#;
+
+        serde_json::from_str::<OmeZarrGroupMetadata>(&json).unwrap();
+    }
+
+    #[test]
+    fn rfc_4_and_6() {
+        let json = r#"{
+  "zarr_format": 3,
+  "node_type": "group",
+  "attributes": {
+    "ome": {
+      "version": "0.6",
+      "multiscale": {
+        "name": "example",
+        "axes": [
+          { "name": "t", "type": "time", "unit": "millisecond" },
+          { "name": "c", "type": "channel" },
+          { "name": "z", "type": "space", "unit": "micrometer", "anatomicalOrientation": "inferior-to-superior" },
+          { "name": "y", "type": "space", "unit": "micrometer", "anatomicalOrientation": "posterior-to-anterior" },
+          { "name": "x", "type": "space", "unit": "micrometer", "anatomicalOrientation": "left-to-right" }
         ],
         "datasets": [
           {
