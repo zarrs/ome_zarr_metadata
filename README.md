@@ -3,11 +3,11 @@
 [![Latest Version](https://img.shields.io/crates/v/ome_zarr_metadata.svg)](https://crates.io/crates/ome_zarr_metadata)
 [![ome_zarr_metadata documentation](https://docs.rs/ome_zarr_metadata/badge.svg)](https://docs.rs/ome_zarr_metadata)
 ![msrv](https://img.shields.io/crates/msrv/ome_zarr_metadata)
-[![build](https://github.com/LDeakin/rust_ome_zarr_metadata/actions/workflows/ci.yml/badge.svg)](https://github.com/LDeakin/rust_ome_zarr_metadata/actions/workflows/ci.yml)
+[![build](https://github.com/zarrs/ome_zarr_metadata/actions/workflows/ci.yml/badge.svg)](https://github.com/zarrs/ome_zarr_metadata/actions/workflows/ci.yml)
 
 A Rust library for [OME-Zarr](https://ngff.openmicroscopy.org/latest/) (previously OME-NGFF) metadata.
 
-A changelog can be found [here](https://github.com/LDeakin/rust_ome_zarr_metadata/blob/main/CHANGELOG.md).
+A changelog can be found [here](https://github.com/zarrs/ome_zarr_metadata/blob/main/CHANGELOG.md).
 
 ## Version Support
 - [x] [0.4](https://ngff.openmicroscopy.org/0.4/)
