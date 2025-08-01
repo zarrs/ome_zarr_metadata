@@ -75,10 +75,10 @@ pub struct PlateWell {
     /// A string specifying the path to the well subgroup.
     pub path: PathBuf,
     /// Specifies the row index.
-    #[serde(alias = "rowIndex")]
+    #[serde(rename = "rowIndex")]
     pub row_index: u64,
     /// Specifies the column index.
-    #[serde(alias = "columnIndex")]
+    #[serde(rename = "columnIndex")]
     pub column_index: u64,
 }
 
