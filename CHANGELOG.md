@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add trusted publishing
+
 ### Fixed
 - Fix improper serialisation of `rowIndex` and `columnIndex` in `PlateWell` metadata
 - Fix improper serialisation of `label-value` in `ImageLabel` metadata
