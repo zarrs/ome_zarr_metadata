@@ -29,7 +29,7 @@ pub struct ImageLabel {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabelColor {
-    #[serde(alias = "label-value")]
+    #[serde(rename = "label-value")]
     label_value: u64,
     rgba: [u8; 4],
 }
@@ -37,7 +37,7 @@ pub struct ImageLabelColor {
 /// [`ImageLabel`] `properties` element metadata. Arbitrary metadata of a unique image label.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelProperties {
-    #[serde(alias = "label-value")]
+    #[serde(rename = "label-value")]
     label_value: u64,
     #[serde(flatten)]
     properties: serde_json::Map<String, serde_json::Value>,
