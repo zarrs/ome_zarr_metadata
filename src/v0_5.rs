@@ -62,7 +62,7 @@ pub struct OmeZarrGroupAttributes {
 impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
     fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
         let ome = OmeFields {
-            version: monostate::MustBe!("0.5"),
+            version: Default::default(),
             bioformats2raw_layout: value.bioformats2raw_layout,
             multiscales: value
                 .multiscales
