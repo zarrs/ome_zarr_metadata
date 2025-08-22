@@ -197,3 +197,40 @@ pub fn get_test_suites(version: (u64, u64)) -> &'static BTreeMap<String, TestSui
         )
     })
 }
+
+pub fn run_test_suites_for_version<T: DeserializeOwned + std::fmt::Debug>(version: (u64, u64)) {
+    let suites = get_test_suites(version);
+    let mut joint = String::default();
+    let mut count = 0;
+    for s in suites.values().flat_map(|t| t.test_deser_all::<T>()) {
+        joint.push_str(&s);
+        joint.push('\n');
+        count += 1;
+    }
+    if count == 0 {
+        return;
+    }
+    panic!("Failed {count} tests:\n{joint}");
+}
+
+pub fn run_examples_for_version<T: DeserializeOwned + std::fmt::Debug>(version: (u64, u64)) {
+    let mut msg = String::default();
+    let mut failed = 0;
+    let mut total = 0;
+    for (dname, map) in get_examples(version) {
+        for (fname, content) in map {
+            total += 1;
+
+            let Err(e) = serde_json::from_str::<T>(content) else {
+                continue;
+            };
+            failed += 1;
+            msg.push_str(&format!(
+                "dir {dname}, example {fname}: failed with error {e}\n"
+            ));
+        }
+    }
+    if failed > 0 {
+        panic!("Failed {failed} of {total}:\n{}", msg.trim_end());
+    }
+}
