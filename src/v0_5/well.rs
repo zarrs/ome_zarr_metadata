@@ -14,11 +14,11 @@ pub struct Well {
     pub images: Vec<WellImage>,
 }
 
-
 impl From<crate::v0_4::Well> for Well {
-
     fn from(value: crate::v0_4::Well) -> Self {
-        Self { images: value.images }
+        Self {
+            images: value.images,
+        }
     }
 }
 

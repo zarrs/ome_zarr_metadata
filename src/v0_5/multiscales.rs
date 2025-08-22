@@ -30,7 +30,14 @@ pub struct MultiscaleImage {
 
 impl From<crate::v0_4::MultiscaleImage> for MultiscaleImage {
     fn from(value: crate::v0_4::MultiscaleImage) -> Self {
-        Self { name: value.name, axes: value.axes, datasets: value.datasets, coordinate_transformations: value.coordinate_transformations, r#type: value.r#type, metadata: value.metadata }
+        Self {
+            name: value.name,
+            axes: value.axes,
+            datasets: value.datasets,
+            coordinate_transformations: value.coordinate_transformations,
+            r#type: value.r#type,
+            metadata: value.metadata,
+        }
     }
 }
 
