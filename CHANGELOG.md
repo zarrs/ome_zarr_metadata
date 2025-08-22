@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Add trusted publishing
+- Add automated tests covering all examples from the specification
+- Add conversion from 0.4 to 0.5 metadata
 
 ### Fixed
 - Fix improper serialisation of `rowIndex` and `columnIndex` in `PlateWell` metadata

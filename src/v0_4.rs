@@ -41,3 +41,34 @@ pub struct OmeNgffGroupAttributes {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub well: Option<Well>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tests::*;
+    
+    const VERSION: (u64, u64) = (0, 4);
+
+    #[test]
+    fn parse_examples() {
+        let mut msg = String::default();
+        let mut failed = 0;
+        let mut total = 0;
+        for (dname, map) in get_examples(VERSION) {
+            for (fname, content) in map {
+                total += 1;
+
+                let Err(e) = serde_json::from_str::<OmeNgffGroupAttributes>(content) else {
+                    continue;
+                };
+                failed += 1;
+                msg.push_str(&format!(
+                    "dir {dname}, example {fname}: failed with error {e}\n"
+                ));
+            }
+        }
+        if failed > 0 {
+            panic!("Failed {failed} of {total}:\n{}", msg.trim_end());
+        }
+    }
+}

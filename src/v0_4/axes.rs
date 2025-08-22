@@ -46,6 +46,18 @@ pub enum AxisUnit {
     Custom(String),
 }
 
+impl From<AxisUnitSpace> for AxisUnit {
+    fn from(value: AxisUnitSpace) -> Self {
+        Self::Space(value)
+    }
+}
+
+impl From<AxisUnitTime> for AxisUnit {
+    fn from(value: AxisUnitTime) -> Self {
+        Self::Time(value)
+    }
+}
+
 /// [`AxisUnit`] physical `space` units valid according to UDUNITS-2.
 #[non_exhaustive]
 #[allow(missing_docs)]

@@ -4,6 +4,9 @@
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
+#[cfg(test)]
+pub(crate) mod tests;
+
 /// Version `0.4` (OME-NGFF) metadata.
 ///
 /// <https://ngff.openmicroscopy.org/0.4/>.

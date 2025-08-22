@@ -59,9 +59,9 @@ pub struct OmeZarrGroupAttributes {
     pub ome: OmeFields,
 }
 
-impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
+impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
     fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
-        let ome = OmeFields {
+        Self {
             version: Default::default(),
             bioformats2raw_layout: value.bioformats2raw_layout,
             multiscales: value
@@ -71,8 +71,13 @@ impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
             image_label: value.image_label.map(Into::into),
             plate: value.plate.map(Into::into),
             well: value.well.map(Into::into),
-        };
-        Self { ome }
+        }
+    }
+}
+
+impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
+    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
+        Self {ome: value.into()}
     }
 }
 
@@ -117,7 +122,11 @@ pub fn get_ome_attribute_from_zarr_group_metadata(
 
 #[cfg(test)]
 mod tests {
+    use crate::tests::{get_examples, get_test_suites};
+
     use super::*;
+
+    const VERSION: (u64, u64) = (0, 5);
 
     #[test]
     fn fields_default() {
@@ -125,5 +134,68 @@ mod tests {
             labels: Some(vec!["x".to_string(), "y".to_string()]),
             ..OmeFields::default()
         };
+    }
+
+    #[test]
+    fn v0_4_to_v0_5() {
+        let examples = get_examples((0, 4));
+        for dname in [
+            "bf2raw",
+            "label_strict",
+            "multiscales_strict",
+            "plate_strict",
+            "well_strict",
+        ] {
+            let inner = examples.get(dname).unwrap();
+            for v in inner.values() {
+                let old: v0_4::OmeNgffGroupAttributes =
+                    serde_json::from_str(v).expect("Should be valid v0.4");
+                let _ = OmeFields::from(old);
+            }
+        }
+    }
+
+    #[ignore]
+    #[test]
+    fn parse_examples() {
+        let mut msg = String::default();
+        let mut failed = 0;
+        let mut total = 0;
+        for (dname, map) in get_examples(VERSION) {
+            for (fname, content) in map {
+                total += 1;
+
+                let Err(e) = serde_json::from_str::<OmeZarrGroupMetadata>(content) else {
+                    continue;
+                };
+                failed += 1;
+                msg.push_str(&format!(
+                    "dir {dname}, example {fname}: failed with error {e}\n"
+                ));
+            }
+        }
+        if failed > 0 {
+            panic!("Failed {failed} of {total}:\n{}", msg.trim_end());
+        }
+    }
+
+    #[ignore]
+    #[test]
+    fn test_suite() {
+        let suites = get_test_suites(VERSION);
+        let mut joint = String::default();
+        let mut count = 0;
+        for s in suites
+            .values()
+            .flat_map(|t| t.test_deser_all::<OmeZarrGroupAttributes>())
+        {
+            joint.push_str(&s);
+            joint.push('\n');
+            count += 1;
+        }
+        if count == 0 {
+            return;
+        }
+        panic!("Failed {count} tests:\n{joint}");
     }
 }
