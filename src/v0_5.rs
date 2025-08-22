@@ -3,6 +3,7 @@ pub(crate) mod multiscales;
 pub(crate) mod plate;
 pub(crate) mod well;
 
+use crate::v0_4;
 pub use crate::v0_4::axes::*;
 pub use crate::v0_4::bioformats2raw_layout::*;
 pub use crate::v0_4::coordinate_transformations::*;
@@ -50,13 +51,33 @@ pub struct OmeFields {
 }
 
 /// OME-Zarr top-level group attributes.
+/// 
+/// This can be deserialised from a representation of a group's user attributes.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OmeZarrGroupAttributes {
     /// OME-Zarr "ome" fields.
     pub ome: OmeFields,
 }
 
+impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
+    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
+        let ome = OmeFields {
+            version: monostate::MustBe!("0.5"),
+            bioformats2raw_layout: value.bioformats2raw_layout,
+            multiscales: value.multiscales.map(|v| v.into_iter().map(Into::into).collect()),
+            labels: value.labels,
+            image_label: value.image_label.map(Into::into),
+            plate: value.plate.map(Into::into),
+            well: value.well.map(Into::into),  
+        };
+        Self {ome}
+    }
+}
+
 /// OME-Zarr top-level group metadata.
+/// 
+/// This can be deserialised from a representation of the whole metadata document
+/// (i.e. the contents of `zarr.json` in zarr v3, which includes user attributes and core metadata).
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OmeZarrGroupMetadata {
     /// Zarr attributes with "ome" metadata.

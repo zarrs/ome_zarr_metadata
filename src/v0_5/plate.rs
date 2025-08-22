@@ -29,6 +29,19 @@ pub struct Plate {
     pub wells: Vec<PlateWell>,
 }
 
+impl From<crate::v0_4::Plate> for Plate {
+    fn from(value: crate::v0_4::Plate) -> Self {
+        Self {
+            acquisitions: value.acquisitions,
+            columns: value.columns,
+            field_count: value.field_count,
+            name: value.name,
+            rows: value.rows,
+            wells: value.wells,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::v0_5::OmeZarrGroupMetadata;
