@@ -311,11 +311,7 @@ impl SuiteReports {
                     rep.len()
                 );
             }
-            let test_reports = surround_lines(
-                &rep.fail_reports(),
-                "\t",
-                "\n",
-            );
+            let test_reports = surround_lines(&rep.fail_reports(), "\t", "\n");
             format!(
                 "FAILED: suite {name} (schema {}), {} of {} passed\n{test_reports}",
                 rep.schema,
