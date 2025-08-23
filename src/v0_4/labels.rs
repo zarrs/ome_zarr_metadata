@@ -2,23 +2,28 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.4/#labels-md>.
 
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
+use validator::{Validate, ValidationError};
+
+use crate::{validation::new_validation_err, validation::REPEATED_LABEL};
 
 /// `labels` metadata. A JSON array of paths to the labeled multiscale image(s).
 pub type Labels = Vec<String>;
 
 /// `image-label` metadata. Stores information about the display colors, source image, and optionally, further arbitrary properties of a label image.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// The version of the OME-NGFF "image-label" schema.
     pub version: monostate::MustBe!("0.4"),
     /// Describes the color information for the unique label values.
-    pub colors: Vec<ImageLabelColor>,
+    #[validate(custom(function = "validate_opt_unique_labels"))]
+    pub colors: Option<Vec<ImageLabelColor>>,
     /// Arbitrary metadata associated with each unique label (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[validate(custom(function = "validate_opt_unique_labels"))]
     pub properties: Option<Vec<ImageLabelProperties>>,
     /// Information about the original image from which the label image derives (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -34,6 +39,40 @@ pub struct ImageLabelColor {
     pub label_value: u64,
     /// Colour as RGBA array.
     pub rgba: [u8; 4],
+}
+
+pub(crate) fn validate_unique_labels<'a, T: HasLabelValue + 'a>(
+    it: impl IntoIterator<Item = &'a T>,
+) -> Result<(), ValidationError> {
+    let mut set: HashSet<u64> = HashSet::default();
+    for lbl in it.into_iter().map(HasLabelValue::get_label) {
+        if !set.insert(lbl) {
+            return new_validation_err(REPEATED_LABEL, format!("label {lbl} is repeated"));
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_opt_unique_labels<T: HasLabelValue>(
+    opt: &&Vec<T>,
+) -> Result<(), ValidationError> {
+    validate_unique_labels(opt.iter())
+}
+
+pub(crate) trait HasLabelValue {
+    fn get_label(&self) -> u64;
+}
+
+impl HasLabelValue for ImageLabelColor {
+    fn get_label(&self) -> u64 {
+        self.label_value
+    }
+}
+
+impl HasLabelValue for ImageLabelProperties {
+    fn get_label(&self) -> u64 {
+        self.label_value
+    }
 }
 
 /// [`ImageLabel`] `properties` element metadata. Arbitrary metadata of a unique image label.

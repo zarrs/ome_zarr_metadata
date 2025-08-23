@@ -3,10 +3,14 @@
 //! <https://ngff.openmicroscopy.org/0.4/#axes-md>.
 
 use serde::{Deserialize, Serialize};
+use validator::{Validate, ValidationError};
+
+use crate::validation::{new_validation_err, UNIT_CONFLICT};
 
 /// `axis` element metadata. Represents a dimension (axis) of a physical coordinate space.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
 #[serde(deny_unknown_fields)]
+#[validate(schema(function = "valid_axis"))]
 pub struct Axis {
     /// The name for this dimension.
     pub name: String,
@@ -16,6 +20,32 @@ pub struct Axis {
     /// The optional physical unit of this dimension.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<AxisUnit>,
+}
+
+fn valid_axis(ax: &Axis) -> Result<(), ValidationError> {
+    let (Some(t), Some(u)) = (&ax.r#type, &ax.unit) else {
+        return Ok(());
+    };
+    match u {
+        AxisUnit::Space(u) => {
+            if t != &AxisType::Space {
+                return new_validation_err(
+                    UNIT_CONFLICT,
+                    format!("unit {u:?} has type 'space' but axis is not of this type."),
+                );
+            }
+        }
+        AxisUnit::Time(u) => {
+            if t != &AxisType::Time {
+                return new_validation_err(
+                    UNIT_CONFLICT,
+                    format!("unit {u:?} has type 'time' but axis is not of this type"),
+                );
+            }
+        }
+        AxisUnit::Custom(_) => (),
+    }
+    Ok(())
 }
 
 /// [`Axis`] `type` metadata. Represents the type of an axis.

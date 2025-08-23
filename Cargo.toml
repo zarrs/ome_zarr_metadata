@@ -18,6 +18,8 @@ exclude = [
 monostate = "0.1.0"
 serde = { version = "1.0.184", features = ["derive"] }
 serde_json = { version = "1.0.71", features = ["float_roundtrip", "preserve_order"] }
+thiserror = "2.0.16"
+validator = { version = "0.19.0", features = ["derive"] }
 
 [dev-dependencies]
 json_comments = "0.2.2"

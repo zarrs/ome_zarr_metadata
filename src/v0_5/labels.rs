@@ -2,18 +2,22 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.5/#labels-md>.
 
+use crate::v0_4::labels::validate_opt_unique_labels;
 #[doc(inline)]
 pub use crate::v0_4::{ImageLabelColor, ImageLabelProperties, ImageLabelSource, Labels};
 
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 /// `image-label` metadata. Stores information about the display colors, source image, and optionally, further arbitrary properties of a label image.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// Describes the color information for the unique label values.
-    pub colors: Vec<ImageLabelColor>,
+    #[validate(custom(function = "validate_opt_unique_labels"))]
+    pub colors: Option<Vec<ImageLabelColor>>,
     /// Arbitrary metadata associated with each unique label (optional).
+    #[validate(custom(function = "validate_opt_unique_labels"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub properties: Option<Vec<ImageLabelProperties>>,
     /// Information about the original image from which the label image derives (optional).

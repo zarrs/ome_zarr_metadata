@@ -16,12 +16,13 @@ pub use multiscales::*;
 pub use plate::*;
 use serde::Deserialize;
 use serde::Serialize;
+use validator::Validate;
 pub use well::*;
 
 use serde::de::Error;
 
 /// OME-Zarr "ome" fields.
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, Validate)]
 pub struct OmeFields {
     /// OME-Zarr version.
     pub version: monostate::MustBe!("0.5"),
@@ -30,12 +31,14 @@ pub struct OmeFields {
     pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[validate(nested)]
     pub multiscales: Option<Vec<MultiscaleImage>>,
     /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<Labels>,
     /// Image label metadata.
     #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
+    #[validate(nested)]
     pub image_label: Option<ImageLabel>,
     /// Plate metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,8 +54,9 @@ pub struct OmeFields {
 /// OME-Zarr top-level group attributes.
 ///
 /// This can be deserialised from a representation of a group's user attributes.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
 pub struct OmeZarrGroupAttributes {
+    #[validate(nested)]
     /// OME-Zarr "ome" fields.
     pub ome: OmeFields,
 }

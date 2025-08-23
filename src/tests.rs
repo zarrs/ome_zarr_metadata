@@ -4,6 +4,7 @@ use std::{collections::BTreeMap, path::PathBuf};
 
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
+use validator::Validate;
 
 fn strip_comments(jsonc: &str) -> String {
     let mut s = String::with_capacity(jsonc.len());
@@ -105,8 +106,12 @@ pub struct Test {
 
 impl Test {
     /// Return None if the test passes; an error message otherwise.
-    pub fn test_deser<T: DeserializeOwned + std::fmt::Debug>(&self) -> Option<String> {
-        let result: serde_json::Result<T> = serde_json::from_value(self.data.clone());
+    pub fn test_deser<T: DeserializeOwned + std::fmt::Debug + Validate>(&self) -> Option<String> {
+        let result = match serde_json::from_value::<T>(self.data.clone()) {
+            Ok(t) => t.validate().map_err(crate::Error::from),
+            Err(e) => Err(e.into()),
+        };
+
         let msg = match result {
             Ok(_t) => {
                 if self.valid {
@@ -135,7 +140,7 @@ pub struct TestSuite {
 impl TestSuite {
     /// Iterate over test `formerly` values, and an optional error message.
     /// None means the test passes.
-    pub fn test_all<T: std::fmt::Debug + DeserializeOwned>(&self) -> SuiteReport {
+    pub fn test_all<T: std::fmt::Debug + DeserializeOwned + Validate>(&self) -> SuiteReport {
         let mut pass = vec![];
         let mut fail = vec![];
         for (name, o_msg) in self
@@ -159,7 +164,7 @@ impl TestSuite {
     /// Select a test with the given `formerly` value.
     /// None means the test passes, otherwise give an error message
     /// (including if the named test doesn't exist).
-    pub fn test_by_formerly<T: std::fmt::Debug + DeserializeOwned>(
+    pub fn test_by_formerly<T: std::fmt::Debug + DeserializeOwned + Validate>(
         &self,
         formerly: &str,
     ) -> Option<String> {
@@ -200,7 +205,7 @@ impl NamedSuites {
     }
 
     /// Yield the file stem, schema ID, and map of test "formerly" -> optional error message.
-    pub fn test_all<T: std::fmt::Debug + DeserializeOwned>(&self) -> SuiteReports {
+    pub fn test_all<T: std::fmt::Debug + DeserializeOwned + Validate>(&self) -> SuiteReports {
         SuiteReports(
             self.0
                 .iter()
@@ -210,7 +215,7 @@ impl NamedSuites {
     }
 
     #[allow(unused)]
-    pub fn test_suite<T: std::fmt::Debug + DeserializeOwned>(
+    pub fn test_suite<T: std::fmt::Debug + DeserializeOwned + Validate>(
         &self,
         suite_name: &str,
     ) -> SuiteReport {
@@ -226,7 +231,7 @@ impl NamedSuites {
     }
 
     #[allow(unused)]
-    pub fn test_single<T: std::fmt::Debug + DeserializeOwned>(
+    pub fn test_single<T: std::fmt::Debug + DeserializeOwned + Validate>(
         &self,
         suite: &str,
         test_formerly: &str,
@@ -328,7 +333,7 @@ static TEST_SUITES: LazyLock<BTreeMap<(u64, u64), NamedSuites>> = LazyLock::new(
         .iter()
         .map(|(ver, ver_path)| {
             let mut suites = NamedSuites::default();
-            if ver < &(0, 5) {
+            if ver < &(0, 4) {
                 return (*ver, suites);
             }
             for (name, suite) in ver_path
@@ -371,7 +376,9 @@ pub fn get_test_suites(version: (u64, u64)) -> &'static NamedSuites {
     })
 }
 
-pub fn run_test_suites_for_version<T: DeserializeOwned + std::fmt::Debug>(version: (u64, u64)) {
+pub fn run_test_suites_for_version<T: DeserializeOwned + std::fmt::Debug + Validate>(
+    version: (u64, u64),
+) {
     let suites = get_test_suites(version);
     let results = suites.test_all::<T>();
     if !results.passed() {

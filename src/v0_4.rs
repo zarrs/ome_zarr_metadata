@@ -13,10 +13,11 @@ pub use labels::*;
 pub use multiscales::*;
 pub use plate::*;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 pub use well::*;
 
 /// OME-NGFF top-level group attributes.
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, Validate)]
 pub struct OmeNgffGroupAttributes {
     /// Transitional `bioformats2raw.layout` metadata.
     #[serde(
@@ -27,12 +28,14 @@ pub struct OmeNgffGroupAttributes {
     pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[validate(nested)]
     pub multiscales: Option<Vec<MultiscaleImage>>,
     /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<Labels>,
     /// Image label metadata.
     #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
+    #[validate(nested)]
     pub image_label: Option<ImageLabel>,
     /// Plate metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -52,5 +55,11 @@ mod tests {
     #[test]
     fn parse_examples() {
         run_examples_for_version::<OmeNgffGroupAttributes>(VERSION);
+    }
+
+    #[ignore]
+    #[test]
+    fn test_suite() {
+        run_test_suites_for_version::<OmeNgffGroupAttributes>(VERSION);
     }
 }
