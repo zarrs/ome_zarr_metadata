@@ -27,7 +27,7 @@ mod tests {
             "/ome-zarr/0.4/examples/bf2raw/image.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
-        let _bioformats2raw: Bioformats2Raw = ome_metadata.bioformats2raw_layout.unwrap();
+        let _bioformats2raw: Bioformats2Raw = ome_metadata.bioformats2raw.unwrap();
     }
 
     #[test]
@@ -37,6 +37,6 @@ mod tests {
             "/ome-zarr/0.4/examples/bf2raw/plate.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
-        let _bioformats2raw: Bioformats2Raw = ome_metadata.bioformats2raw_layout.unwrap();
+        let _bioformats2raw: Bioformats2Raw = ome_metadata.bioformats2raw.unwrap();
     }
 }

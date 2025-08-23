@@ -24,7 +24,7 @@ pub struct OmeNgffGroupAttributes {
         skip_serializing_if = "Option::is_none",
         rename = "bioformats2raw.layout"
     )]
-    pub bioformats2raw_layout: Option<Bioformats2Raw>,
+    pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub multiscales: Option<Vec<MultiscaleImage>>,

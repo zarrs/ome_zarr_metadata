@@ -26,12 +26,12 @@ use serde::de::Error;
 pub struct OmeFields {
     /// OME-Zarr version.
     pub version: monostate::MustBe!("0.5"),
-    /// Transitional `bioformats2raw.layout` metadata.
+    /// Transitional `bioformats2raw` metadata.
     #[serde(
         flatten,
         skip_serializing_if = "Option::is_none",
     )]
-    pub bioformats2raw_layout: Option<Bioformats2Raw>,
+    pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub multiscales: Option<Vec<MultiscaleImage>>,
@@ -62,7 +62,7 @@ impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
     fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
         Self {
             version: Default::default(),
-            bioformats2raw_layout: value.bioformats2raw_layout,
+            bioformats2raw: value.bioformats2raw,
             multiscales: value
                 .multiscales
                 .map(|v| v.into_iter().map(Into::into).collect()),
