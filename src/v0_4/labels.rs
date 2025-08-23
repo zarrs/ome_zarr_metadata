@@ -29,26 +29,29 @@ pub struct ImageLabel {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabelColor {
+    /// Integer label value.
     #[serde(rename = "label-value")]
-    label_value: u64,
-    rgba: [u8; 4],
+    pub label_value: u64,
+    /// Colour as RGBA array.
+    pub rgba: [u8; 4],
 }
 
 /// [`ImageLabel`] `properties` element metadata. Arbitrary metadata of a unique image label.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelProperties {
+    /// Integer label value.
     #[serde(rename = "label-value")]
-    label_value: u64,
+    pub label_value: u64,
+    /// Arbitrary metadata associated with the label.
     #[serde(flatten)]
-    properties: serde_json::Map<String, serde_json::Value>,
+    pub properties: serde_json::Map<String, serde_json::Value>,
 }
 
 /// [`ImageLabel`] `source` metadata. Information about the source of a label image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelSource {
-    image: Option<PathBuf>,
-    #[serde(flatten)]
-    source: serde_json::Map<String, serde_json::Value>,
+    /// Relative path to the zarr image group which this group labels.
+    pub image: Option<PathBuf>,
 }
 
 #[cfg(test)]
