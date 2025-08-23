@@ -27,10 +27,7 @@ pub struct OmeFields {
     /// OME-Zarr version.
     pub version: monostate::MustBe!("0.5"),
     /// Transitional `bioformats2raw` metadata.
-    #[serde(
-        flatten,
-        skip_serializing_if = "Option::is_none",
-    )]
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
     pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
