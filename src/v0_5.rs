@@ -30,9 +30,8 @@ pub struct OmeFields {
     #[serde(
         flatten,
         skip_serializing_if = "Option::is_none",
-        rename = "bioformats2raw.layout"
     )]
-    pub bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    pub bioformats2raw_layout: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub multiscales: Option<Vec<MultiscaleImage>>,
@@ -155,7 +154,6 @@ mod tests {
         }
     }
 
-    #[ignore]
     #[test]
     fn parse_examples() {
         run_examples_for_version::<OmeZarrGroupMetadata>(VERSION);
