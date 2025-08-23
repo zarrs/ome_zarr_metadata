@@ -18,7 +18,7 @@ The transitional "omero" metadata is not supported.
 ## Features
 - [x] Serialisation and deserialisation
 - [ ] Validation
-- [ ] Forward conversion
+- [x] Forward conversion
 
 ## Licence
 `ome_zarr_metadata` is licensed under either of

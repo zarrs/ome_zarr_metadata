@@ -21,6 +21,16 @@ pub struct ImageLabel {
     pub source: Option<ImageLabelSource>,
 }
 
+impl From<crate::v0_4::ImageLabel> for ImageLabel {
+    fn from(value: crate::v0_4::ImageLabel) -> Self {
+        Self {
+            colors: value.colors,
+            properties: value.properties,
+            source: value.source,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::v0_5::OmeZarrGroupMetadata;
