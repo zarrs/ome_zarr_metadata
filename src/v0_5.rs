@@ -22,7 +22,6 @@ use serde::de::Error;
 
 /// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
-#[serde(deny_unknown_fields)]
 pub struct OmeFields {
     /// OME-Zarr version.
     pub version: monostate::MustBe!("0.5"),
@@ -44,6 +43,9 @@ pub struct OmeFields {
     /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub well: Option<Well>,
+    /// Transitional data, not fully supported.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub omero: Option<serde_json::Value>,
 }
 
 /// OME-Zarr top-level group attributes.
@@ -67,6 +69,7 @@ impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
             image_label: value.image_label.map(Into::into),
             plate: value.plate.map(Into::into),
             well: value.well.map(Into::into),
+            omero: None,
         }
     }
 }
@@ -156,7 +159,6 @@ mod tests {
         run_examples_for_version::<OmeZarrGroupMetadata>(VERSION);
     }
 
-    #[ignore]
     #[test]
     fn test_suite() {
         run_test_suites_for_version::<OmeZarrGroupAttributes>(VERSION);
