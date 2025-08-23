@@ -4,7 +4,6 @@ pub(crate) mod plate;
 pub(crate) mod well;
 
 use crate::v0_4;
-use crate::v0_4;
 pub use crate::v0_4::axes::*;
 pub use crate::v0_4::bioformats2raw_layout::*;
 pub use crate::v0_4::coordinate_transformations::*;
@@ -58,23 +57,6 @@ pub struct OmeFields {
 pub struct OmeZarrGroupAttributes {
     /// OME-Zarr "ome" fields.
     pub ome: OmeFields,
-}
-
-impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
-    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
-        let ome = OmeFields {
-            version: Default::default(),
-            bioformats2raw_layout: value.bioformats2raw_layout,
-            multiscales: value
-                .multiscales
-                .map(|v| v.into_iter().map(Into::into).collect()),
-            labels: value.labels,
-            image_label: value.image_label.map(Into::into),
-            plate: value.plate.map(Into::into),
-            well: value.well.map(Into::into),
-        };
-        Self { ome }
-    }
 }
 
 impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
