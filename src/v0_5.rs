@@ -22,17 +22,12 @@ use serde::de::Error;
 
 /// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
-#[serde(deny_unknown_fields)]
 pub struct OmeFields {
     /// OME-Zarr version.
     pub version: monostate::MustBe!("0.5"),
-    /// Transitional `bioformats2raw.layout` metadata.
-    #[serde(
-        flatten,
-        skip_serializing_if = "Option::is_none",
-        rename = "bioformats2raw.layout"
-    )]
-    pub bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    /// Transitional `bioformats2raw` metadata.
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
+    pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub multiscales: Option<Vec<MultiscaleImage>>,
@@ -48,6 +43,9 @@ pub struct OmeFields {
     /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub well: Option<Well>,
+    /// Transitional data, not fully supported.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub omero: Option<serde_json::Value>,
 }
 
 /// OME-Zarr top-level group attributes.
@@ -59,11 +57,11 @@ pub struct OmeZarrGroupAttributes {
     pub ome: OmeFields,
 }
 
-impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
+impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
     fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
-        let ome = OmeFields {
+        Self {
             version: Default::default(),
-            bioformats2raw_layout: value.bioformats2raw_layout,
+            bioformats2raw: value.bioformats2raw,
             multiscales: value
                 .multiscales
                 .map(|v| v.into_iter().map(Into::into).collect()),
@@ -71,8 +69,14 @@ impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
             image_label: value.image_label.map(Into::into),
             plate: value.plate.map(Into::into),
             well: value.well.map(Into::into),
-        };
-        Self { ome }
+            omero: None,
+        }
+    }
+}
+
+impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
+    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
+        Self { ome: value.into() }
     }
 }
 
@@ -117,7 +121,11 @@ pub fn get_ome_attribute_from_zarr_group_metadata(
 
 #[cfg(test)]
 mod tests {
+    use crate::tests::{get_examples, run_examples_for_version, run_test_suites_for_version};
+
     use super::*;
+
+    const VERSION: (u64, u64) = (0, 5);
 
     #[test]
     fn fields_default() {
@@ -125,5 +133,34 @@ mod tests {
             labels: Some(vec!["x".to_string(), "y".to_string()]),
             ..OmeFields::default()
         };
+    }
+
+    #[test]
+    fn v0_4_to_v0_5() {
+        let examples = get_examples((0, 4));
+        for dname in [
+            "bf2raw",
+            "label_strict",
+            "multiscales_strict",
+            "plate_strict",
+            "well_strict",
+        ] {
+            let inner = examples.get(dname).unwrap();
+            for v in inner.values() {
+                let old: v0_4::OmeNgffGroupAttributes =
+                    serde_json::from_str(v).expect("Should be valid v0.4");
+                let _ = OmeFields::from(old);
+            }
+        }
+    }
+
+    #[test]
+    fn parse_examples() {
+        run_examples_for_version::<OmeZarrGroupMetadata>(VERSION);
+    }
+
+    #[test]
+    fn test_suite() {
+        run_test_suites_for_version::<OmeZarrGroupAttributes>(VERSION);
     }
 }

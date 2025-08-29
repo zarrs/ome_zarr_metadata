@@ -20,7 +20,7 @@ pub struct Axis {
 
 /// [`Axis`] `type` metadata. Represents the type of an axis.
 #[non_exhaustive]
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum AxisType {
     /// The `space` axis type.
@@ -29,6 +29,7 @@ pub enum AxisType {
     Time,
     /// The `channel` axis type.
     Channel,
+    #[serde(untagged)]
     /// A custom axis type.
     Custom(String),
 }
@@ -44,6 +45,18 @@ pub enum AxisUnit {
     Time(AxisUnitTime),
     /// A custom axis unit.
     Custom(String),
+}
+
+impl From<AxisUnitSpace> for AxisUnit {
+    fn from(value: AxisUnitSpace) -> Self {
+        Self::Space(value)
+    }
+}
+
+impl From<AxisUnitTime> for AxisUnit {
+    fn from(value: AxisUnitTime) -> Self {
+        Self::Time(value)
+    }
 }
 
 /// [`AxisUnit`] physical `space` units valid according to UDUNITS-2.
@@ -109,4 +122,19 @@ pub enum AxisUnitTime {
     Yottasecond,
     Zeptosecond,
     Zettasecond,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn custom_axis() {
+        let space: AxisType = serde_json::from_str("\"space\"").unwrap();
+        assert_eq!(space, AxisType::Space);
+        let potato: AxisType = serde_json::from_str("\"potato\"").unwrap();
+        assert_eq!(potato, AxisType::Custom("potato".to_string()));
+        let custom: AxisType = serde_json::from_str("\"custom\"").unwrap();
+        assert_eq!(custom, AxisType::Custom("custom".to_string()));
+    }
 }

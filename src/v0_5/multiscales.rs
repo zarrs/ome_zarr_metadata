@@ -8,7 +8,7 @@ use super::{Axis, CoordinateTransform, MultiscaleImageDataset, MultiscaleImageMe
 
 /// `multiscales` element metadata. Describes a multiscale image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct MultiscaleImage {
     /// The name of the multiscale image (optional).
     #[serde(skip_serializing_if = "Option::is_none")]

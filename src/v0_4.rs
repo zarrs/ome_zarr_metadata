@@ -24,7 +24,7 @@ pub struct OmeNgffGroupAttributes {
         skip_serializing_if = "Option::is_none",
         rename = "bioformats2raw.layout"
     )]
-    pub bioformats2raw_layout: Option<Bioformats2rawLayout>,
+    pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub multiscales: Option<Vec<MultiscaleImage>>,
@@ -40,4 +40,17 @@ pub struct OmeNgffGroupAttributes {
     /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub well: Option<Well>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tests::*;
+
+    const VERSION: (u64, u64) = (0, 4);
+
+    #[test]
+    fn parse_examples() {
+        run_examples_for_version::<OmeNgffGroupAttributes>(VERSION);
+    }
 }
