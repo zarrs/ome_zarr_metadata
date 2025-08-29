@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2025-08-29
+
 ### Added
 - Implement conversion of v0.4->v0.5 ([#8] by [@clbarnes])
 
@@ -62,7 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial public release
 
-[unreleased]: https://github.com/zarrs/ome_zarr_metadata/compare/v0.2.4...HEAD
+[unreleased]: https://github.com/zarrs/ome_zarr_metadata/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.5
 [0.2.4]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.4
 [0.2.3]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.3
 [0.2.2]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.2
