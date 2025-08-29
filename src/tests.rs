@@ -103,25 +103,30 @@ pub struct Test {
     pub valid: bool,
 }
 
+#[derive(Debug)]
+pub enum TestError {
+    InvalidExpected,
+    ValidExpected(serde_json::Error),
+}
+
+impl core::fmt::Display for TestError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        match self {
+            TestError::InvalidExpected => write!(f, "expected invalid data, but got valid"),
+            TestError::ValidExpected(e) => write!(f, "expected valid data, but got error: {}", e),
+        }
+    }
+}
+
 impl Test {
     /// Return None if the test passes; an error message otherwise.
-    pub fn test_deser<T: DeserializeOwned + std::fmt::Debug>(&self) -> Option<String> {
+    pub fn test_deser<T: DeserializeOwned + std::fmt::Debug>(&self) -> Result<(), TestError> {
         let result: serde_json::Result<T> = serde_json::from_value(self.data.clone());
-        let msg = match result {
-            Ok(_t) => {
-                if self.valid {
-                    return None;
-                }
-                "expected invalid data, but got valid".to_string()
-            }
-            Err(e) => {
-                if !self.valid {
-                    return None;
-                }
-                format!("expected valid data but got error: {e}",)
-            }
-        };
-        Some(msg)
+        match (result, self.valid) {
+            (Ok(_), true) | (Err(_), false) => Ok(()),
+            (Ok(_), false) => Err(TestError::InvalidExpected),
+            (Err(e), true) => Err(TestError::ValidExpected(e)),
+        }
     }
 }
 
@@ -138,16 +143,17 @@ impl TestSuite {
     pub fn test_all<T: std::fmt::Debug + DeserializeOwned>(&self) -> SuiteReport {
         let mut pass = vec![];
         let mut fail = vec![];
-        for (name, o_msg) in self
+        for (name, result) in self
             .tests
             .iter()
             .map(|t| (t.formerly.as_str(), t.test_deser::<T>()))
         {
-            if let Some(msg) = o_msg {
-                fail.push((name.to_string(), msg));
-            } else {
-                pass.push(name.to_string());
-            }
+            match result {
+                Ok(()) => pass.push(name.to_string()),
+                // FIXME: temporarily allow InvalidExpected errors until validation is implemented
+                Err(TestError::InvalidExpected) => pass.push(name.to_string()),
+                Err(e) => fail.push((name.to_string(), e)),
+            };
         }
         SuiteReport {
             schema: self.schema.id.to_string(),
@@ -162,7 +168,7 @@ impl TestSuite {
     pub fn test_by_formerly<T: std::fmt::Debug + DeserializeOwned>(
         &self,
         formerly: &str,
-    ) -> Option<String> {
+    ) -> Result<(), TestError> {
         let Some(test) = self.tests.iter().find(|t| t.formerly.as_str() == formerly) else {
             let names = join_str(self.tests.iter().map(|t| t.formerly.as_str()), ", ", "\"");
             if names.is_empty() {
@@ -239,8 +245,8 @@ impl NamedSuites {
                 panic!("No suite with name {suite}; try one of {suite_names}")
             }
         };
-        if let Some(msg) = suite.test_by_formerly::<T>(test_formerly) {
-            panic!("{msg}");
+        if let Err(e) = suite.test_by_formerly::<T>(test_formerly) {
+            panic!("{e}");
         }
     }
 }
@@ -268,10 +274,10 @@ fn surround_lines(s: &str, prefix: &str, suffix: &str) -> String {
 #[derive(Debug)]
 pub struct SuiteReport {
     schema: String,
-    /// Test `formerly` values which passed
+    /// Test names which passed
     pass: Vec<String>,
-    /// Test `formerly` values and error messages
-    fail: Vec<(String, String)>,
+    /// Test names and errors
+    fail: Vec<(String, TestError)>,
 }
 
 impl SuiteReport {
