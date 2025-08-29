@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Implement conversion of v0.4->v0.5 ([#8] by [@clbarnes])
+
+### Fixed
+- Publicise some formerly-private fields in `ImageLabelColor`, `ImageLabelProperties`, and `ImageLabelSource` ([#9] by [@clbarnes])
+
+[#8]: https://github.com/zarrs/ome_zarr_metadata/pull/8
+[#9]: https://github.com/zarrs/ome_zarr_metadata/pull/9
+
 ## [0.2.4] - 2025-08-01
 
 ### Added
@@ -60,3 +69,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.1]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.1
 [0.2.0]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.0
 [0.1.0]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.1.0
+
+[@clbarnes]: https://github.com/clbarnes
