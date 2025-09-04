@@ -14,7 +14,7 @@ pub struct Bioformats2rawLayout {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_4::OmeNgffGroupAttributes;
+    use crate::OmeNgffGroupAttributes;
 
     use super::*;
 

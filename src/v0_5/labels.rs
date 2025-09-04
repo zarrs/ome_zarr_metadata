@@ -23,7 +23,7 @@ pub struct ImageLabel {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_5::OmeZarrGroupMetadata;
+    use crate::{v0_5::OmeFields, OmeZarrGroupMetadata};
 
     use super::*;
 
@@ -33,7 +33,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/label_strict/colors_properties.json"
         ));
-        let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
+        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
         let _image_label: ImageLabel = ome_metadata.attributes.ome.image_label.unwrap();
     }
 }

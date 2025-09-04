@@ -31,7 +31,7 @@ pub struct Plate {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_5::OmeZarrGroupMetadata;
+    use crate::{v0_5::OmeFields, OmeZarrGroupMetadata};
 
     use super::*;
 
@@ -41,7 +41,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/plate_strict/plate_2wells.json"
         ));
-        let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
+        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
         let _plate: Plate = ome_metadata.attributes.ome.plate.unwrap();
     }
 
@@ -51,7 +51,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/plate_strict/plate_6wells.json"
         ));
-        let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
+        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
         let _plate: Plate = ome_metadata.attributes.ome.plate.unwrap();
     }
 }

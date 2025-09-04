@@ -30,30 +30,30 @@ pub struct MultiscaleImage {
 
 #[cfg(test)]
 mod tests {
-    use crate::{v0_5::OmeFields, OmeZarrGroupMetadata};
+    // use crate::{v0_6::OmeFields, OmeZarrGroupMetadata};
 
-    use super::*;
+    // use super::*;
 
-    #[test]
-    fn multiscales_example() {
-        let json = include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.5/examples/multiscales_strict/multiscales_example.json"
-        ))
-        .lines()
-        .filter(|line| !line.contains("//")) // Remove comments
-        .collect::<String>();
-        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(&json).unwrap();
-        let _multiscales: Vec<MultiscaleImage> = ome_metadata.attributes.ome.multiscales.unwrap();
-    }
+    // #[test]
+    // fn multiscales_example() {
+    //     let json = include_str!(concat!(
+    //         env!("CARGO_MANIFEST_DIR"),
+    //         "/ome-zarr/0.6/examples/multiscales_strict/multiscales_example.json"
+    //     ))
+    //     .lines()
+    //     .filter(|line| !line.contains("//")) // Remove comments
+    //     .collect::<String>();
+    //     let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(&json).unwrap();
+    //     let _multiscale: MultiscaleImage = ome_metadata.attributes.ome.multiscale.unwrap();
+    // }
 
-    #[test]
-    fn multiscales_transformations() {
-        let json = include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.5/examples/multiscales_strict/multiscales_transformations.json"
-        ));
-        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
-        let _multiscales: Vec<MultiscaleImage> = ome_metadata.attributes.ome.multiscales.unwrap();
-    }
+    // #[test]
+    // fn multiscales_transformations() {
+    //     let json = include_str!(concat!(
+    //         env!("CARGO_MANIFEST_DIR"),
+    //         "/ome-zarr/0.6/examples/multiscales_strict/multiscales_transformations.json"
+    //     ));
+    //     let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
+    //     let _multiscale: MultiscaleImage = ome_metadata.attributes.ome.multiscale.unwrap();
+    // }
 }

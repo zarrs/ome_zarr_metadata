@@ -19,7 +19,13 @@ pub use well::*;
 
 use serde::de::Error;
 
-/// OME-Zarr "ome" fields.
+/// Zarr group metadata (OME-Zarr 0.5).
+pub type OmeZarrGroupMetadata = crate::OmeZarrGroupMetadata<OmeFields>;
+
+/// Zarr group `"attributes"` (OME-Zarr 0.5).
+pub type OmeZarrGroupAttributes = crate::OmeZarrGroupAttributes<OmeFields>;
+
+/// OME-Zarr `"ome"` fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct OmeFields {
@@ -49,19 +55,7 @@ pub struct OmeFields {
     pub well: Option<Well>,
 }
 
-/// OME-Zarr top-level group attributes.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct OmeZarrGroupAttributes {
-    /// OME-Zarr "ome" fields.
-    pub ome: OmeFields,
-}
-
-/// OME-Zarr top-level group metadata.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct OmeZarrGroupMetadata {
-    /// Zarr attributes with "ome" metadata.
-    pub attributes: OmeZarrGroupAttributes,
-}
+impl crate::OmeFieldsTraits for OmeFields {}
 
 /// Return the `ome` attribute from Zarr group metadata.
 ///

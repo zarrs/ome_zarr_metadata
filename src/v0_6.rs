@@ -1,18 +1,27 @@
-pub use crate::v0_4::axes::*;
+pub(crate) mod axes;
+pub(crate) mod multiscales;
+
 pub use crate::v0_4::bioformats2raw_layout::*;
 pub use crate::v0_4::coordinate_transformations::*;
 pub use crate::v0_4::multiscales::{MultiscaleImageDataset, MultiscaleImageMetadata};
 pub use crate::v0_4::plate::{PlateAcquisition, PlateColumn, PlateRow, PlateWell};
 pub use crate::v0_4::well::WellImage;
 pub use crate::v0_5::labels::*;
-pub use crate::v0_5::multiscales::*;
 pub use crate::v0_5::plate::*;
 pub use crate::v0_5::well::*;
+pub use crate::v0_6::axes::*;
+pub use crate::v0_6::multiscales::*;
 
 use serde::Deserialize;
 use serde::Serialize;
 
-/// OME-Zarr "ome" fields.
+/// Zarr group metadata (OME-Zarr 0.6).
+pub type OmeZarrGroupMetadata = crate::OmeZarrGroupMetadata<OmeFields>;
+
+/// Zarr group `"attributes"` (OME-Zarr 0.6).
+pub type OmeZarrGroupAttributes = crate::OmeZarrGroupAttributes<OmeFields>;
+
+/// OME-Zarr `"ome"` fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct OmeFields {
@@ -42,22 +51,12 @@ pub struct OmeFields {
     pub well: Option<Well>,
 }
 
-/// OME-Zarr top-level group attributes.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct OmeZarrGroupAttributes {
-    /// OME-Zarr "ome" fields.
-    pub ome: OmeFields,
-}
-
-/// OME-Zarr top-level group metadata.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct OmeZarrGroupMetadata {
-    /// Zarr attributes with "ome" metadata.
-    pub attributes: OmeZarrGroupAttributes,
-}
+impl crate::OmeFieldsTraits for OmeFields {}
 
 #[cfg(test)]
 mod tests {
+    use crate::OmeZarrGroupMetadata;
+
     use super::*;
 
     #[test]
@@ -108,6 +107,72 @@ mod tests {
   }
 }"#;
 
-        serde_json::from_str::<OmeZarrGroupMetadata>(&json).unwrap();
+        serde_json::from_str::<OmeZarrGroupMetadata<OmeFields>>(&json).unwrap();
+    }
+
+    #[test]
+    fn rfc_4_and_6() {
+        let json = r#"{
+  "zarr_format": 3,
+  "node_type": "group",
+  "attributes": {
+    "ome": {
+      "version": "0.6",
+      "multiscale": {
+        "name": "example",
+        "axes": [
+          { "name": "t", "type": "time", "unit": "millisecond" },
+          { "name": "c", "type": "channel" },
+          {
+            "name": "x",
+            "type": "space",
+            "unit": "millimeter",
+            "orientation": {"type": "anatomical", "value": "right-to-left"}
+          },
+          {
+            "name": "y",
+            "type": "space",
+            "unit": "millimeter",
+            "orientation": {"type": "anatomical", "value": "anterior-to-posterior"}
+          },
+          {
+            "name": "z",
+            "type": "space",
+            "unit": "millimeter",
+            "orientation": {"type": "anatomical", "value": "superior-to-inferior"}
+          }
+        ],
+        "datasets": [
+          {
+            "path": "0",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [1.0, 1.0, 0.5, 0.5, 0.5]
+              }
+            ]
+          },
+          {
+            "path": "1",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [1.0, 1.0, 1.0, 1.0, 1.0]
+              }
+            ]
+          }
+        ],
+        "coordinateTransformations": [
+          {
+            "type": "scale",
+            "scale": [0.1, 1.0, 1.0, 1.0, 1.0]
+          }
+        ]
+      }
+    }
+  }
+}"#;
+
+        serde_json::from_str::<OmeZarrGroupMetadata<OmeFields>>(&json).unwrap();
     }
 }
