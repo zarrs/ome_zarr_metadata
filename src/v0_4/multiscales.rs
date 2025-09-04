@@ -48,7 +48,7 @@ pub struct MultiscaleImageMetadata(pub serde_json::Map<String, serde_json::Value
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_4::OmeNgffGroupAttributes;
+    use crate::OmeNgffGroupAttributes;
 
     use super::*;
 

@@ -16,7 +16,7 @@ pub struct Well {
 
 #[cfg(test)]
 mod tests {
-    use crate::v0_5::OmeZarrGroupMetadata;
+    use crate::{v0_5::OmeFields, OmeZarrGroupMetadata};
 
     use super::*;
 
@@ -26,7 +26,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/well_strict/well_2fields.json"
         ));
-        let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
+        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
         let _well: Well = ome_metadata.attributes.ome.well.unwrap();
     }
 
@@ -36,7 +36,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/ome-zarr/0.5/examples/well_strict/well_4fields.json"
         ));
-        let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
+        let ome_metadata: OmeZarrGroupMetadata<OmeFields> = serde_json::from_str(json).unwrap();
         let _well: Well = ome_metadata.attributes.ome.well.unwrap();
     }
 }

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Add
+- Add `v0_6` submodule implementing RFC-4 and RFC-6
+- Add `OmeFieldsTraits`
+- Add versioned `OmeFields` in crate root
+
+### Changed
+- Make `OmeZarrGroupAttributes` and `OmeZarrGroupMetadata` generic over implementors of `OmeFieldsTraits`
+  - Defaults to versioned `OmeFields`
+- Move `OmeZarrGroupAttributes`, `OmeZarrGroupMetadata`, `OmeNgffGroupAttributes` to crate root
+  - Original locations are re-exported / specialised
+
 ## [0.2.3] - 2024-12-10
 
 ### Added
