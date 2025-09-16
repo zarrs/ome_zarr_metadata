@@ -16,13 +16,13 @@ pub use multiscales::*;
 pub use plate::*;
 use serde::Deserialize;
 use serde::Serialize;
-use validator::Validate;
+use validatrix::{Accumulator, Validate};
 pub use well::*;
 
 use serde::de::Error;
 
 /// OME-Zarr "ome" fields.
-#[derive(Serialize, Deserialize, Debug, Clone, Default, Validate)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeFields {
     /// OME-Zarr version.
     pub version: monostate::MustBe!("0.5"),
@@ -31,14 +31,12 @@ pub struct OmeFields {
     pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[validate(nested)]
     pub multiscales: Option<Vec<MultiscaleImage>>,
     /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<Labels>,
     /// Image label metadata.
     #[serde(skip_serializing_if = "Option::is_none", rename = "image-label")]
-    #[validate(nested)]
     pub image_label: Option<ImageLabel>,
     /// Plate metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,14 +49,41 @@ pub struct OmeFields {
     pub omero: Option<serde_json::Value>,
 }
 
+impl Validate for OmeFields {
+    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
+        let mut total = 0;
+        if let Some(m) = self.multiscales.as_ref() {
+            accum.prefix.push("multiscales".into());
+            total += accum.validate_iter(m);
+            accum.prefix.pop();
+        }
+
+        if let Some(i) = self.image_label.as_ref() {
+            accum.prefix.push("imageLabel".into());
+            total += i.validate_inner(accum);
+            accum.prefix.pop();
+        }
+        
+        total
+    }
+}
+
 /// OME-Zarr top-level group attributes.
 ///
 /// This can be deserialised from a representation of a group's user attributes.
-#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OmeZarrGroupAttributes {
-    #[validate(nested)]
     /// OME-Zarr "ome" fields.
     pub ome: OmeFields,
+}
+
+impl Validate for OmeZarrGroupAttributes {
+    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
+        accum.prefix.push("ome".into());
+        let total = self.ome.validate_inner(accum);
+        accum.prefix.pop();
+        total
+    }
 }
 
 impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {

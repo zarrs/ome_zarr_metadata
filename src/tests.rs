@@ -4,7 +4,7 @@ use std::{collections::BTreeMap, path::PathBuf};
 
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
-use validator::Validate;
+use validatrix::Validate;
 
 fn strip_comments(jsonc: &str) -> String {
     let mut s = String::with_capacity(jsonc.len());

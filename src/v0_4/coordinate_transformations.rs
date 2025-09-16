@@ -5,9 +5,9 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validatrix::{Accumulator, Validate};
 
-use crate::{validation::DISALLOWED_TRANSFORM, MaybeNDim};
+use crate::MaybeNDim;
 
 /// `coordinate_transformations` element metadata. Represents a single coordinate transformation.
 ///
@@ -24,18 +24,13 @@ pub enum CoordinateTransform {
 }
 
 impl Validate for CoordinateTransform {
-    fn validate(&self) -> Result<(), validator::ValidationErrors> {
+    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
         match self {
             CoordinateTransform::Identity => {
-                let mut e = validator::ValidationErrors::new();
-                e.add(
-                    "_",
-                    ValidationError::new(DISALLOWED_TRANSFORM)
-                        .with_message("identity transform disallowed here".into()),
-                );
-                Err(e)
+                accum.add_failure("identity transform cannot be used here".into(), &[]);
+                1
             }
-            _ => Ok(()),
+            _ => 0,
         }
     }
 }

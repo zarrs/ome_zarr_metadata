@@ -5,29 +5,43 @@
 use std::{collections::HashSet, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
-
-use crate::{validation::new_validation_err, validation::REPEATED_LABEL};
+use validatrix::{Accumulator, Validate};
 
 /// `labels` metadata. A JSON array of paths to the labeled multiscale image(s).
 pub type Labels = Vec<String>;
 
 /// `image-label` metadata. Stores information about the display colors, source image, and optionally, further arbitrary properties of a label image.
-#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// The version of the OME-NGFF "image-label" schema.
     pub version: monostate::MustBe!("0.4"),
     /// Describes the color information for the unique label values.
-    #[validate(custom(function = "validate_opt_unique_labels"))]
     pub colors: Option<Vec<ImageLabelColor>>,
     /// Arbitrary metadata associated with each unique label (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[validate(custom(function = "validate_opt_unique_labels"))]
     pub properties: Option<Vec<ImageLabelProperties>>,
     /// Information about the original image from which the label image derives (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<ImageLabelSource>,
+}
+
+impl Validate for ImageLabel {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) -> usize {
+        let mut total = 0;
+        if let Some(c) = self.colors.as_ref() {
+            accum.prefix.push("colors".into());
+            total += validate_unique_labels(accum, c.iter());
+            accum.prefix.pop();
+        }
+
+        if let Some(p) = self.properties.as_ref() {
+            accum.prefix.push("properties".into());
+            total += validate_unique_labels(accum, p.iter());
+            accum.prefix.pop();
+        }
+        total
+    }
 }
 
 /// [`ImageLabel`] `colors` element metadata. The colour of a unique image label.
@@ -42,21 +56,18 @@ pub struct ImageLabelColor {
 }
 
 pub(crate) fn validate_unique_labels<'a, T: HasLabelValue + 'a>(
+    accum: &mut Accumulator,
     it: impl IntoIterator<Item = &'a T>,
-) -> Result<(), ValidationError> {
+) -> usize {
+    let mut total = 0;
     let mut set: HashSet<u64> = HashSet::default();
-    for lbl in it.into_iter().map(HasLabelValue::get_label) {
+    for (idx, lbl) in it.into_iter().map(HasLabelValue::get_label).enumerate() {
         if !set.insert(lbl) {
-            return new_validation_err(REPEATED_LABEL, format!("label {lbl} is repeated"));
+            accum.add_failure(format!("repeated label {lbl}").into(), &[idx.into()]);
+            total += 1;
         }
     }
-    Ok(())
-}
-
-pub(crate) fn validate_opt_unique_labels<T: HasLabelValue>(
-    opt: &&Vec<T>,
-) -> Result<(), ValidationError> {
-    validate_unique_labels(opt.iter())
+    total
 }
 
 pub(crate) trait HasLabelValue {

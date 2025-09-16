@@ -21,7 +21,8 @@ mod errors;
 pub use errors::{Error, Result};
 
 mod validation;
-pub use validation::OmeValidate;
+
+pub use validatrix::{Valid, Validate};
 
 /// Trait for a type which has some dimensionality which can always be determined by its metadata.
 pub trait NDim {

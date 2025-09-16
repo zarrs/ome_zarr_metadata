@@ -3,14 +3,11 @@
 //! <https://ngff.openmicroscopy.org/0.4/#axes-md>.
 
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
-
-use crate::validation::{new_validation_err, UNIT_CONFLICT};
+use validatrix::{Validate, Accumulator};
 
 /// `axis` element metadata. Represents a dimension (axis) of a physical coordinate space.
-#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-#[validate(schema(function = "valid_axis"))]
 pub struct Axis {
     /// The name for this dimension.
     pub name: String,
@@ -22,31 +19,32 @@ pub struct Axis {
     pub unit: Option<AxisUnit>,
 }
 
-fn valid_axis(ax: &Axis) -> Result<(), ValidationError> {
-    let (Some(t), Some(u)) = (&ax.r#type, &ax.unit) else {
-        return Ok(());
+impl Validate for Axis {
+    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
+        let mut total = 0;
+        
+    let (Some(t), Some(u)) = (&self.r#type, &self.unit) else {
+        return total;
     };
     match u {
-        AxisUnit::Space(u) => {
+        AxisUnit::Space(_) => {
             if t != &AxisType::Space {
-                return new_validation_err(
-                    UNIT_CONFLICT,
-                    format!("unit {u:?} has type 'space' but axis is not of this type."),
-                );
+                accum.add_failure("got space unit for non-space axis".into(), &[]);
+                total += 1
             }
         }
-        AxisUnit::Time(u) => {
+        AxisUnit::Time(_) => {
             if t != &AxisType::Time {
-                return new_validation_err(
-                    UNIT_CONFLICT,
-                    format!("unit {u:?} has type 'time' but axis is not of this type"),
-                );
+                accum.add_failure("got time unit for non-time axis".into(), &[]);
+                total += 1;
             }
         }
         AxisUnit::Custom(_) => (),
     }
-    Ok(())
+    total
+    }
 }
+
 
 /// [`Axis`] `type` metadata. Represents the type of an axis.
 #[non_exhaustive]

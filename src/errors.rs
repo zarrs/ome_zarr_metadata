@@ -11,5 +11,5 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     /// Data fails validation.
     #[error(transparent)]
-    Validation(#[from] validator::ValidationErrors),
+    Validation(#[from] validatrix::Error),
 }

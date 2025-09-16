@@ -5,20 +5,19 @@
 use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validatrix::{Accumulator, Validate};
 
 use crate::{
     v0_4::AxisType,
-    validation::{new_validation_err, validate_ndims, ValidationResult, DUPLICATE_AXES},
+    validation::{validate_ndims},
     MaybeNDim, NDim,
 };
 
 use super::{Axis, CoordinateTransform};
 
 /// `multiscales` element metadata. Describes a multiscale image.
-#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-#[validate(schema(function = "valid_multiscale"))]
 pub struct MultiscaleImage {
     /// The version of the multiscale metadata of the image.
     pub version: monostate::MustBe!("0.4"),
@@ -26,14 +25,11 @@ pub struct MultiscaleImage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The axes of the multiscale image.
-    #[validate(nested, length(min = 2, max = 5), custom(function = "valid_axes"))]
     pub axes: Vec<Axis>,
-    #[validate(nested, custom(function = "valid_datasets"))]
     /// The datasets describe the arrays storing the individual resolution levels.
     pub datasets: Vec<MultiscaleImageDataset>,
     /// Describes transformations that are applied to all resolution levels in the same manner (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[validate(nested, custom(function = "valid_transforms"))]
     pub coordinate_transformations: Option<Vec<CoordinateTransform>>,
     /// The type of downscaling method used to generate the multiscale image pyramid (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -43,104 +39,108 @@ pub struct MultiscaleImage {
     pub metadata: Option<MultiscaleImageMetadata>,
 }
 
-fn unique_axis_names(axes: &[Axis]) -> ValidationResult {
+impl Validate for MultiscaleImage {
+    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
+        let mut total = 0;
+        accum.prefix.push("axes".into());
+        total += valid_axes(accum, &self.axes);
+        accum.prefix.pop();
+        
+        accum.prefix.push("datasets".into());
+        total += accum.validate_iter(&self.datasets);
+        total += valid_datasets(accum, self.maybe_ndim(), &self.datasets);
+        accum.prefix.pop();
+        
+        if let Some(ct) = self.coordinate_transformations.as_ref() {
+            accum.prefix.push("coordinateTransformations".into());
+            total += accum.validate_iter(ct);
+            total += valid_transforms(accum, self.maybe_ndim(), ct);
+            accum.prefix.pop();
+        }
+
+        total
+    }
+}
+
+fn unique_axis_names(accum: &mut Accumulator, axes: &[Axis]) -> usize {
+    let mut total = 0;
     let mut names = BTreeSet::default();
-    for a in axes {
+    for (idx, a) in axes.iter().enumerate() {
         if !names.insert(a.name.as_str()) {
-            return new_validation_err(
-                DUPLICATE_AXES,
-                format!("axis name '{}' is duplicated", a.name),
+            accum.add_failure(
+                format!("duplicate axis name '{}'", a.name).into(),
+                &[idx.into()],
             );
+            total += 1;
         }
     }
-    Ok(())
+    total
 }
 
-/// Checking for number of axes should happen outside of this function.
-pub(crate) fn valid_axes(axes: &[Axis]) -> ValidationResult {
+/// ?time, ?channel/custom/null, ?space, space, space
+pub(crate) fn valid_axes(accum: &mut Accumulator, axes: &[Axis]) -> usize {
+    let mut total = accum.validate_iter(axes);
+    total += unique_axis_names(accum, axes);
     if axes.len() < 2 || axes.len() > 5 {
-        return new_validation_err("axis_count", format!("got {} axes", axes.len()));
+        accum.add_failure(format!("got {} axes, expected 2-5", axes.len()).into(), &[]);
+        total += 1;
     }
-    unique_axis_names(axes)?;
-    let mut ax2: Vec<_> = axes.iter().collect();
-    for _ in 0..2 {
-        let ax = ax2.pop().expect("already check number of axes");
-        if ax.r#type != Some(AxisType::Space) {
-            return new_validation_err("axis_type", "not enough trailing space axes");
+
+    let mut done_time = false;
+    let mut done_channel_custom = false;
+    let mut n_space = 0;
+
+    for (idx, ax) in axes.iter().enumerate() {
+        match ax.r#type {
+            Some(AxisType::Space) => {
+                n_space += 1;
+                if n_space > 3 {
+                    accum.add_failure(
+                        format!("at least {n_space} space axes, should be max 3").into(),
+                        &[idx.into()],
+                    );
+                    total += 1;
+                }
+                done_time |= true;
+                done_channel_custom |= true;
+            }
+            Some(AxisType::Time) => {
+                if done_time || done_channel_custom || n_space > 0 {
+                    accum.add_failure("unexpected time axis".into(), &[idx.into()]);
+                    total += 1;
+                }
+                done_time |= true;
+            }
+            None | Some(AxisType::Channel) | Some(AxisType::Custom(_)) => {
+                if done_channel_custom || n_space > 0 {
+                    accum.add_failure(
+                        "unexpected channel/custom/unknown axis".into(),
+                        &[idx.into()],
+                    );
+                    total += 1;
+                }
+                done_channel_custom |= true;
+                done_time |= true;
+            }
         }
     }
-    let Some(last) = ax2.last() else {
-        return Ok(());
-    };
-    if last.r#type == Some(AxisType::Space) {
-        ax2.pop();
+    if n_space < 2 {
+        accum.add_failure(format!("got {n_space} space axes, expected 2-3").into(), &[]);
+        total += 1;
     }
-    // should be max 1 time, 1 channel/custom
-    if ax2.len() == 1 {
-        return match ax2.first().unwrap().r#type {
-            Some(AxisType::Space) => new_validation_err("axis_type", "too many space axes"),
-            _ => Ok(()),
-        };
-    }
-    let mut it = ax2.into_iter();
-    let t = it.next().unwrap();
-    if t.r#type != Some(AxisType::Time) {
-        return new_validation_err(
-            "axis_type",
-            format!("expected time axis in first position, got {:?}", t.r#type),
-        );
-    }
-    let c = it.next().unwrap();
-    match c.r#type {
-        Some(AxisType::Space | AxisType::Time) => new_validation_err(
-            "axis_type",
-            format!("expected channel/custom/null axis, got {:?}", c.r#type),
-        ),
-        _ => Ok(()),
-    }
+    total
 }
 
-pub(crate) fn valid_datasets(dss: &[MultiscaleImageDataset]) -> Result<(), ValidationError> {
-    if dss.is_empty() {
-        return new_validation_err("dataset_count", "zero datasets found");
-    }
-    let mut ndim_iter = dss.iter().filter_map(|d| d.maybe_ndim());
-    let Some(first) = ndim_iter.next() else {
-        return Ok(());
-    };
-    for other in ndim_iter {
-        if other != first {
-            return Err(ValidationError::new(
-                "dimensionality conflict within multiscale datasets",
-            ));
-        }
-    }
-    Ok(())
+pub(crate) fn valid_datasets(accum: &mut Accumulator, expected_ndim: Option<usize>, dss: &[MultiscaleImageDataset]) -> usize {
+    let total = validate_ndims(accum, expected_ndim, dss.iter());
+    total + accum.validate_iter(dss)
 }
 
-pub(crate) fn valid_transforms(ct: &[CoordinateTransform]) -> Result<(), ValidationError> {
-    validate_ndims(ct, "dimensionality conflict within coordinate transforms")?;
-    Ok(())
+pub(crate) fn valid_transforms(accum: &mut Accumulator, expected_ndim: Option<usize>, ct: &[CoordinateTransform]) -> usize {
+    let total = validate_ndims(accum, expected_ndim, ct.iter());
+    total + accum.validate_iter(ct)
 }
 
-/// Check that all dimensionalities are consistent.
-fn valid_multiscale(img: &MultiscaleImage) -> Result<(), ValidationError> {
-    for ds in img.datasets.iter() {
-        if img.ndim_conflicts(ds).is_some() {
-            return Err(ValidationError::new(
-                "dimensionality conflict between multiscale axes and dataset",
-            ));
-        }
-    }
-    for ct in img.coordinate_transformations.iter().flatten() {
-        if img.ndim_conflicts(ct).is_some() {
-            return Err(ValidationError::new(
-                "dimensionality conflict between multiscale axes and coordinate transform",
-            ));
-        }
-    }
-    Ok(())
-}
 
 impl NDim for &MultiscaleImage {
     fn ndim(&self) -> usize {
@@ -149,14 +149,24 @@ impl NDim for &MultiscaleImage {
 }
 
 /// [`MultiscaleImage`] `datasets` element metadata. Describes an individual resolution level.
-#[derive(Serialize, Deserialize, Debug, Clone, Validate)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImageDataset {
     /// The path to the array for this resolution relative to the current zarr group.
     pub path: String,
     /// A list of transformations that map the data coordinates to the physical coordinates (as specified by "axes") for this resolution level.
-    #[validate(nested, custom(function = "valid_transforms"))]
     pub coordinate_transformations: Vec<CoordinateTransform>,
+}
+
+impl Validate for MultiscaleImageDataset {
+    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
+        let mut total = 0;
+        accum.prefix.push("coordinateTransformations".into());
+        total += accum.validate_iter(&self.coordinate_transformations);
+        accum.prefix.pop();
+
+        total
+    }
 }
 
 impl MaybeNDim for MultiscaleImageDataset {
