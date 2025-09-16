@@ -31,12 +31,20 @@ impl Validate for ImageLabel {
         let mut total = 0;
         if let Some(c) = self.colors.as_ref() {
             accum.prefix.push("colors".into());
+            if c.is_empty() {
+                accum.add_failure("empty".into(), &[]);
+                total += 1;
+            }
             total += validate_unique_labels(accum, c.iter());
             accum.prefix.pop();
         }
 
         if let Some(p) = self.properties.as_ref() {
             accum.prefix.push("properties".into());
+            if p.is_empty() {
+                accum.add_failure("empty".into(), &[]);
+                total += 1;
+            }
             total += validate_unique_labels(accum, p.iter());
             accum.prefix.pop();
         }

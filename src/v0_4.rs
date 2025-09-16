@@ -48,6 +48,9 @@ impl Validate for OmeNgffGroupAttributes {
         let mut total = 0;
         if let Some(m) = self.multiscales.as_ref() {
             accum.prefix.push("multiscales".into());
+            if m.is_empty() {
+                accum.add_failure("empty multiscales".into(), &[]);
+            }
             total += accum.validate_iter(m);
             accum.prefix.pop();
         }

@@ -132,13 +132,57 @@ pub(crate) fn valid_axes(accum: &mut Accumulator, axes: &[Axis]) -> usize {
 }
 
 pub(crate) fn valid_datasets(accum: &mut Accumulator, expected_ndim: Option<usize>, dss: &[MultiscaleImageDataset]) -> usize {
-    let total = validate_ndims(accum, expected_ndim, dss.iter());
-    total + accum.validate_iter(dss)
+    let mut total = 0;
+    if dss.is_empty() {
+        accum.add_failure("empty multiscale datasets".into(), &[]);
+        return total + 1;
+    }
+    total += validate_ndims(accum, expected_ndim, dss.iter());
+    total += accum.validate_iter(dss);
+    total
 }
 
-pub(crate) fn valid_transforms(accum: &mut Accumulator, expected_ndim: Option<usize>, ct: &[CoordinateTransform]) -> usize {
-    let total = validate_ndims(accum, expected_ndim, ct.iter());
-    total + accum.validate_iter(ct)
+pub(crate) fn valid_transforms(accum: &mut Accumulator, expected_ndim: Option<usize>, cts: &[CoordinateTransform]) -> usize {
+    // todo: validate that channel axes' scales=1 and translation=0
+    let mut total = 0;
+    total += validate_ndims(accum, expected_ndim, cts.iter());
+    total += accum.validate_iter(cts);
+    let mut has_scale = false;
+    let mut has_translation = false;
+    for (idx, ct) in cts.iter().enumerate() {
+        match ct {
+            CoordinateTransform::Identity => {
+                accum.add_failure("identity transform cannot be used here".into(), &[idx.into()]);
+                total += 1;
+            },
+            CoordinateTransform::Translation(_t) => {
+                if !has_scale {
+                    accum.add_failure("translation before scale transformation".into(), &[idx.into()]);
+                    total += 1;
+                }
+                if has_translation {
+                    accum.add_failure("multiple translation transformations".into(), &[idx.into()]);
+                    total += 1;
+                }
+                has_translation |= true;
+            },
+            CoordinateTransform::Scale(_s) => {
+                if has_scale {
+                    accum.add_failure("multiple scale transformations".into(), &[idx.into()]);
+                    total += 1;
+                }
+                if has_translation {
+                    accum.add_failure("scale after translation transformation".into(), &[idx.into()]);
+                    total += 1;
+                }
+                has_scale |= true;
+            },
+        }
+    }
+    if !has_scale {
+        accum.add_failure("no scale transformation".into(), &[]);
+    }
+    total
 }
 
 
@@ -162,7 +206,7 @@ impl Validate for MultiscaleImageDataset {
     fn validate_inner(&self, accum: &mut Accumulator) -> usize {
         let mut total = 0;
         accum.prefix.push("coordinateTransformations".into());
-        total += accum.validate_iter(&self.coordinate_transformations);
+        total += valid_transforms(accum, None, &self.coordinate_transformations);
         accum.prefix.pop();
 
         total
