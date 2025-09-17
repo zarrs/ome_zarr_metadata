@@ -3,13 +3,12 @@
 //! <https://ngff.openmicroscopy.org/0.5/#multiscale-md>.
 
 use serde::{Deserialize, Serialize};
-use validatrix::{Validate, Accumulator};
+use validatrix::{Accumulator, Validate};
 
 use crate::{MaybeNDim, NDim};
 
 use super::{Axis, CoordinateTransform, MultiscaleImageDataset, MultiscaleImageMetadata};
 use crate::v0_4::multiscales::{valid_axes, valid_datasets, valid_transforms};
-
 
 /// `multiscales` element metadata. Describes a multiscale image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -35,25 +34,18 @@ pub struct MultiscaleImage {
 }
 
 impl Validate for MultiscaleImage {
-    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
-        let mut total = 0;
-        accum.prefix.push("axes".into());
-        total += valid_axes(accum, &self.axes);
-        accum.prefix.pop();
-        
-        accum.prefix.push("datasets".into());
-        total += accum.validate_iter(&self.datasets);
-        total += valid_datasets(accum, self.maybe_ndim(), &self.datasets);
-        accum.prefix.pop();
-        
-        if let Some(ct) = self.coordinate_transformations.as_ref() {
-            accum.prefix.push("coordinateTransformations".into());
-            total += accum.validate_iter(ct);
-            total += valid_transforms(accum, self.maybe_ndim(), ct);
-            accum.prefix.pop();
-        }
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        accum.with_key("axes", |a| valid_axes(a, &self.axes));
 
-        total
+        accum.with_key("datasets", |a| {
+            valid_datasets(a, self.maybe_ndim(), &self.datasets);
+        });
+
+        if let Some(ct) = self.coordinate_transformations.as_ref() {
+            accum.with_key("coordinateTransformations", |a| {
+                valid_transforms(a, self.maybe_ndim(), ct);
+            });
+        }
     }
 }
 

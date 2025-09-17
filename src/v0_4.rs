@@ -13,7 +13,7 @@ pub use labels::*;
 pub use multiscales::*;
 pub use plate::*;
 use serde::{Deserialize, Serialize};
-use validatrix::{Validate, Accumulator};
+use validatrix::{Accumulator, Validate};
 pub use well::*;
 
 /// OME-NGFF top-level group attributes.
@@ -44,24 +44,19 @@ pub struct OmeNgffGroupAttributes {
 }
 
 impl Validate for OmeNgffGroupAttributes {
-    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
-        let mut total = 0;
+    fn validate_inner(&self, accum: &mut Accumulator) {
         if let Some(m) = self.multiscales.as_ref() {
-            accum.prefix.push("multiscales".into());
-            if m.is_empty() {
-                accum.add_failure("empty multiscales".into(), &[]);
-            }
-            total += accum.validate_iter(m);
-            accum.prefix.pop();
+            accum.with_key("multiscales", |a| {
+                if m.is_empty() {
+                    a.add_failure("empty multiscales");
+                }
+                a.validate_iter(m);
+            });
         }
 
         if let Some(i) = self.image_label.as_ref() {
-            accum.prefix.push("imageLabel".into());
-            total += i.validate_inner(accum);
-            accum.prefix.pop();
+            accum.validate_member_at("imageLabel", i);
         }
-        
-        total
     }
 }
 

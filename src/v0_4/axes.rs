@@ -3,7 +3,7 @@
 //! <https://ngff.openmicroscopy.org/0.4/#axes-md>.
 
 use serde::{Deserialize, Serialize};
-use validatrix::{Validate, Accumulator};
+use validatrix::{Accumulator, Validate};
 
 /// `axis` element metadata. Represents a dimension (axis) of a physical coordinate space.
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -20,31 +20,26 @@ pub struct Axis {
 }
 
 impl Validate for Axis {
-    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
-        let mut total = 0;
-        
-    let (Some(t), Some(u)) = (&self.r#type, &self.unit) else {
-        return total;
-    };
-    match u {
-        AxisUnit::Space(_) => {
-            if t != &AxisType::Space {
-                accum.add_failure("got space unit for non-space axis".into(), &[]);
-                total += 1
+    fn validate_inner(&self, accum: &mut Accumulator) {
+
+        let (Some(t), Some(u)) = (&self.r#type, &self.unit) else {
+            return;
+        };
+        match u {
+            AxisUnit::Space(_) => {
+                if t != &AxisType::Space {
+                    accum.add_failure("got space unit for non-space axis");
+                }
             }
-        }
-        AxisUnit::Time(_) => {
-            if t != &AxisType::Time {
-                accum.add_failure("got time unit for non-time axis".into(), &[]);
-                total += 1;
+            AxisUnit::Time(_) => {
+                if t != &AxisType::Time {
+                    accum.add_failure("got time unit for non-time axis");
+                }
             }
+            AxisUnit::Custom(_) => (),
         }
-        AxisUnit::Custom(_) => (),
-    }
-    total
     }
 }
-
 
 /// [`Axis`] `type` metadata. Represents the type of an axis.
 #[non_exhaustive]

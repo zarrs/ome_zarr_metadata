@@ -19,7 +19,7 @@ monostate = "0.1.0"
 serde = { version = "1.0.184", features = ["derive"] }
 serde_json = { version = "1.0.71", features = ["float_roundtrip", "preserve_order"] }
 thiserror = "2.0.16"
-validatrix = { version = "0.2.0", features = ["serde"] }
+validatrix = { version = "0.3.0", features = ["serde"] }
 
 [dev-dependencies]
 json_comments = "0.2.2"

@@ -27,28 +27,24 @@ pub struct ImageLabel {
 }
 
 impl Validate for ImageLabel {
-    fn validate_inner(&self, accum: &mut validatrix::Accumulator) -> usize {
-        let mut total = 0;
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
         if let Some(c) = self.colors.as_ref() {
-            accum.prefix.push("colors".into());
-            if c.is_empty() {
-                accum.add_failure("empty".into(), &[]);
-                total += 1;
-            }
-            total += validate_unique_labels(accum, c.iter());
-            accum.prefix.pop();
+            accum.with_key("colors", |a| {
+                if c.is_empty() {
+                    a.add_failure("empty");
+                }
+                validate_unique_labels(a, c.iter())
+            });
         }
 
         if let Some(p) = self.properties.as_ref() {
-            accum.prefix.push("properties".into());
-            if p.is_empty() {
-                accum.add_failure("empty".into(), &[]);
-                total += 1;
-            }
-            total += validate_unique_labels(accum, p.iter());
-            accum.prefix.pop();
+            accum.with_key("properties", |a| {
+                if p.is_empty() {
+                    a.add_failure("empty");
+                }
+                validate_unique_labels(a, p.iter());
+            });
         }
-        total
     }
 }
 
@@ -66,16 +62,13 @@ pub struct ImageLabelColor {
 pub(crate) fn validate_unique_labels<'a, T: HasLabelValue + 'a>(
     accum: &mut Accumulator,
     it: impl IntoIterator<Item = &'a T>,
-) -> usize {
-    let mut total = 0;
+) {
     let mut set: HashSet<u64> = HashSet::default();
     for (idx, lbl) in it.into_iter().map(HasLabelValue::get_label).enumerate() {
         if !set.insert(lbl) {
-            accum.add_failure(format!("repeated label {lbl}").into(), &[idx.into()]);
-            total += 1;
+            accum.add_failure_at(idx, format!("repeated label {lbl}"));
         }
     }
-    total
 }
 
 pub(crate) trait HasLabelValue {

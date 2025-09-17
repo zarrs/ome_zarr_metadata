@@ -50,24 +50,19 @@ pub struct OmeFields {
 }
 
 impl Validate for OmeFields {
-    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
-        let mut total = 0;
-        if let Some(m) = self.multiscales.as_ref() {
-            accum.prefix.push("multiscales".into());
-            if m.is_empty() {
-                accum.add_failure("empty multiscales".into(), &[]);
-            }
-            total += accum.validate_iter(m);
-            accum.prefix.pop();
+    fn validate_inner(&self, accum: &mut Accumulator)  {
+                if let Some(m) = self.multiscales.as_ref() {
+            accum.with_key("multiscales", |a| {
+                if m.is_empty() {
+                    a.add_failure("empty multiscales");
+                }
+                a.validate_iter(m);
+            });
         }
 
         if let Some(i) = self.image_label.as_ref() {
-            accum.prefix.push("imageLabel".into());
-            total += i.validate_inner(accum);
-            accum.prefix.pop();
+            accum.validate_member_at("imageLabel", i);
         }
-        
-        total
     }
 }
 
@@ -81,11 +76,8 @@ pub struct OmeZarrGroupAttributes {
 }
 
 impl Validate for OmeZarrGroupAttributes {
-    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
-        accum.prefix.push("ome".into());
-        let total = self.ome.validate_inner(accum);
-        accum.prefix.pop();
-        total
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        accum.validate_member_at("ome", &self.ome);
     }
 }
 

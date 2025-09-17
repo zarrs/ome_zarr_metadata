@@ -24,13 +24,9 @@ pub enum CoordinateTransform {
 }
 
 impl Validate for CoordinateTransform {
-    fn validate_inner(&self, accum: &mut Accumulator) -> usize {
-        match self {
-            CoordinateTransform::Identity => {
-                accum.add_failure("identity transform cannot be used here".into(), &[]);
-                1
-            }
-            _ => 0,
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        if let CoordinateTransform::Identity = self {
+            accum.add_failure("identity transform cannot be used here");
         }
     }
 }
