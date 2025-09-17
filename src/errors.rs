@@ -12,4 +12,7 @@ pub enum Error {
     /// Data fails validation.
     #[error(transparent)]
     Validation(#[from] validatrix::Error),
+    /// General error.
+    #[error("{0}")]
+    General(String),
 }
