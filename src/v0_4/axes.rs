@@ -21,7 +21,6 @@ pub struct Axis {
 
 impl Validate for Axis {
     fn validate_inner(&self, accum: &mut Accumulator) {
-
         let (Some(t), Some(u)) = (&self.r#type, &self.unit) else {
             return;
         };

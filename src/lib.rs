@@ -21,6 +21,6 @@ mod errors;
 pub use errors::{Error, Result};
 
 mod ndim;
-pub use ndim::{NDim, MaybeNDim};
+pub use ndim::{MaybeNDim, NDim};
 
 pub use validatrix::{Valid, Validate};

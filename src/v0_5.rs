@@ -50,8 +50,8 @@ pub struct OmeFields {
 }
 
 impl Validate for OmeFields {
-    fn validate_inner(&self, accum: &mut Accumulator)  {
-                if let Some(m) = self.multiscales.as_ref() {
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        if let Some(m) = self.multiscales.as_ref() {
             accum.with_key("multiscales", |a| {
                 if m.is_empty() {
                     a.add_failure("empty multiscales");
