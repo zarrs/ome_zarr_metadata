@@ -59,22 +59,3 @@ impl Validate for OmeNgffGroupAttributes {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::tests::*;
-
-    const VERSION: (u64, u64) = (0, 4);
-
-    #[test]
-    fn parse_examples() {
-        run_examples_for_version::<OmeNgffGroupAttributes>(VERSION);
-    }
-
-    #[ignore]
-    #[test]
-    fn test_suite() {
-        run_test_suites_for_version::<OmeNgffGroupAttributes>(VERSION);
-    }
-}

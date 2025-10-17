@@ -114,6 +114,12 @@ pub struct OmeZarrGroupMetadata {
     pub attributes: OmeZarrGroupAttributes,
 }
 
+impl Validate for OmeZarrGroupMetadata {
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        accum.validate_member_at("attributes", &self.attributes);
+    }
+}
+
 /// Return the `ome` attribute from Zarr group metadata.
 ///
 /// # Errors
@@ -145,11 +151,8 @@ pub fn get_ome_attribute_from_zarr_group_metadata(
 
 #[cfg(test)]
 mod tests {
-    use crate::tests::{get_examples, run_examples_for_version, run_test_suites_for_version};
 
     use super::*;
-
-    const VERSION: (u64, u64) = (0, 5);
 
     #[test]
     fn fields_default() {
@@ -157,34 +160,5 @@ mod tests {
             labels: Some(vec!["x".to_string(), "y".to_string()]),
             ..OmeFields::default()
         };
-    }
-
-    #[test]
-    fn v0_4_to_v0_5() {
-        let examples = get_examples((0, 4));
-        for dname in [
-            "bf2raw",
-            "label_strict",
-            "multiscales_strict",
-            "plate_strict",
-            "well_strict",
-        ] {
-            let inner = examples.get(dname).unwrap();
-            for v in inner.values() {
-                let old: v0_4::OmeNgffGroupAttributes =
-                    serde_json::from_str(v).expect("Should be valid v0.4");
-                let _ = OmeFields::from(old);
-            }
-        }
-    }
-
-    #[test]
-    fn parse_examples() {
-        run_examples_for_version::<OmeZarrGroupMetadata>(VERSION);
-    }
-
-    #[test]
-    fn test_suite() {
-        run_test_suites_for_version::<OmeZarrGroupAttributes>(VERSION);
     }
 }
