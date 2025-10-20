@@ -25,12 +25,12 @@ pub fn test_case<T: DeserializeOwned + Validate>(bytes: &[u8]) {
     match serde_json::from_value::<Valid<T>>(case.test.data) {
         Ok(_) => {
             if !should_be_valid {
-                panic!("Unexpectedly valid: {}", case.test.description)
+                panic!("'{}' unexpectedly valid", case.test.description)
             }
         }
         Err(e) => {
             if should_be_valid {
-                panic!("Unexpectedly invalid: {e}");
+                panic!("'{}' unexpectedly invalid: {e}", case.test.description);
             }
         }
     };
