@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 use validatrix::Validate;
@@ -22,8 +22,8 @@ impl Validate for Omero {
 /// Describes the channels of an image in OMERGO format.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Channel {
-    /// Channel color as a hex RGB string.
-    pub color: HexColor,
+    /// Channel color, stored as a hex RGB string.
+    pub color: Color,
     /// Windowing of the channel.
     pub window: Window,
     /// Catch-all field for any OMERO channel fields not specified in OME-Zarr.
@@ -38,54 +38,58 @@ impl Validate for Channel {
 }
 
 /// Color defined as a hexadecimal RGB string.
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct HexColor(String);
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Color{
+    /// Red value [0,255]
+    pub r: u8,
+    /// Green value [0,255]
+    pub g: u8,
+    /// Blue value [0,255]
+    pub b: u8,
+}
 
-impl AsRef<str> for HexColor {
-    fn as_ref(&self) -> &str {
-        &self.0
+impl From<Color> for String {
+    fn from(value: Color) -> Self {
+        value.to_string()
     }
 }
 
-impl From<HexColor> for String {
-    fn from(value: HexColor) -> Self {
-        value.0
-    }
-}
-
-impl Display for HexColor {
+impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
+        write!(f, "{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
 }
 
-impl TryFrom<String> for HexColor {
-    type Error = crate::Error;
+impl FromStr for Color {
+    type Err = crate::Error;
 
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        if value.len() != 6 || value.chars().any(|c| !c.is_ascii_hexdigit()) {
-            return Err(Self::Error::InvalidColor(value));
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len() != 6 {
+            return Err(Self::Err::InvalidColor);
         }
-        Ok(Self(value))
+        let r = u8::from_str_radix(&s[0..2], 16).map_err(|_| Self::Err::InvalidColor)?;
+        let g = u8::from_str_radix(&s[2..4], 16).map_err(|_| Self::Err::InvalidColor)?;
+        let b = u8::from_str_radix(&s[4..6], 16).map_err(|_| Self::Err::InvalidColor)?;
+        Ok(Self {r, g, b})
     }
 }
 
-impl Serialize for HexColor {
+impl Serialize for Color {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        self.0.serialize(serializer)
+        self.to_string().serialize(serializer)
     }
 }
 
-impl<'de> Deserialize<'de> for HexColor {
+impl<'de> Deserialize<'de> for Color {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        HexColor::try_from(s).map_err(serde::de::Error::custom)
+        Color::from_str(&s).map_err(serde::de::Error::custom)
     }
 }
 

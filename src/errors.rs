@@ -13,8 +13,8 @@ pub enum Error {
     #[error(transparent)]
     Validation(#[from] validatrix::Error),
     /// Invalid OMERO color.
-    #[error("invalid hex RGB color: '{0}'")]
-    InvalidColor(String),
+    #[error("invalid hex RGB color")]
+    InvalidColor,
     /// General error.
     #[error("{0}")]
     General(String),
