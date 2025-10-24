@@ -39,7 +39,7 @@ impl Validate for Channel {
 
 /// Color defined as a hexadecimal RGB string.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Color{
+pub struct Color {
     /// Red value [0,255]
     pub r: u8,
     /// Green value [0,255]
@@ -70,7 +70,7 @@ impl FromStr for Color {
         let r = u8::from_str_radix(&s[0..2], 16).map_err(|_| Self::Err::InvalidColor)?;
         let g = u8::from_str_radix(&s[2..4], 16).map_err(|_| Self::Err::InvalidColor)?;
         let b = u8::from_str_radix(&s[4..6], 16).map_err(|_| Self::Err::InvalidColor)?;
-        Ok(Self {r, g, b})
+        Ok(Self { r, g, b })
     }
 }
 
