@@ -3,6 +3,7 @@ pub(crate) mod bioformats2raw_layout;
 pub(crate) mod coordinate_transformations;
 pub(crate) mod labels;
 pub(crate) mod multiscales;
+pub(crate) mod omero;
 pub(crate) mod plate;
 pub(crate) mod well;
 
@@ -11,6 +12,7 @@ pub use bioformats2raw_layout::*;
 pub use coordinate_transformations::*;
 pub use labels::*;
 pub use multiscales::*;
+pub use omero::*;
 pub use plate::*;
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
@@ -41,6 +43,9 @@ pub struct OmeNgffGroupAttributes {
     /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub well: Option<Well>,
+    /// Transitional OMERO metadata.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub omero: Option<Omero>,
 }
 
 impl Validate for OmeNgffGroupAttributes {
@@ -56,6 +61,14 @@ impl Validate for OmeNgffGroupAttributes {
 
         if let Some(i) = self.image_label.as_ref() {
             accum.validate_member_at("imageLabel", i);
+        }
+
+        if let Some(p) = self.plate.as_ref() {
+            accum.validate_member_at("plate", p);
+        }
+
+        if let Some(o) = self.omero.as_ref() {
+            accum.validate_member_at("omero", o);
         }
     }
 }

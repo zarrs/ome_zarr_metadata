@@ -12,6 +12,14 @@ use crate::common::test_upgrade;
 fn v05_test_case(
     #[files("**/*.json")]
     #[base_dir = "tests/fixtures/generated/0.5"]
+    // excluded for incorrect test data; see https://github.com/ome/ngff/issues/325
+    #[exclude("strict_no_acquisitions")]
+    #[exclude("strict_acquisitions")]
+    #[exclude("minimal_acquisitions")]
+    #[exclude("minimal_no_acquisitions")]
+    #[exclude("mismatch_axes_units")]
+    #[exclude("non_alphanumeric_row")]
+    #[exclude("image-label/no_colors")]
     #[mode = bytes]
     bytes: &[u8],
 ) {
