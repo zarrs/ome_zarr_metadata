@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Validation and conformance tests ([#12] by [@clbarnes])
   - N.B. a number of tests are excluded as they do not match the specifition text, see <https://github.com/ome/ngff/issues/325>
+- Implement omero metadata (by [@clbarnes])
 
 [#12]: https://github.com/zarrs/ome_zarr_metadata/pull/12
 
