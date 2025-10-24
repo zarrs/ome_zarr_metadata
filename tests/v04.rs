@@ -22,7 +22,6 @@ fn v04_test_case(
     test_case::<OmeNgffGroupAttributes>(bytes);
 }
 
-#[ignore = "focusing on v0.5"]
 #[rstest]
 fn v04_examples(
     #[files("**/*.json")]

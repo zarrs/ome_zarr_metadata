@@ -102,7 +102,7 @@ impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
             image_label: value.image_label.map(Into::into),
             plate: value.plate.map(Into::into),
             well: value.well.map(Into::into),
-            omero: None,
+            omero: value.omero,
         }
     }
 }
