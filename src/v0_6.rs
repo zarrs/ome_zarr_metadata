@@ -1,4 +1,4 @@
-use crate::v0_4;
+use crate::v0_5;
 pub use crate::v0_4::axes::*;
 pub use crate::v0_4::bioformats2raw_layout::*;
 pub use crate::v0_4::coordinate_transformations::*;
@@ -78,10 +78,10 @@ impl Validate for OmeZarrGroupAttributes {
     }
 }
 
-impl TryFrom<v0_4::OmeNgffGroupAttributes> for OmeFields {
+impl TryFrom<v0_5::OmeFields> for OmeFields {
     type Error = crate::Error;
 
-    fn try_from(value: v0_4::OmeNgffGroupAttributes) -> Result<Self, Self::Error> {
+    fn try_from(value: v0_5::OmeFields) -> Result<Self, Self::Error> {
         let multiscales = match value.multiscales {
             Some(v) => {
                 if v.len() > 1 {
@@ -107,10 +107,10 @@ impl TryFrom<v0_4::OmeNgffGroupAttributes> for OmeFields {
     }
 }
 
-impl TryFrom<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
+impl TryFrom<v0_5::OmeFields> for OmeZarrGroupAttributes {
     type Error = crate::Error;
 
-    fn try_from(value: v0_4::OmeNgffGroupAttributes) -> Result<Self, Self::Error> {
+    fn try_from(value: v0_5::OmeFields) -> Result<Self, Self::Error> {
         Ok(Self {
             ome: OmeFields::try_from(value)?,
         })
