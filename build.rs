@@ -116,17 +116,19 @@ fn infer_stem(t: &Test, idx: usize) -> String {
 }
 
 fn main() {
-    let project_root = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    let src_root = project_root.join("ome-zarr");
-    let tgt_root = project_root.join("tests/fixtures/generated");
+    if std::env::var("CARGO_CFG_TEST").is_ok() {
+        let project_root = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+        let src_root = project_root.join("ome-zarr");
+        let tgt_root = project_root.join("tests/fixtures/generated");
 
-    // DANGER DANGER
-    std::fs::remove_dir_all(&tgt_root).unwrap_or(());
+        // DANGER DANGER
+        std::fs::remove_dir_all(&tgt_root).unwrap_or(());
 
-    for ver in ["0.4", "0.5"] {
-        let src_dir = src_root.join(format!("{ver}/tests"));
-        let tgt_dir = tgt_root.join(ver);
-        let proc = Processor::new(src_dir, tgt_dir);
-        proc.process_all();
+        for ver in ["0.4", "0.5"] {
+            let src_dir = src_root.join(format!("{ver}/tests"));
+            let tgt_dir = tgt_root.join(ver);
+            let proc = Processor::new(src_dir, tgt_dir);
+            proc.process_all();
+        }
     }
 }
