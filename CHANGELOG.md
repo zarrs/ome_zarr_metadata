@@ -10,8 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Validation and conformance tests ([#12] by [@clbarnes])
-  - N.B. a number of tests are excluded as they do not match the specifition text, see <https://github.com/ome/ngff/issues/325>
+  - N.B. a number of tests are excluded as they do not match the specification text, see <https://github.com/ome/ngff/issues/325>
 - Implement omero metadata (by [@clbarnes])
+  - Add `Omero` type
+  - Add `omero` field to `OmeFields` and `OmeNgffGroupAttributes`
+- Add `Result` and `Error` types (by [@clbarnes])
+- Add `MaybeNDim` and `NDim` traits for types with dimensionality (by [@clbarnes])
+- Implement `From<AxisUnitSpace>` and `From<AxisUnitTime>` for `AxisUnit` (by [@clbarnes])
+
+### Changed
+
+- **Breaking**: Rename `Bioformats2rawLayout` to `Bioformats2Raw` (by [@clbarnes])
+  - **Breaking**: Rename `OmeNgffGroupAttributes::bioformats2raw_layout` to `bioformats2raw`
+  - **Breaking**: Rename `OmeFields::bioformats2raw_layout` to `bioformats2raw`
+- **Breaking**: Make the `colors` field of `ImageLabel` an `Option` to match the specification (by [@clbarnes])
+- **Breaking**: Rename `PlateAcquisition` fields to snake case (by [@clbarnes])
+- **Breaking**: Increase MSRV to 1.82 (by [@clbarnes])
+
+### Fixed
+
+- Deserialisation of custom axis types in `AxisType` (by [@clbarnes])
+- Permit unknown fields in `v0_5::MultiscaleImage` (by [@clbarnes])
+  - See https://github.com/ome/ngff/issues/209
 
 [#12]: https://github.com/zarrs/ome_zarr_metadata/pull/12
 
@@ -33,8 +53,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add trusted publishing
-- Add automated tests covering all examples from the specification
-- Add conversion from 0.4 to 0.5 metadata
 
 ### Fixed
 
