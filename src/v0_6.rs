@@ -1,4 +1,3 @@
-use crate::v0_5;
 pub use crate::v0_4::axes::*;
 pub use crate::v0_4::bioformats2raw_layout::*;
 pub use crate::v0_4::coordinate_transformations::*;
@@ -6,6 +5,7 @@ pub use crate::v0_4::multiscales::{MultiscaleImageDataset, MultiscaleImageMetada
 pub use crate::v0_4::omero::*;
 pub use crate::v0_4::plate::{PlateAcquisition, PlateColumn, PlateRow, PlateWell};
 pub use crate::v0_4::well::WellImage;
+use crate::v0_5;
 pub use crate::v0_5::labels::*;
 pub use crate::v0_5::multiscales::*;
 pub use crate::v0_5::plate::*;
@@ -89,7 +89,7 @@ impl TryFrom<v0_5::OmeFields> for OmeFields {
                         "multiscales must have length 0 or 1".to_string(),
                     ));
                 }
-                v.into_iter().next().map(Into::into)
+                v.into_iter().next()
             }
             None => None,
         };
@@ -99,9 +99,9 @@ impl TryFrom<v0_5::OmeFields> for OmeFields {
             bioformats2raw: value.bioformats2raw,
             multiscales,
             labels: value.labels,
-            image_label: value.image_label.map(Into::into),
-            plate: value.plate.map(Into::into),
-            well: value.well.map(Into::into),
+            image_label: value.image_label,
+            plate: value.plate,
+            well: value.well,
             omero: value.omero,
         })
     }
