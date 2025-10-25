@@ -13,3 +13,11 @@ pub mod v0_4;
 ///
 /// <https://ngff.openmicroscopy.org/0.5/>.
 pub mod v0_5;
+
+mod errors;
+pub use errors::{Error, Result};
+
+mod ndim;
+pub use ndim::{MaybeNDim, NDim};
+
+pub use validatrix::{Valid, Validate};

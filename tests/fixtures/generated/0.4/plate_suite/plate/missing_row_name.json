@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "id": "schemas/plate.schema"
+  },
+  "test_case_description": "Tests for the plate JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "plate/missing_row_name",
+    "data": {
+      "plate": {
+        "columns": [
+          {
+            "name": "A"
+          }
+        ],
+        "rows": [
+          {
+            "concentration": 10
+          }
+        ],
+        "wells": [
+          {
+            "columnIndex": 0,
+            "path": "A/1",
+            "rowIndex": 0
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+}

@@ -26,3 +26,4 @@ lcov.info
 
 # cargo-mutants
 mutants.out
+tmp/

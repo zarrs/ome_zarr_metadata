@@ -1,0 +1,116 @@
+{
+  "schema": {
+    "id": "schemas/strict_image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: valid_strict/multiscales_example.json]",
+    "data": {
+      "ome": {
+        "multiscales": [
+          {
+            "axes": [
+              {
+                "name": "t",
+                "type": "time",
+                "unit": "millisecond"
+              },
+              {
+                "name": "c",
+                "type": "channel"
+              },
+              {
+                "name": "z",
+                "type": "space",
+                "unit": "micrometer"
+              },
+              {
+                "name": "y",
+                "type": "space",
+                "unit": "micrometer"
+              },
+              {
+                "name": "x",
+                "type": "space",
+                "unit": "micrometer"
+              }
+            ],
+            "coordinateTransformations": [
+              {
+                "scale": [
+                  0.1,
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "scale"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1.0,
+                      1.0,
+                      0.5,
+                      0.5,
+                      0.5
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "0"
+              },
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0,
+                      1.0
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "1"
+              },
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1.0,
+                      1.0,
+                      2.0,
+                      2.0,
+                      2.0
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "2"
+              }
+            ],
+            "metadata": {
+              "args": "[true]",
+              "description": "the fields in metadata depend on the downscaling implementation. Here, the parameters passed to the skimage function are given",
+              "kwargs": {
+                "multichannel": true
+              },
+              "method": "skimage.transform.pyramid_gaussian",
+              "version": "0.16.1"
+            },
+            "name": "example",
+            "type": "gaussian"
+          }
+        ],
+        "version": "0.5"
+      }
+    },
+    "valid": true
+  }
+}

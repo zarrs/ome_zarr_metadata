@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "id": "schemas/strict_image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: valid_strict/multiscales_transformations.json]",
+    "data": {
+      "ome": {
+        "multiscales": [
+          {
+            "axes": [
+              {
+                "name": "y",
+                "type": "space",
+                "unit": "micrometer"
+              },
+              {
+                "name": "x",
+                "type": "space",
+                "unit": "micrometer"
+              }
+            ],
+            "coordinateTransformations": [
+              {
+                "scale": [
+                  10,
+                  10
+                ],
+                "type": "scale"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1,
+                      1
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "0"
+              }
+            ],
+            "metadata": {
+              "key": "value"
+            },
+            "name": "image_with_coordinateTransformations",
+            "type": "foo"
+          }
+        ],
+        "version": "0.5"
+      }
+    },
+    "valid": true
+  }
+}

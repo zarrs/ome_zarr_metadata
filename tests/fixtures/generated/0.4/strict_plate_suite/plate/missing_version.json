@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "id": "schemas/strict_plate.schema"
+  },
+  "test_case_description": "Tests for the strict plate JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "plate/missing_version",
+    "data": {
+      "plate": {
+        "columns": [
+          {
+            "name": "A"
+          }
+        ],
+        "name": "test plate",
+        "rows": [
+          {
+            "name": "1"
+          }
+        ],
+        "wells": [
+          {
+            "columnIndex": 0,
+            "path": "A/1",
+            "rowIndex": 0
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+}

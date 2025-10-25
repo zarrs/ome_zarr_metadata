@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: invalid/invalid_transformation_type.json]",
+    "data": {
+      "multiscales": [
+        {
+          "axes": [
+            {
+              "name": "y",
+              "type": "space",
+              "unit": "micrometer"
+            },
+            {
+              "name": "x",
+              "type": "space",
+              "unit": "micrometer"
+            }
+          ],
+          "datasets": [
+            {
+              "coordinateTransformations": [
+                {
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "type": "translation"
+                }
+              ],
+              "path": "0"
+            }
+          ],
+          "version": "0.4"
+        }
+      ]
+    },
+    "valid": false
+  }
+}

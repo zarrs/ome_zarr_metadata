@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "id": "schemas/plate.schema"
+  },
+  "test_case_description": "Tests for the plate JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "plate/well_1group",
+    "data": {
+      "plate": {
+        "columns": [
+          {
+            "name": "A"
+          }
+        ],
+        "rows": [
+          {
+            "name": "1"
+          }
+        ],
+        "wells": [
+          {
+            "path": "A1",
+            "rowIndex": 0
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+}

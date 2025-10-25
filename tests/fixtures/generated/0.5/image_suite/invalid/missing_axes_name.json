@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: invalid/missing_axes_name.json]",
+    "data": {
+      "ome": {
+        "multiscales": [
+          {
+            "axes": [
+              {
+                "type": "space",
+                "unit": "micron"
+              },
+              {
+                "type": "space",
+                "unit": "micron"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      0.13,
+                      0.13
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "0"
+              }
+            ]
+          }
+        ],
+        "version": "0.5"
+      }
+    },
+    "valid": false
+  }
+}

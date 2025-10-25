@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "id": "schemas/plate.schema"
+  },
+  "test_case_description": "Tests for the plate JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "plate/non_alphanumeric_column",
+    "data": {
+      "plate": {
+        "columns": [
+          {
+            "name": "A-1"
+          }
+        ],
+        "rows": [
+          {
+            "name": "1"
+          }
+        ],
+        "wells": [
+          {
+            "columnIndex": 0,
+            "path": "A-1/1",
+            "rowIndex": 0
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+}

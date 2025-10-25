@@ -13,11 +13,9 @@ A changelog can be found [here](https://github.com/zarrs/ome_zarr_metadata/blob/
 - [x] [0.4](https://ngff.openmicroscopy.org/0.4/)
 - [x] [0.5](https://ngff.openmicroscopy.org/0.5/) (22 November 2024)
 
-The transitional "omero" metadata is not supported.
-
 ## Features
 - [x] Serialisation and deserialisation
-- [ ] Validation
+- [x] Validation
 - [x] Forward conversion
 
 ## Licence

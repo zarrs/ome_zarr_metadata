@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "id": "schemas/plate.schema"
+  },
+  "test_case_description": "Tests for the plate JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "plate/empty_rows",
+    "data": {
+      "ome": {
+        "plate": {
+          "columns": [
+            {
+              "name": "A"
+            }
+          ],
+          "rows": [],
+          "wells": [
+            {
+              "columnIndex": 0,
+              "path": "A/1",
+              "rowIndex": 0
+            }
+          ]
+        },
+        "version": "0.5"
+      }
+    },
+    "valid": false
+  }
+}

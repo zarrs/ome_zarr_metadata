@@ -1,0 +1,17 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: invalid/no_multiscales.json]",
+    "data": {
+      "ome": {
+        "multiscales": [],
+        "version": "0.5"
+      }
+    },
+    "valid": false
+  }
+}
