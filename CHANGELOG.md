@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - N.B. a number of tests are excluded as they do not match the specification text, see <https://github.com/ome/ngff/issues/325>
 - Implement omero metadata (by [@clbarnes])
   - Add `Omero` type
-  - Add `omero` field to `OmeFields` and `OmeNgffGroupAttributes`
 - Add `Result` and `Error` types (by [@clbarnes])
 - Add `MaybeNDim` and `NDim` traits for types with dimensionality (by [@clbarnes])
 - Implement `From<AxisUnitSpace>` and `From<AxisUnitTime>` for `AxisUnit` (by [@clbarnes])
@@ -25,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Breaking**: Rename `OmeFields::bioformats2raw_layout` to `bioformats2raw`
 - **Breaking**: Make the `colors` field of `ImageLabel` an `Option` to match the specification (by [@clbarnes])
 - **Breaking**: Rename `PlateAcquisition` fields to snake case (by [@clbarnes])
+- **Breaking**: Add `omero` field to `OmeFields` and `OmeNgffGroupAttributes` (by [@clbarnes])
 - **Breaking**: Increase MSRV to 1.82 (by [@clbarnes])
 
 ### Fixed
