@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: valid/untyped_axes.json]",
+    "data": {
+      "ome": {
+        "multiscales": [
+          {
+            "axes": [
+              {
+                "name": "angle"
+              },
+              {
+                "name": "y",
+                "type": "space",
+                "unit": "micrometer"
+              },
+              {
+                "name": "x",
+                "type": "space",
+                "unit": "micrometer"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "0"
+              }
+            ]
+          }
+        ],
+        "version": "0.5"
+      }
+    },
+    "valid": true
+  }
+}

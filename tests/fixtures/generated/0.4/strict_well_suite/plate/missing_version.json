@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "id": "schemas/strict_well.schema"
+  },
+  "test_case_description": "Tests for the strict well JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "plate/missing_version",
+    "data": {
+      "well": {
+        "images": [
+          {
+            "path": "0"
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+}

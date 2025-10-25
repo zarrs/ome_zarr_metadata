@@ -2,23 +2,57 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.5/#labels-md>.
 
+use crate::v0_4::validate_unique_labels;
 #[doc(inline)]
 pub use crate::v0_4::{ImageLabelColor, ImageLabelProperties, ImageLabelSource, Labels};
 
 use serde::{Deserialize, Serialize};
+use validatrix::Validate;
 
 /// `image-label` metadata. Stores information about the display colors, source image, and optionally, further arbitrary properties of a label image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// Describes the color information for the unique label values.
-    pub colors: Vec<ImageLabelColor>,
+    pub colors: Option<Vec<ImageLabelColor>>,
     /// Arbitrary metadata associated with each unique label (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub properties: Option<Vec<ImageLabelProperties>>,
     /// Information about the original image from which the label image derives (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<ImageLabelSource>,
+}
+
+impl Validate for ImageLabel {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        if let Some(c) = self.colors.as_ref() {
+            accum.with_key("colors", |a| {
+                if c.is_empty() {
+                    a.add_failure("empty");
+                }
+                validate_unique_labels(a, c.iter())
+            });
+        }
+
+        if let Some(p) = self.properties.as_ref() {
+            accum.with_key("properties", |a| {
+                if p.is_empty() {
+                    a.add_failure("empty");
+                }
+                validate_unique_labels(a, p.iter());
+            });
+        }
+    }
+}
+
+impl From<crate::v0_4::ImageLabel> for ImageLabel {
+    fn from(value: crate::v0_4::ImageLabel) -> Self {
+        Self {
+            colors: value.colors,
+            properties: value.properties,
+            source: value.source,
+        }
+    }
 }
 
 #[cfg(test)]

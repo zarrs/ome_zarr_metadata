@@ -2,9 +2,10 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.4/#labels-md>.
 
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
+use validatrix::{Accumulator, Validate};
 
 /// `labels` metadata. A JSON array of paths to the labeled multiscale image(s).
 pub type Labels = Vec<String>;
@@ -16,7 +17,7 @@ pub struct ImageLabel {
     /// The version of the OME-NGFF "image-label" schema.
     pub version: monostate::MustBe!("0.4"),
     /// Describes the color information for the unique label values.
-    pub colors: Vec<ImageLabelColor>,
+    pub colors: Option<Vec<ImageLabelColor>>,
     /// Arbitrary metadata associated with each unique label (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub properties: Option<Vec<ImageLabelProperties>>,
@@ -25,30 +26,83 @@ pub struct ImageLabel {
     pub source: Option<ImageLabelSource>,
 }
 
+impl Validate for ImageLabel {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        if let Some(c) = self.colors.as_ref() {
+            accum.with_key("colors", |a| {
+                if c.is_empty() {
+                    a.add_failure("empty");
+                }
+                validate_unique_labels(a, c.iter())
+            });
+        }
+
+        if let Some(p) = self.properties.as_ref() {
+            accum.with_key("properties", |a| {
+                if p.is_empty() {
+                    a.add_failure("empty");
+                }
+                validate_unique_labels(a, p.iter());
+            });
+        }
+    }
+}
+
 /// [`ImageLabel`] `colors` element metadata. The colour of a unique image label.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ImageLabelColor {
-    #[serde(alias = "label-value")]
-    label_value: u64,
-    rgba: [u8; 4],
+    /// Integer label value.
+    #[serde(rename = "label-value")]
+    pub label_value: u64,
+    /// Colour as RGBA array.
+    pub rgba: [u8; 4],
+}
+
+pub(crate) fn validate_unique_labels<'a, T: HasLabelValue + 'a>(
+    accum: &mut Accumulator,
+    it: impl IntoIterator<Item = &'a T>,
+) {
+    let mut set: HashSet<u64> = HashSet::default();
+    for (idx, lbl) in it.into_iter().map(HasLabelValue::get_label).enumerate() {
+        if !set.insert(lbl) {
+            accum.add_failure_at(idx, format!("repeated label {lbl}"));
+        }
+    }
+}
+
+pub(crate) trait HasLabelValue {
+    fn get_label(&self) -> u64;
+}
+
+impl HasLabelValue for ImageLabelColor {
+    fn get_label(&self) -> u64 {
+        self.label_value
+    }
+}
+
+impl HasLabelValue for ImageLabelProperties {
+    fn get_label(&self) -> u64 {
+        self.label_value
+    }
 }
 
 /// [`ImageLabel`] `properties` element metadata. Arbitrary metadata of a unique image label.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelProperties {
-    #[serde(alias = "label-value")]
-    label_value: u64,
+    /// Integer label value.
+    #[serde(rename = "label-value")]
+    pub label_value: u64,
+    /// Arbitrary metadata associated with the label.
     #[serde(flatten)]
-    properties: serde_json::Map<String, serde_json::Value>,
+    pub properties: serde_json::Map<String, serde_json::Value>,
 }
 
 /// [`ImageLabel`] `source` metadata. Information about the source of a label image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImageLabelSource {
-    image: Option<PathBuf>,
-    #[serde(flatten)]
-    source: serde_json::Map<String, serde_json::Value>,
+    /// Relative path to the zarr image group which this group labels.
+    pub image: Option<PathBuf>,
 }
 
 #[cfg(test)]

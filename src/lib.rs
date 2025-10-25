@@ -16,3 +16,11 @@ pub mod v0_5;
 
 /// Version `0.6` metadata.
 pub mod v0_6;
+
+mod errors;
+pub use errors::{Error, Result};
+
+mod ndim;
+pub use ndim::{MaybeNDim, NDim};
+
+pub use validatrix::{Valid, Validate};

@@ -3,17 +3,22 @@
 //! <https://ngff.openmicroscopy.org/0.5/#multiscale-md>.
 
 use serde::{Deserialize, Serialize};
+use validatrix::{Accumulator, Validate};
+
+use crate::{MaybeNDim, NDim};
 
 use super::{Axis, CoordinateTransform, MultiscaleImageDataset, MultiscaleImageMetadata};
+use crate::v0_4::multiscales::{valid_axes, valid_datasets, valid_transforms};
 
 /// `multiscales` element metadata. Describes a multiscale image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct MultiscaleImage {
     /// The name of the multiscale image (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The axes of the multiscale image.
+    // #[validate(nested)]
     pub axes: Vec<Axis>,
     /// The datasets describe the arrays storing the individual resolution levels.
     pub datasets: Vec<MultiscaleImageDataset>,
@@ -26,6 +31,41 @@ pub struct MultiscaleImage {
     /// A dictionary with additional information about the downscaling method (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<MultiscaleImageMetadata>,
+}
+
+impl Validate for MultiscaleImage {
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        accum.with_key("axes", |a| valid_axes(a, &self.axes));
+
+        accum.with_key("datasets", |a| {
+            valid_datasets(a, self.maybe_ndim(), &self.datasets);
+        });
+
+        if let Some(ct) = self.coordinate_transformations.as_ref() {
+            accum.with_key("coordinateTransformations", |a| {
+                valid_transforms(a, self.maybe_ndim(), ct);
+            });
+        }
+    }
+}
+
+impl NDim for MultiscaleImage {
+    fn ndim(&self) -> usize {
+        self.axes.len()
+    }
+}
+
+impl From<crate::v0_4::MultiscaleImage> for MultiscaleImage {
+    fn from(value: crate::v0_4::MultiscaleImage) -> Self {
+        Self {
+            name: value.name,
+            axes: value.axes,
+            datasets: value.datasets,
+            coordinate_transformations: value.coordinate_transformations,
+            r#type: value.r#type,
+            metadata: value.metadata,
+        }
+    }
 }
 
 #[cfg(test)]

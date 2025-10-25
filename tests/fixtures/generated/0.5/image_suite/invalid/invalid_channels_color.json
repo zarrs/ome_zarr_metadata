@@ -1,0 +1,63 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: invalid/invalid_channels_color.json]",
+    "data": {
+      "ome": {
+        "multiscales": [
+          {
+            "axes": [
+              {
+                "name": "y",
+                "type": "space",
+                "unit": "micrometer"
+              },
+              {
+                "name": "x",
+                "type": "space",
+                "unit": "micrometer"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1,
+                      1
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "0"
+              }
+            ]
+          }
+        ],
+        "omero": {
+          "channels": [
+            {
+              "active": true,
+              "coefficient": 1.0,
+              "color": 255,
+              "family": "linear",
+              "label": "1234",
+              "window": {
+                "end": 1765.0,
+                "max": 2555.0,
+                "min": 5.0,
+                "start": 0.0
+              }
+            }
+          ]
+        },
+        "version": "0.5"
+      }
+    },
+    "valid": false
+  }
+}

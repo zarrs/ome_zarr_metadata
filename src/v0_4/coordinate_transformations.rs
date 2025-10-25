@@ -5,6 +5,9 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
+use validatrix::{Accumulator, Validate};
+
+use crate::MaybeNDim;
 
 /// `coordinate_transformations` element metadata. Represents a single coordinate transformation.
 ///
@@ -20,6 +23,24 @@ pub enum CoordinateTransform {
     Scale(CoordinateTransformScale),
 }
 
+impl Validate for CoordinateTransform {
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        if let CoordinateTransform::Identity = self {
+            accum.add_failure("identity transform cannot be used here");
+        }
+    }
+}
+
+impl MaybeNDim for CoordinateTransform {
+    fn maybe_ndim(&self) -> Option<usize> {
+        match self {
+            CoordinateTransform::Identity => None,
+            CoordinateTransform::Translation(t) => t.maybe_ndim(),
+            CoordinateTransform::Scale(t) => t.maybe_ndim(),
+        }
+    }
+}
+
 /// [`CoordinateTransform`] `translation` type metadata.
 #[allow(missing_docs)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -29,6 +50,16 @@ pub enum CoordinateTransformTranslation {
     List { translation: Vec<f32> },
     /// A path to binary data at a location in this container.
     Path { path: PathBuf },
+}
+
+impl MaybeNDim for CoordinateTransformTranslation {
+    fn maybe_ndim(&self) -> Option<usize> {
+        if let CoordinateTransformTranslation::List { translation } = self {
+            Some(translation.len())
+        } else {
+            None
+        }
+    }
 }
 
 impl From<Vec<f32>> for CoordinateTransformTranslation {
@@ -52,6 +83,16 @@ pub enum CoordinateTransformScale {
     List { scale: Vec<f32> },
     /// A path to binary data at a location in this container.
     Path { path: PathBuf },
+}
+
+impl MaybeNDim for CoordinateTransformScale {
+    fn maybe_ndim(&self) -> Option<usize> {
+        if let CoordinateTransformScale::List { scale } = self {
+            Some(scale.len())
+        } else {
+            None
+        }
+    }
 }
 
 impl From<Vec<f32>> for CoordinateTransformScale {

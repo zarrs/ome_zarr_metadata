@@ -2,9 +2,10 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.4/#plate-md>.
 
-use std::{num::NonZeroU64, path::PathBuf};
+use std::{collections::HashSet, num::NonZeroU64, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
+use validatrix::{Accumulator, Validate};
 
 /// `plate` metadata. For high-content screening datasets.
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -29,6 +30,104 @@ pub struct Plate {
     pub wells: Vec<PlateWell>,
 }
 
+impl Validate for Plate {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        if let Some(acqs) = self.acquisitions.as_deref() {
+            accum.with_key("acquisitions", |acc| {
+                let mut visited = HashSet::with_capacity(acqs.len());
+                for (idx, a) in acqs.iter().enumerate() {
+                    if !visited.insert(a.id) {
+                        acc.with_keys(&[idx.into(), "id".into()], |acc_inner| {
+                            acc_inner.add_failure(format!("not unique: {}", a.id));
+                        });
+                    }
+                    acc.validate_member_at(idx, a);
+                }
+            });
+        }
+
+        accum.with_key("columns", |acc| {
+            let mut col_names = HashSet::with_capacity(self.columns.len());
+            for (idx, col) in self.columns.iter().enumerate() {
+                if !col_names.insert(&col.name) {
+                    acc.with_keys(&[idx.into(), "name".into()], |acc_inner| {
+                        acc_inner.add_failure(format!("not unique: {}", col.name));
+                    });
+                }
+                acc.validate_member_at(idx, col);
+            }
+        });
+
+        accum.with_key("rows", |acc| {
+            let mut row_names = HashSet::with_capacity(self.rows.len());
+
+            for (idx, row) in self.rows.iter().enumerate() {
+                if !row_names.insert(&row.name) {
+                    acc.with_keys(&[idx.into(), "name".into()], |acc_inner| {
+                        acc_inner.add_failure(format!("not unique: {}", row.name));
+                    });
+                }
+                acc.validate_member_at(idx, row);
+            }
+        });
+
+        accum.with_key("wells", |acc| {
+            for (idx, well) in self.wells.iter().enumerate() {
+                acc.with_key(idx, |w_acc| {
+                    let col_name_opt = self.columns.get(well.column_index).map(|c| c.name.as_str());
+                    if col_name_opt.is_none() {
+                        w_acc.add_failure_at(
+                            "columnIndex",
+                            format!("column index {} does not exist", well.column_index),
+                        );
+                    }
+                    let row_name_opt = self.rows.get(well.row_index).map(|r| r.name.as_str());
+                    if row_name_opt.is_none() {
+                        w_acc.add_failure_at(
+                            "rowIndex",
+                            format!("row index {} does not exist", well.row_index),
+                        );
+                    }
+                    if let (Some(col_name), Some(row_name)) = (col_name_opt, row_name_opt) {
+                        let mut comp = well.path.components();
+                        let Some(row_component) = comp.next() else {
+                            w_acc.add_failure_at("path", "no row name");
+                            return;
+                        };
+
+                        if row_component
+                            .as_os_str()
+                            .to_str()
+                            .filter(|r| *r == row_name)
+                            .is_none()
+                        {
+                            w_acc.add_failure_at("path", "row name does not match row index");
+                        };
+
+                        let Some(col_component) = comp.next() else {
+                            w_acc.add_failure_at("path", "no column name");
+                            return;
+                        };
+
+                        if col_component
+                            .as_os_str()
+                            .to_str()
+                            .filter(|c| *c == col_name)
+                            .is_none()
+                        {
+                            w_acc.add_failure_at("path", "column name does not match column index");
+                        };
+
+                        if comp.next().is_some() {
+                            w_acc.add_failure_at("path", "too many path components");
+                        }
+                    }
+                });
+            }
+        });
+    }
+}
+
 /// [`Plate`] `acquisitions` element metadata. Defines a plate acquisition.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
@@ -39,17 +138,27 @@ pub struct PlateAcquisition {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The maximum number of fields of view for the acquisition (optional).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximumfieldcount: Option<NonZeroU64>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "maximumfieldcount")]
+    pub maximum_field_count: Option<NonZeroU64>,
     /// A string specifying a description for the acquisition (optional)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// An epoch timestamp specifying the start timestamp of the acquisition (optional).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub starttime: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "starttime")]
+    pub start_time: Option<u64>,
     /// An epoch timestamp specifying the end timestamp of the acquisition (optional).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub endtime: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "endtime")]
+    pub end_time: Option<u64>,
+}
+
+impl Validate for PlateAcquisition {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        if let (Some(start), Some(end)) = (self.start_time, self.end_time) {
+            if end < start {
+                accum.add_failure_at("endtime", "before starttime");
+            }
+        }
+    }
 }
 
 /// [`Plate`] `columns` element metadata. Defines a plate column.
@@ -60,12 +169,37 @@ pub struct PlateColumn {
     pub name: String,
 }
 
+impl Validate for PlateColumn {
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        accum.with_key("name", |a| {
+            validate_alphanum(a, &self.name);
+        });
+    }
+}
+
 /// [`Plate`] `rows` element metadata. Defines a plate row.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct PlateRow {
     /// Specifies the unique row mame.
     pub name: String,
+}
+
+impl Validate for PlateRow {
+    fn validate_inner(&self, accum: &mut Accumulator) {
+        accum.with_key("name", |a| {
+            validate_alphanum(a, &self.name);
+        });
+    }
+}
+
+fn validate_alphanum(accum: &mut Accumulator, s: &str) {
+    for c in s.chars() {
+        if !c.is_alphanumeric() {
+            accum.add_failure(format!("not alphanumeric: {s}"));
+            return;
+        }
+    }
 }
 
 /// [`Plate`] `wells` element metadata. Defines a plate well.
@@ -75,11 +209,11 @@ pub struct PlateWell {
     /// A string specifying the path to the well subgroup.
     pub path: PathBuf,
     /// Specifies the row index.
-    #[serde(alias = "rowIndex")]
-    pub row_index: u64,
+    #[serde(rename = "rowIndex")]
+    pub row_index: usize,
     /// Specifies the column index.
-    #[serde(alias = "columnIndex")]
-    pub column_index: u64,
+    #[serde(rename = "columnIndex")]
+    pub column_index: usize,
 }
 
 #[cfg(test)]

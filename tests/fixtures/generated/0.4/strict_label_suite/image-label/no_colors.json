@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "id": "schemas/strict_label.schema"
+  },
+  "test_case_description": "Tests for the strict image-label JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "image-label/no_colors",
+    "data": {
+      "image-label": {
+        "version": "0.4"
+      }
+    },
+    "valid": false
+  }
+}
