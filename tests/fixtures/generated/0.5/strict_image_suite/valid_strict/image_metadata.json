@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "id": "schemas/strict_image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: valid_strict/image_metadata.json]",
+    "data": {
+      "ome": {
+        "@id": "top",
+        "@type": "ngff:Image",
+        "multiscales": [
+          {
+            "@id": "inner",
+            "axes": [
+              {
+                "name": "y",
+                "type": "space",
+                "unit": "micrometer"
+              },
+              {
+                "name": "x",
+                "type": "space",
+                "unit": "micrometer"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1,
+                      1
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "path/to/0"
+              }
+            ],
+            "metadata": {
+              "args": [
+                "true",
+                "false"
+              ],
+              "kwargs": {
+                "multichannel": true
+              },
+              "method": "skimage.transform.pyramid_gaussian",
+              "version": "0.16.1"
+            },
+            "name": "example",
+            "type": "gaussian"
+          }
+        ],
+        "version": "0.5"
+      }
+    },
+    "valid": true
+  }
+}

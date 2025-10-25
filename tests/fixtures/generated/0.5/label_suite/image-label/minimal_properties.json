@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "id": "schemas/label.schema"
+  },
+  "test_case_description": "Tests for the image-label JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "image-label/minimal_properties",
+    "data": {
+      "ome": {
+        "image-label": {
+          "colors": [
+            {
+              "label-value": 1,
+              "rgba": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "properties": [
+            {
+              "label-value": 1
+            }
+          ]
+        },
+        "version": "0.5"
+      }
+    },
+    "valid": true
+  }
+}

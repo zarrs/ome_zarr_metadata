@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: valid/missing_version.json]",
+    "data": {
+      "@type": "ngff:Image",
+      "multiscales": [
+        {
+          "axes": [
+            {
+              "name": "y",
+              "type": "space",
+              "unit": "micrometer"
+            },
+            {
+              "name": "x",
+              "type": "space",
+              "unit": "micrometer"
+            }
+          ],
+          "datasets": [
+            {
+              "coordinateTransformations": [
+                {
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "type": "scale"
+                }
+              ],
+              "path": "path/to/0"
+            }
+          ],
+          "name": "example"
+        }
+      ]
+    },
+    "valid": true
+  }
+}

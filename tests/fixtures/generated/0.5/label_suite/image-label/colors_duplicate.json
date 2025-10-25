@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "id": "schemas/label.schema"
+  },
+  "test_case_description": "Tests for the image-label JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "image-label/colors_duplicate",
+    "data": {
+      "ome": {
+        "image-label": {
+          "colors": [
+            {
+              "label-value": 1,
+              "rgba": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "label-value": 1,
+              "rgba": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        "version": "0.5"
+      }
+    },
+    "valid": false
+  }
+}

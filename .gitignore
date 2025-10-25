@@ -27,5 +27,3 @@ lcov.info
 # cargo-mutants
 mutants.out
 tmp/
-
-tests/fixtures/generated

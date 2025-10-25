@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "id": "schemas/image.schema"
+  },
+  "test_case_description": "TBD",
+  "test": {
+    "formerly": null,
+    "description": "TBD [formerly: invalid/one_space_axes.json]",
+    "data": {
+      "ome": {
+        "multiscales": [
+          {
+            "axes": [
+              {
+                "name": "t",
+                "type": "time"
+              },
+              {
+                "name": "c",
+                "type": "channel"
+              },
+              {
+                "name": "x",
+                "type": "space"
+              }
+            ],
+            "datasets": [
+              {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "type": "scale"
+                  }
+                ],
+                "path": "0"
+              }
+            ]
+          }
+        ],
+        "version": "0.5"
+      }
+    },
+    "valid": false
+  }
+}

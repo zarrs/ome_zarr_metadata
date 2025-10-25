@@ -1,0 +1,21 @@
+{
+  "schema": {
+    "id": "schemas/well.schema"
+  },
+  "test_case_description": "Tests for the well JSON schema",
+  "test": {
+    "formerly": null,
+    "description": "well/non_integer_acquisition_id",
+    "data": {
+      "well": {
+        "images": [
+          {
+            "acquisition": "0",
+            "path": "0"
+          }
+        ]
+      }
+    },
+    "valid": false
+  }
+}
