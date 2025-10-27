@@ -77,32 +77,23 @@ impl From<AnyOmeIntermediate> for AnyOme {
 
 #[cfg(test)]
 mod tests {
+    use serde::Serialize;
+
     use super::*;
 
-    #[test]
-    fn can_deser_v0_4() {
-        let attrs = v0_4::OmeNgffGroupAttributes {
-            multiscales: Some(vec![v0_4::MultiscaleImage {
-                version: Default::default(),
-                name: Some("test".into()),
-                axes: vec![],
-                datasets: vec![],
-                coordinate_transformations: None,
-                r#type: None,
-                metadata: Default::default(),
-            }]),
-            ..Default::default()
-        };
-        let s = serde_json::to_string(&attrs).unwrap();
+    fn can_roundtrip<T: Serialize>(expected_version: &str, group_attrs: &T) {
+        let s = serde_json::to_string(group_attrs).unwrap();
         let attrs2: AnyOme = serde_json::from_str(&s).unwrap();
-        assert_eq!(attrs2.version(), "0.4");
+        assert_eq!(attrs2.version(), expected_version);
     }
 
     #[test]
-    fn can_deser_v0_5() {
-        let attrs = v0_5::OmeZarrGroupAttributes {
-            ome: v0_5::OmeFields {
-                multiscales: Some(vec![v0_5::MultiscaleImage {
+    fn can_deser_v0_4() {
+        can_roundtrip(
+            "0.4",
+            &v0_4::OmeNgffGroupAttributes {
+                multiscales: Some(vec![v0_4::MultiscaleImage {
+                    version: Default::default(),
                     name: Some("test".into()),
                     axes: vec![],
                     datasets: vec![],
@@ -112,9 +103,26 @@ mod tests {
                 }]),
                 ..Default::default()
             },
-        };
-        let s = serde_json::to_string(&attrs).unwrap();
-        let attrs2: AnyOme = serde_json::from_str(&s).unwrap();
-        assert_eq!(attrs2.version(), "0.5");
+        )
+    }
+
+    #[test]
+    fn can_deser_v0_5() {
+        can_roundtrip(
+            "0.5",
+            &v0_5::OmeZarrGroupAttributes {
+                ome: v0_5::OmeFields {
+                    multiscales: Some(vec![v0_5::MultiscaleImage {
+                        name: Some("test".into()),
+                        axes: vec![],
+                        datasets: vec![],
+                        coordinate_transformations: None,
+                        r#type: None,
+                        metadata: Default::default(),
+                    }]),
+                    ..Default::default()
+                },
+            },
+        )
     }
 }
