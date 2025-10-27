@@ -18,7 +18,18 @@ use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 pub use well::*;
 
+/// Alias for [OmeNgffGroupAttributes] for consistency with later versions
+/// where the OME-Zarr fields are namespaced.
+pub type OmeFields = OmeNgffGroupAttributes;
+
+/// Alias for [OmeNgffGroupAttributes] for consistency with later versions
+/// (OME-NGFF was renamed to OME-Zarr coinciding with v0.5).
+pub type OmeZarrGroupAttributes = OmeNgffGroupAttributes;
+
 /// OME-NGFF top-level group attributes.
+///
+/// Has aliases [OmeFields] and [OmeZarrGroupAttributes] for consistency with later versions.
+/// In later versions, the OME fields are namespaced and so those two types refer to different things.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeNgffGroupAttributes {
     /// Transitional `bioformats2raw.layout` metadata.

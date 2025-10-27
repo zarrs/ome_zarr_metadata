@@ -23,4 +23,4 @@ pub use ndim::{MaybeNDim, NDim};
 pub use validatrix::{Valid, Validate};
 
 mod any;
-pub use any::AnyOme;
+pub use any::AnyOmeFields;
