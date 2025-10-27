@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `Result` and `Error` types (by [@clbarnes])
 - Add `MaybeNDim` and `NDim` traits for types with dimensionality (by [@clbarnes])
 - Implement `From<AxisUnitSpace>` and `From<AxisUnitTime>` for `AxisUnit` (by [@clbarnes])
+- Add `AnyOme` for deserialising any supported version ([#13] by [@clbarnes])
 
 ### Changed
 
