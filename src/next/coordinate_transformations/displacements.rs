@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// A displacement field where a pixel contains a displacement from a location in another array.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Displacements;
 

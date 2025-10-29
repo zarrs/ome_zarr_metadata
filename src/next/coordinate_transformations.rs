@@ -118,6 +118,7 @@ impl Validate for CoordinateTransformOuter {
 /// It must contain the field "type".
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
+#[non_exhaustive]
 pub enum CoordinateTransform {
     /// The identity transformation.
     Identity(Identity),

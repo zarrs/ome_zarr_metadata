@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Build a high dimensional transformation using lower dimensional transformations on subsets of dimensions
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct ByDimension;
 

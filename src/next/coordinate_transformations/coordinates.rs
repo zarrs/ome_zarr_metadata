@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::MaybeNDim;
 
+/// A coordinate field which looks up locations in another array.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Coordinates;
 
