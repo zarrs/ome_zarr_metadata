@@ -28,6 +28,7 @@ impl<T: NDim> MaybeNDim for T {
         Some(NDim::ndim(self))
     }
 }
+
 pub(crate) fn validate_ndims<'a, T: MaybeNDim + 'a>(
     accum: &mut Accumulator,
     expected: Option<usize>,
