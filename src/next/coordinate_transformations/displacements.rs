@@ -24,7 +24,7 @@ impl super::TransformationType for Displacements {
     }
 }
 
-impl From<Displacements> for super::CoordinateTransform {
+impl From<Displacements> for super::CoordinateTransformInner {
     fn from(value: Displacements) -> Self {
         Self::Displacements(value)
     }

@@ -24,7 +24,7 @@ impl super::TransformationType for ByDimension {
     }
 }
 
-impl From<ByDimension> for super::CoordinateTransform {
+impl From<ByDimension> for super::CoordinateTransformInner {
     fn from(value: ByDimension) -> Self {
         Self::ByDimension(value)
     }

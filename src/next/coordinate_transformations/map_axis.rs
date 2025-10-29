@@ -51,7 +51,7 @@ impl super::TransformationType for MapAxis {
     }
 }
 
-impl From<MapAxis> for super::CoordinateTransform {
+impl From<MapAxis> for super::CoordinateTransformInner {
     fn from(value: MapAxis) -> Self {
         Self::MapAxis(value)
     }

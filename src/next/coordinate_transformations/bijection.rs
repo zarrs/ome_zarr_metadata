@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 
-use crate::next::CoordinateTransformOuter;
+use super::{CoordinateTransform, TransformationType};
 
 /// Explicitly defined forward and reverse transformations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Bijection {
     /// Forward transformation.
-    pub forward: Box<CoordinateTransformOuter>,
+    pub forward: Box<CoordinateTransform>,
     /// Inverse transformation.
-    pub inverse: Box<CoordinateTransformOuter>,
+    pub inverse: Box<CoordinateTransform>,
 }
 
 impl validatrix::Validate for Bijection {
@@ -64,7 +64,7 @@ impl super::TransformationType for Bijection {
     }
 }
 
-impl From<Bijection> for super::CoordinateTransform {
+impl From<Bijection> for super::CoordinateTransformInner {
     fn from(value: Bijection) -> Self {
         Self::Bijection(value)
     }

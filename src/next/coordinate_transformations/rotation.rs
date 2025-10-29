@@ -24,7 +24,7 @@ impl super::TransformationType for Rotation {
     }
 }
 
-impl From<Rotation> for super::CoordinateTransform {
+impl From<Rotation> for super::CoordinateTransformInner {
     fn from(value: Rotation) -> Self {
         Self::Rotation(value)
     }

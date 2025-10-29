@@ -6,7 +6,7 @@ use crate::next::TransformationType;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InverseOf {
     /// Transform to invert
-    pub transformation: Box<super::CoordinateTransformOuter>,
+    pub transformation: Box<super::CoordinateTransform>,
 }
 
 impl validatrix::Validate for InverseOf {
@@ -44,7 +44,7 @@ impl TransformationType for InverseOf {
     }
 }
 
-impl From<InverseOf> for super::CoordinateTransform {
+impl From<InverseOf> for super::CoordinateTransformInner {
     fn from(value: InverseOf) -> Self {
         Self::InverseOf(value)
     }

@@ -32,7 +32,7 @@ impl super::TransformationType for Coordinates {
     }
 }
 
-impl From<Coordinates> for super::CoordinateTransform {
+impl From<Coordinates> for super::CoordinateTransformInner {
     fn from(value: Coordinates) -> Self {
         Self::Coordinates(value)
     }

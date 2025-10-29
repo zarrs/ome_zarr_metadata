@@ -51,7 +51,7 @@ impl TransformationType for Translation {
     }
 }
 
-impl From<Translation> for super::CoordinateTransform {
+impl From<Translation> for super::CoordinateTransformInner {
     fn from(value: Translation) -> Self {
         Self::Translation(value)
     }

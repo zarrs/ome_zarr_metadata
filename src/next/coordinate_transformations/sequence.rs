@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use super::CoordinateTransformOuter;
+use super::CoordinateTransform;
 use crate::next::TransformationType;
 
 /// Sequence of other transformations.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Sequence {
     /// List of transformations to be applied.
-    pub transformations: Vec<CoordinateTransformOuter>,
+    pub transformations: Vec<CoordinateTransform>,
 }
 
 impl validatrix::Validate for Sequence {
@@ -20,7 +20,7 @@ impl validatrix::Validate for Sequence {
             let mut last_output = None;
             let mut last_output_dim = None;
             for (idx, t) in self.transformations.iter().enumerate() {
-                if matches!(t.config, super::CoordinateTransform::Sequence(_)) {
+                if matches!(t.config, super::CoordinateTransformInner::Sequence(_)) {
                     acc.add_failure_at(idx, "sequences cannot contain sequences");
                 }
 
@@ -57,12 +57,20 @@ impl TransformationType for Sequence {
         self.transformations.first().and_then(|t| t.input_ndim())
     }
 
+    fn input_system(&self) -> Option<&str> {
+        self.transformations.first().and_then(|t| t.input_system())
+    }
+
     fn output_ndim(&self) -> Option<usize> {
         self.transformations.last().and_then(|t| t.output_ndim())
     }
+
+    fn output_system(&self) -> Option<&str> {
+        self.transformations.last().and_then(|t| t.output_system())
+    }
 }
 
-impl From<Sequence> for super::CoordinateTransform {
+impl From<Sequence> for super::CoordinateTransformInner {
     fn from(value: Sequence) -> Self {
         Self::Sequence(value)
     }

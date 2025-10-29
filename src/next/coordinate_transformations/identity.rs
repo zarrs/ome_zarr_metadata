@@ -31,7 +31,7 @@ impl super::TransformationType for Identity {
     }
 }
 
-impl From<Identity> for super::CoordinateTransform {
+impl From<Identity> for super::CoordinateTransformInner {
     fn from(value: Identity) -> Self {
         Self::Identity(value)
     }

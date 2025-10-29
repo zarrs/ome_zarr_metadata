@@ -30,53 +30,21 @@ pub use sequence::*;
 mod translation;
 pub use translation::*;
 
-/// Core metadata present in most coordinate transformations.
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
-#[serde(tag = "type", rename_all = "camelCase")]
-pub struct Common {
-    /// Optional name of the transform.
-    pub name: Option<String>,
-    /// Input coordinate system.
-    pub input: Option<String>,
-    /// Output coordinate system.
-    pub output: Option<String>,
-}
-
 /// Transformation between input/output spaces.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CoordinateTransformOuter {
+pub struct CoordinateTransform {
     /// Optional name of the transform.
     pub name: Option<String>,
-    /// Input coordinate system. Prefer accessing through [Self::input_system].
+    /// Input coordinate system. Prefer accessing through [TransformationType::input_system].
     pub input: Option<String>,
-    /// Output coordinate system. Prefer accessing through [Self::output_system].
+    /// Output coordinate system. Prefer accessing through [TransformationType::output_system].
     pub output: Option<String>,
     /// Configuration specific to this transform type.
     #[serde(flatten)]
-    pub config: CoordinateTransform,
+    pub config: CoordinateTransformInner,
 }
 
-impl CoordinateTransformOuter {
-    /// Get the input coordinate system, inferring it from sub-transformations if necessary.
-    /// Will always be Some for valid metadata.
-    pub fn input_system(&self) -> Option<&str> {
-        self.input.as_deref().or(match &self.config {
-            CoordinateTransform::Bijection(bij) => bij.input_system(),
-            _ => None,
-        })
-    }
-
-    /// Get the output coordinate system, inferring it from sub-transformations if necessary.
-    /// Will always be Some for valid metadata.
-    pub fn output_system(&self) -> Option<&str> {
-        self.output.as_deref().or(match &self.config {
-            CoordinateTransform::Bijection(bij) => bij.output_system(),
-            _ => None,
-        })
-    }
-}
-
-impl TransformationType for CoordinateTransformOuter {
+impl TransformationType for CoordinateTransform {
     fn invertible(&self) -> Option<bool> {
         self.config.invertible()
     }
@@ -88,13 +56,27 @@ impl TransformationType for CoordinateTransformOuter {
     fn output_ndim(&self) -> Option<usize> {
         self.config.output_ndim()
     }
+
+    fn input_system(&self) -> Option<&str> {
+        self.input.as_deref().or(match &self.config {
+            CoordinateTransformInner::Bijection(bij) => bij.input_system(),
+            _ => None,
+        })
+    }
+
+    fn output_system(&self) -> Option<&str> {
+        self.output.as_deref().or(match &self.config {
+            CoordinateTransformInner::Bijection(bij) => bij.output_system(),
+            _ => None,
+        })
+    }
 }
 
-impl Validate for CoordinateTransformOuter {
+impl Validate for CoordinateTransform {
     fn validate_inner(&self, accum: &mut Accumulator) {
         self.config.validate_inner(accum);
-        let (inp, outp) = (self.config.input_system(), self.config.output_system());
-        match (self.input.as_deref(), inp) {
+
+        match (self.input.as_deref(), self.config.input_system()) {
             (Some(exp), Some(imp)) if exp != imp => {
                 accum.add_failure_at("input", "mismatched coordinate systems");
             }
@@ -102,7 +84,8 @@ impl Validate for CoordinateTransformOuter {
             // (None, None) => accum.add_failure_at("input", "no coordinate system given"),
             _ => (),
         }
-        match (self.output.as_deref(), outp) {
+
+        match (self.output.as_deref(), self.config.output_system()) {
             (Some(exp), Some(imp)) if exp != imp => {
                 accum.add_failure_at("output", "mismatched coordinate systems");
             }
@@ -119,7 +102,7 @@ impl Validate for CoordinateTransformOuter {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
 #[non_exhaustive]
-pub enum CoordinateTransform {
+pub enum CoordinateTransformInner {
     /// The identity transformation.
     Identity(Identity),
     /// An axis permutation as a transpose array of integer indices that refer to the ordering of the axes in the respective coordinate system.
@@ -146,21 +129,21 @@ pub enum CoordinateTransform {
     ByDimension(ByDimension),
 }
 
-impl Validate for CoordinateTransform {
+impl Validate for CoordinateTransformInner {
     fn validate_inner(&self, accum: &mut Accumulator) {
         match self {
-            CoordinateTransform::Identity(t) => t.validate_inner(accum),
-            CoordinateTransform::MapAxis(t) => t.validate_inner(accum),
-            CoordinateTransform::Translation(t) => t.validate_inner(accum),
-            CoordinateTransform::Scale(t) => t.validate_inner(accum),
-            CoordinateTransform::Affine(t) => t.validate_inner(accum),
-            CoordinateTransform::Rotation(t) => t.validate_inner(accum),
-            CoordinateTransform::Sequence(t) => t.validate_inner(accum),
-            CoordinateTransform::Displacements(t) => t.validate_inner(accum),
-            CoordinateTransform::Coordinates(t) => t.validate_inner(accum),
-            CoordinateTransform::InverseOf(t) => t.validate_inner(accum),
-            CoordinateTransform::Bijection(t) => t.validate_inner(accum),
-            CoordinateTransform::ByDimension(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Identity(t) => t.validate_inner(accum),
+            CoordinateTransformInner::MapAxis(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Translation(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Scale(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Affine(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Rotation(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Sequence(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Displacements(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Coordinates(t) => t.validate_inner(accum),
+            CoordinateTransformInner::InverseOf(t) => t.validate_inner(accum),
+            CoordinateTransformInner::Bijection(t) => t.validate_inner(accum),
+            CoordinateTransformInner::ByDimension(t) => t.validate_inner(accum),
         }
     }
 }
@@ -189,94 +172,94 @@ pub trait TransformationType {
     fn output_ndim(&self) -> Option<usize>;
 }
 
-impl TransformationType for CoordinateTransform {
+impl TransformationType for CoordinateTransformInner {
     fn invertible(&self) -> Option<bool> {
         match self {
-            CoordinateTransform::Identity(t) => t.invertible(),
-            CoordinateTransform::MapAxis(t) => t.invertible(),
-            CoordinateTransform::Translation(t) => t.invertible(),
-            CoordinateTransform::Scale(t) => t.invertible(),
-            CoordinateTransform::Affine(t) => t.invertible(),
-            CoordinateTransform::Rotation(t) => t.invertible(),
-            CoordinateTransform::Sequence(t) => t.invertible(),
-            CoordinateTransform::Displacements(t) => t.invertible(),
-            CoordinateTransform::Coordinates(t) => t.invertible(),
-            CoordinateTransform::InverseOf(t) => t.invertible(),
-            CoordinateTransform::Bijection(t) => t.invertible(),
-            CoordinateTransform::ByDimension(t) => t.invertible(),
+            CoordinateTransformInner::Identity(t) => t.invertible(),
+            CoordinateTransformInner::MapAxis(t) => t.invertible(),
+            CoordinateTransformInner::Translation(t) => t.invertible(),
+            CoordinateTransformInner::Scale(t) => t.invertible(),
+            CoordinateTransformInner::Affine(t) => t.invertible(),
+            CoordinateTransformInner::Rotation(t) => t.invertible(),
+            CoordinateTransformInner::Sequence(t) => t.invertible(),
+            CoordinateTransformInner::Displacements(t) => t.invertible(),
+            CoordinateTransformInner::Coordinates(t) => t.invertible(),
+            CoordinateTransformInner::InverseOf(t) => t.invertible(),
+            CoordinateTransformInner::Bijection(t) => t.invertible(),
+            CoordinateTransformInner::ByDimension(t) => t.invertible(),
         }
     }
 
     fn input_ndim(&self) -> Option<usize> {
         match self {
-            CoordinateTransform::Identity(t) => t.input_ndim(),
-            CoordinateTransform::MapAxis(t) => t.input_ndim(),
-            CoordinateTransform::Translation(t) => t.input_ndim(),
-            CoordinateTransform::Scale(t) => t.input_ndim(),
-            CoordinateTransform::Affine(t) => t.input_ndim(),
-            CoordinateTransform::Rotation(t) => t.input_ndim(),
-            CoordinateTransform::Sequence(t) => t.input_ndim(),
-            CoordinateTransform::Displacements(t) => t.input_ndim(),
-            CoordinateTransform::Coordinates(t) => t.input_ndim(),
-            CoordinateTransform::InverseOf(t) => t.input_ndim(),
-            CoordinateTransform::Bijection(t) => t.input_ndim(),
-            CoordinateTransform::ByDimension(t) => t.input_ndim(),
+            CoordinateTransformInner::Identity(t) => t.input_ndim(),
+            CoordinateTransformInner::MapAxis(t) => t.input_ndim(),
+            CoordinateTransformInner::Translation(t) => t.input_ndim(),
+            CoordinateTransformInner::Scale(t) => t.input_ndim(),
+            CoordinateTransformInner::Affine(t) => t.input_ndim(),
+            CoordinateTransformInner::Rotation(t) => t.input_ndim(),
+            CoordinateTransformInner::Sequence(t) => t.input_ndim(),
+            CoordinateTransformInner::Displacements(t) => t.input_ndim(),
+            CoordinateTransformInner::Coordinates(t) => t.input_ndim(),
+            CoordinateTransformInner::InverseOf(t) => t.input_ndim(),
+            CoordinateTransformInner::Bijection(t) => t.input_ndim(),
+            CoordinateTransformInner::ByDimension(t) => t.input_ndim(),
         }
     }
 
     fn output_ndim(&self) -> Option<usize> {
         match self {
-            CoordinateTransform::Identity(t) => t.output_ndim(),
-            CoordinateTransform::MapAxis(t) => t.output_ndim(),
-            CoordinateTransform::Translation(t) => t.output_ndim(),
-            CoordinateTransform::Scale(t) => t.output_ndim(),
-            CoordinateTransform::Affine(t) => t.output_ndim(),
-            CoordinateTransform::Rotation(t) => t.output_ndim(),
-            CoordinateTransform::Sequence(t) => t.output_ndim(),
-            CoordinateTransform::Displacements(t) => t.output_ndim(),
-            CoordinateTransform::Coordinates(t) => t.output_ndim(),
-            CoordinateTransform::InverseOf(t) => t.output_ndim(),
-            CoordinateTransform::Bijection(t) => t.output_ndim(),
-            CoordinateTransform::ByDimension(t) => t.output_ndim(),
+            CoordinateTransformInner::Identity(t) => t.output_ndim(),
+            CoordinateTransformInner::MapAxis(t) => t.output_ndim(),
+            CoordinateTransformInner::Translation(t) => t.output_ndim(),
+            CoordinateTransformInner::Scale(t) => t.output_ndim(),
+            CoordinateTransformInner::Affine(t) => t.output_ndim(),
+            CoordinateTransformInner::Rotation(t) => t.output_ndim(),
+            CoordinateTransformInner::Sequence(t) => t.output_ndim(),
+            CoordinateTransformInner::Displacements(t) => t.output_ndim(),
+            CoordinateTransformInner::Coordinates(t) => t.output_ndim(),
+            CoordinateTransformInner::InverseOf(t) => t.output_ndim(),
+            CoordinateTransformInner::Bijection(t) => t.output_ndim(),
+            CoordinateTransformInner::ByDimension(t) => t.output_ndim(),
         }
     }
 
     fn input_system(&self) -> Option<&str> {
         match self {
-            CoordinateTransform::Identity(t) => t.input_system(),
-            CoordinateTransform::MapAxis(t) => t.input_system(),
-            CoordinateTransform::Translation(t) => t.input_system(),
-            CoordinateTransform::Scale(t) => t.input_system(),
-            CoordinateTransform::Affine(t) => t.input_system(),
-            CoordinateTransform::Rotation(t) => t.input_system(),
-            CoordinateTransform::Sequence(t) => t.input_system(),
-            CoordinateTransform::Displacements(t) => t.input_system(),
-            CoordinateTransform::Coordinates(t) => t.input_system(),
-            CoordinateTransform::InverseOf(t) => t.input_system(),
-            CoordinateTransform::Bijection(t) => t.input_system(),
-            CoordinateTransform::ByDimension(t) => t.input_system(),
+            CoordinateTransformInner::Identity(t) => t.input_system(),
+            CoordinateTransformInner::MapAxis(t) => t.input_system(),
+            CoordinateTransformInner::Translation(t) => t.input_system(),
+            CoordinateTransformInner::Scale(t) => t.input_system(),
+            CoordinateTransformInner::Affine(t) => t.input_system(),
+            CoordinateTransformInner::Rotation(t) => t.input_system(),
+            CoordinateTransformInner::Sequence(t) => t.input_system(),
+            CoordinateTransformInner::Displacements(t) => t.input_system(),
+            CoordinateTransformInner::Coordinates(t) => t.input_system(),
+            CoordinateTransformInner::InverseOf(t) => t.input_system(),
+            CoordinateTransformInner::Bijection(t) => t.input_system(),
+            CoordinateTransformInner::ByDimension(t) => t.input_system(),
         }
     }
 
     fn output_system(&self) -> Option<&str> {
         match self {
-            CoordinateTransform::Identity(t) => t.output_system(),
-            CoordinateTransform::MapAxis(t) => t.output_system(),
-            CoordinateTransform::Translation(t) => t.output_system(),
-            CoordinateTransform::Scale(t) => t.output_system(),
-            CoordinateTransform::Affine(t) => t.output_system(),
-            CoordinateTransform::Rotation(t) => t.output_system(),
-            CoordinateTransform::Sequence(t) => t.output_system(),
-            CoordinateTransform::Displacements(t) => t.output_system(),
-            CoordinateTransform::Coordinates(t) => t.output_system(),
-            CoordinateTransform::InverseOf(t) => t.output_system(),
-            CoordinateTransform::Bijection(t) => t.output_system(),
-            CoordinateTransform::ByDimension(t) => t.output_system(),
+            CoordinateTransformInner::Identity(t) => t.output_system(),
+            CoordinateTransformInner::MapAxis(t) => t.output_system(),
+            CoordinateTransformInner::Translation(t) => t.output_system(),
+            CoordinateTransformInner::Scale(t) => t.output_system(),
+            CoordinateTransformInner::Affine(t) => t.output_system(),
+            CoordinateTransformInner::Rotation(t) => t.output_system(),
+            CoordinateTransformInner::Sequence(t) => t.output_system(),
+            CoordinateTransformInner::Displacements(t) => t.output_system(),
+            CoordinateTransformInner::Coordinates(t) => t.output_system(),
+            CoordinateTransformInner::InverseOf(t) => t.output_system(),
+            CoordinateTransformInner::Bijection(t) => t.output_system(),
+            CoordinateTransformInner::ByDimension(t) => t.output_system(),
         }
     }
 }
 
-impl Default for CoordinateTransform {
+impl Default for CoordinateTransformInner {
     fn default() -> Self {
         Self::Identity(Default::default())
     }

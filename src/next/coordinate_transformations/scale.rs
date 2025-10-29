@@ -76,7 +76,7 @@ impl TransformationType for Scale {
     }
 }
 
-impl From<Scale> for super::CoordinateTransform {
+impl From<Scale> for super::CoordinateTransformInner {
     fn from(value: Scale) -> Self {
         Self::Scale(value)
     }
