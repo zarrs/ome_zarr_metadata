@@ -20,7 +20,7 @@ impl validatrix::Validate for Sequence {
             let mut last_output = None;
             let mut last_output_dim = None;
             for (idx, t) in self.transformations.iter().enumerate() {
-                if matches!(t.config, super::CoordinateTransformInner::Sequence(_)) {
+                if matches!(t.inner, super::CoordinateTransformInner::Sequence(_)) {
                     acc.add_failure_at(idx, "sequences cannot contain sequences");
                 }
 

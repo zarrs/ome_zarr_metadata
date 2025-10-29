@@ -41,31 +41,31 @@ pub struct CoordinateTransform {
     pub output: Option<String>,
     /// Configuration specific to this transform type.
     #[serde(flatten)]
-    pub config: CoordinateTransformInner,
+    pub inner: CoordinateTransformInner,
 }
 
 impl TransformationType for CoordinateTransform {
     fn invertible(&self) -> Option<bool> {
-        self.config.invertible()
+        self.inner.invertible()
     }
 
     fn input_ndim(&self) -> Option<usize> {
-        self.config.input_ndim()
+        self.inner.input_ndim()
     }
 
     fn output_ndim(&self) -> Option<usize> {
-        self.config.output_ndim()
+        self.inner.output_ndim()
     }
 
     fn input_system(&self) -> Option<&str> {
-        self.input.as_deref().or(match &self.config {
+        self.input.as_deref().or(match &self.inner {
             CoordinateTransformInner::Bijection(bij) => bij.input_system(),
             _ => None,
         })
     }
 
     fn output_system(&self) -> Option<&str> {
-        self.output.as_deref().or(match &self.config {
+        self.output.as_deref().or(match &self.inner {
             CoordinateTransformInner::Bijection(bij) => bij.output_system(),
             _ => None,
         })
@@ -74,9 +74,9 @@ impl TransformationType for CoordinateTransform {
 
 impl Validate for CoordinateTransform {
     fn validate_inner(&self, accum: &mut Accumulator) {
-        self.config.validate_inner(accum);
+        self.inner.validate_inner(accum);
 
-        match (self.input.as_deref(), self.config.input_system()) {
+        match (self.input.as_deref(), self.inner.input_system()) {
             (Some(exp), Some(imp)) if exp != imp => {
                 accum.add_failure_at("input", "mismatched coordinate systems");
             }
@@ -85,7 +85,7 @@ impl Validate for CoordinateTransform {
             _ => (),
         }
 
-        match (self.output.as_deref(), self.config.output_system()) {
+        match (self.output.as_deref(), self.inner.output_system()) {
             (Some(exp), Some(imp)) if exp != imp => {
                 accum.add_failure_at("output", "mismatched coordinate systems");
             }
