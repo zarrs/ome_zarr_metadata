@@ -22,3 +22,9 @@ impl super::TransformationType for Displacements {
         todo!()
     }
 }
+
+impl From<Displacements> for super::CoordinateTransform {
+    fn from(value: Displacements) -> Self {
+        Self::Displacements(value)
+    }
+}

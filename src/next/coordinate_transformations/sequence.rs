@@ -61,3 +61,9 @@ impl TransformationType for Sequence {
         self.transformations.last().and_then(|t| t.output_ndim())
     }
 }
+
+impl From<Sequence> for super::CoordinateTransform {
+    fn from(value: Sequence) -> Self {
+        Self::Sequence(value)
+    }
+}

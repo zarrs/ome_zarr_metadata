@@ -63,3 +63,9 @@ impl super::TransformationType for Bijection {
             .or_else(|| self.inverse.input_system())
     }
 }
+
+impl From<Bijection> for super::CoordinateTransform {
+    fn from(value: Bijection) -> Self {
+        Self::Bijection(value)
+    }
+}

@@ -75,3 +75,9 @@ impl TransformationType for Scale {
         self.maybe_ndim()
     }
 }
+
+impl From<Scale> for super::CoordinateTransform {
+    fn from(value: Scale) -> Self {
+        Self::Scale(value)
+    }
+}

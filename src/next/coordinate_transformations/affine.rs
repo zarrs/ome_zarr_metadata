@@ -64,3 +64,9 @@ impl TransformationType for Affine {
         }
     }
 }
+
+impl From<Affine> for super::CoordinateTransform {
+    fn from(value: Affine) -> Self {
+        Self::Affine(value)
+    }
+}

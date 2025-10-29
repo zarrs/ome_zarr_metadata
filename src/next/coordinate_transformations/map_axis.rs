@@ -50,3 +50,9 @@ impl super::TransformationType for MapAxis {
         Some(self.ndim())
     }
 }
+
+impl From<MapAxis> for super::CoordinateTransform {
+    fn from(value: MapAxis) -> Self {
+        Self::MapAxis(value)
+    }
+}

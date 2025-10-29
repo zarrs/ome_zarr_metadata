@@ -22,3 +22,9 @@ impl super::TransformationType for ByDimension {
         todo!()
     }
 }
+
+impl From<ByDimension> for super::CoordinateTransform {
+    fn from(value: ByDimension) -> Self {
+        Self::ByDimension(value)
+    }
+}

@@ -43,3 +43,9 @@ impl TransformationType for InverseOf {
         self.transformation.input_system()
     }
 }
+
+impl From<InverseOf> for super::CoordinateTransform {
+    fn from(value: InverseOf) -> Self {
+        Self::InverseOf(value)
+    }
+}

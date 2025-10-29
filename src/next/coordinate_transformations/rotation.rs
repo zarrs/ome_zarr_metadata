@@ -23,3 +23,9 @@ impl super::TransformationType for Rotation {
         todo!()
     }
 }
+
+impl From<Rotation> for super::CoordinateTransform {
+    fn from(value: Rotation) -> Self {
+        Self::Rotation(value)
+    }
+}

@@ -50,3 +50,9 @@ impl TransformationType for Translation {
         self.maybe_ndim()
     }
 }
+
+impl From<Translation> for super::CoordinateTransform {
+    fn from(value: Translation) -> Self {
+        Self::Translation(value)
+    }
+}

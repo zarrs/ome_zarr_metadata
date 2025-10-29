@@ -30,3 +30,9 @@ impl super::TransformationType for Coordinates {
         todo!()
     }
 }
+
+impl From<Coordinates> for super::CoordinateTransform {
+    fn from(value: Coordinates) -> Self {
+        Self::Coordinates(value)
+    }
+}
