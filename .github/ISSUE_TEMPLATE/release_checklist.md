@@ -53,7 +53,7 @@ assignees: []
 - [ ] Announce the GitHub release (TODO: automate?)
 
 ## 5. Version Increment
-- [ ] Increment the minor version on `main` and add a `-dev` suffix, e.g. `0.3.1-dev`
+- [ ] Increment the minor/patch version on `main` and add a `-dev` suffix, e.g. `0.3.1-dev`
 
 ## 6. Done!
 - [ ] Close this issue
