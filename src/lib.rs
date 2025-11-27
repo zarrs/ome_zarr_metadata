@@ -24,3 +24,11 @@ pub use validatrix::{Valid, Validate};
 
 mod any;
 pub use any::AnyOmeFields;
+
+/// Future version of OME-Zarr metadata.
+///
+/// May not be up to date with the latest development specification.
+/// May implement not-yet-stabilised RFCs.
+/// Breaking API changes may be made at any time.
+#[cfg(feature = "next")]
+pub mod next;
