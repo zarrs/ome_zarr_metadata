@@ -1,4 +1,5 @@
-pub use crate::v0_5::{self, *};
+pub use crate::v0_5 as prev;
+pub use prev::*;
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
@@ -72,8 +73,8 @@ impl Validate for OmeZarrGroupAttributes {
     }
 }
 
-impl From<v0_5::OmeFields> for OmeFields {
-    fn from(value: v0_5::OmeFields) -> Self {
+impl From<prev::OmeFields> for OmeFields {
+    fn from(value: prev::OmeFields) -> Self {
         Self {
             version: Default::default(),
             bioformats2raw: value.bioformats2raw,
@@ -87,8 +88,8 @@ impl From<v0_5::OmeFields> for OmeFields {
     }
 }
 
-impl From<v0_5::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
-    fn from(value: v0_5::OmeZarrGroupAttributes) -> Self {
+impl From<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
+    fn from(value: prev::OmeZarrGroupAttributes) -> Self {
         Self {
             ome: value.ome.into(),
         }
