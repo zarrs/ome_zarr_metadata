@@ -4,10 +4,14 @@
 #[macro_export]
 macro_rules! constrained_version {
     ($name:ident, $spec:expr, $default:expr) => {
-        /// Constrained PEP-440 version.
-        /// Instantiate with its [std::str::FromStr] or [std::convert::TryFrom<pep440_rs::Version>] implementations.
-        ///
-        /// Defined by the `constrained_version!` macro.
+        #[doc = "PEP-440 version with constraint `'"]
+        #[doc = $spec]
+        // #[doc = stringify!($spec)]
+        #[doc = "'` and default `'"]
+        #[doc = $default]
+        // #[doc = stringify!($default)]
+        #[doc = "'`.\n Instantiate with its [`std::str::FromStr`] or [`std::convert::TryFrom<pep440_rs::Version>`] implementations.\n\n"]
+        #[doc = "Defined by the `constrained_version!` macro."]
         #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub struct $name(pep440_rs::Version);
 
