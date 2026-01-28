@@ -7,7 +7,7 @@
 pub use pep440_rs;
 
 /// Utilities for working with OME-Zarr version strings.
-pub mod version;
+pub(crate) mod version;
 
 /// Version `0.4` (OME-NGFF) metadata.
 ///
