@@ -12,7 +12,7 @@ use validatrix::{Accumulator, Validate};
 #[serde(deny_unknown_fields)]
 pub struct Plate {
     /// The version of the multiscale metadata of the image.
-    pub version: monostate::MustBe!("0.4"),
+    pub version: super::Version0_4,
     /// A list of JSON objects defining the acquisitions for a given plate to which wells can refer to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acquisitions: Option<Vec<PlateAcquisition>>,

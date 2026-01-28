@@ -15,7 +15,9 @@ exclude = [
 ]
 
 [dependencies]
-monostate = "0.1.0"
+monostate = "1.0.2"
+paste = "1.0.15"
+pep440_rs = "0.7.3"
 serde = { version = "1.0.184", features = ["derive"] }
 serde_json = { version = "1.0.71", features = ["float_roundtrip", "preserve_order"] }
 thiserror = "2.0.16"
@@ -28,3 +30,6 @@ rstest = { version = "0.26.1", default-features = false }
 [build-dependencies]
 serde = { version = "1.0.184", features = ["derive"] }
 serde_json = "1.0.71"
+
+[features]
+next = []

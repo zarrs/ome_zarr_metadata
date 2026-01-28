@@ -10,14 +10,19 @@ pub enum AnyOmeFields {
     V0_4(v0_4::OmeNgffGroupAttributes),
     /// Version 0.5 metadata
     V0_5(v0_5::OmeFields),
+    #[cfg(feature = "next")]
+    /// Future version metadata
+    VNext(super::next::OmeFields),
 }
 
 impl AnyOmeFields {
     /// Get the version string for the OME-Zarr metadata.
-    pub fn version(&self) -> &'static str {
+    pub fn version(&self) -> String {
         match self {
-            AnyOmeFields::V0_4(_) => "0.4",
-            AnyOmeFields::V0_5(_) => "0.5",
+            AnyOmeFields::V0_4(m) => m.version(),
+            AnyOmeFields::V0_5(m) => m.version.to_string(),
+            #[cfg(feature = "next")]
+            AnyOmeFields::VNext(m) => m.version.to_string(),
         }
     }
 }
@@ -27,6 +32,8 @@ impl Validate for AnyOmeFields {
         match self {
             AnyOmeFields::V0_4(attrs) => attrs.validate_inner(accum),
             AnyOmeFields::V0_5(fields) => accum.validate_member_at("ome", fields),
+            #[cfg(feature = "next")]
+            AnyOmeFields::VNext(fields) => accum.validate_member_at("ome", fields),
         }
     }
 }
@@ -37,12 +44,16 @@ impl Validate for AnyOmeFields {
 #[serde(untagged)]
 enum NamespacedOmeFields {
     V0_5(v0_5::OmeFields),
+    #[cfg(feature = "next")]
+    VNext(super::next::OmeFields),
 }
 
 impl From<NamespacedOmeFields> for AnyOmeFields {
     fn from(value: NamespacedOmeFields) -> Self {
         match value {
             NamespacedOmeFields::V0_5(ome) => Self::V0_5(ome),
+            #[cfg(feature = "next")]
+            NamespacedOmeFields::VNext(ome) => Self::VNext(ome),
         }
     }
 }

@@ -1,34 +1,14 @@
-pub(crate) mod labels;
-pub(crate) mod multiscales;
-pub(crate) mod plate;
-pub(crate) mod well;
-
-use crate::v0_4;
-pub use crate::v0_4::axes::*;
-pub use crate::v0_4::bioformats2raw_layout::*;
-pub use crate::v0_4::coordinate_transformations::*;
-pub use crate::v0_4::multiscales::{MultiscaleImageDataset, MultiscaleImageMetadata};
-pub use crate::v0_4::omero::*;
-pub use crate::v0_4::plate::{PlateAcquisition, PlateColumn, PlateRow, PlateWell};
-pub use crate::v0_4::well::WellImage;
-
-pub use labels::*;
-pub use multiscales::*;
-pub use plate::*;
-use serde::Deserialize;
-use serde::Serialize;
+pub use crate::v0_5::{self, *};
+use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
-pub use well::*;
 
-use serde::de::Error;
-
-crate::constrained_version!(Version0_5, ">=0.5.dev0,<0.6.0", "0.5");
+crate::constrained_version!(VersionNext, ">=0.6.dev0", "0.6.dev3");
 
 /// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeFields {
     /// OME-Zarr version.
-    pub version: Version0_5,
+    pub version: VersionNext,
     /// Transitional `bioformats2raw` metadata.
     #[serde(flatten, skip_serializing_if = "Option::is_none")]
     pub bioformats2raw: Option<Bioformats2Raw>,
@@ -92,26 +72,26 @@ impl Validate for OmeZarrGroupAttributes {
     }
 }
 
-impl From<v0_4::OmeNgffGroupAttributes> for OmeFields {
-    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
+impl From<v0_5::OmeFields> for OmeFields {
+    fn from(value: v0_5::OmeFields) -> Self {
         Self {
             version: Default::default(),
             bioformats2raw: value.bioformats2raw,
-            multiscales: value
-                .multiscales
-                .map(|v| v.into_iter().map(Into::into).collect()),
+            multiscales: value.multiscales.map(|v| v.into_iter().collect()),
             labels: value.labels,
-            image_label: value.image_label.map(Into::into),
-            plate: value.plate.map(Into::into),
-            well: value.well.map(Into::into),
+            image_label: value.image_label,
+            plate: value.plate,
+            well: value.well,
             omero: value.omero,
         }
     }
 }
 
-impl From<v0_4::OmeNgffGroupAttributes> for OmeZarrGroupAttributes {
-    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
-        Self { ome: value.into() }
+impl From<v0_5::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
+    fn from(value: v0_5::OmeZarrGroupAttributes) -> Self {
+        Self {
+            ome: value.ome.into(),
+        }
     }
 }
 
@@ -128,48 +108,5 @@ pub struct OmeZarrGroupMetadata {
 impl Validate for OmeZarrGroupMetadata {
     fn validate_inner(&self, accum: &mut Accumulator) {
         accum.validate_member_at("attributes", &self.attributes);
-    }
-}
-
-/// Return the `ome` attribute from Zarr group metadata.
-///
-/// # Errors
-/// Returns an error if:
-///  - the `attributes`, `attributes.ome`, or `attributes.ome.version` keys do not exist, or
-///  - the `attributes.ome.version` key is not equal to `"0.5"`.
-// TODO: Deprecate this
-pub fn get_ome_attribute_from_zarr_group_metadata(
-    group_metadata: &serde_json::Map<String, serde_json::Value>,
-) -> Result<&serde_json::Value, serde_json::Error> {
-    if let Some(attributes) = group_metadata.get("attributes") {
-        if let Some(ome) = attributes.get("ome") {
-            let version = ome.get("version").ok_or(serde_json::Error::custom(
-                "the ome metadata does not contain the version key.".to_string(),
-            ))?;
-            let _version: Version0_5 = serde_json::from_value(version.clone())?;
-            Ok(ome)
-        } else {
-            Err(serde_json::Error::custom(
-                "the group attributes do not contain the ome key.".to_string(),
-            ))
-        }
-    } else {
-        Err(serde_json::Error::custom(
-            "the group does not contain the attributes key.".to_string(),
-        ))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-
-    #[test]
-    fn fields_default() {
-        let _ome_fields = OmeFields {
-            labels: Some(vec!["x".to_string(), "y".to_string()]),
-            ..OmeFields::default()
-        };
     }
 }
