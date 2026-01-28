@@ -120,7 +120,7 @@ mod tests {
             path: "0".into(),
             coordinate_transformations: vec![CoordinateTransform::Scale(
                 CoordinateTransformScale::List {
-                    scale: vec![0.0, 0.0, 0.0],
+                    scale: vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
                 },
             )],
         };
