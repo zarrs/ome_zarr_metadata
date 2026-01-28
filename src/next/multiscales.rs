@@ -74,3 +74,68 @@ impl From<v0_5::MultiscaleImage> for MultiscaleImage {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::super::*;
+    use validatrix::Validate;
+
+    /// This would be illegal under v0.5 due to axis type and order constraints
+    #[test]
+    fn test_new_axis_validation() {
+        let axes = vec![
+            Axis {
+                name: "c1".to_string(),
+                r#type: Some(AxisType::Custom("potato".into())),
+                unit: None,
+            },
+            Axis {
+                name: "x".to_string(),
+                r#type: Some(AxisType::Space),
+                unit: None,
+            },
+            Axis {
+                name: "t".into(),
+                r#type: Some(AxisType::Time),
+                unit: None,
+            },
+            Axis {
+                name: "z".to_string(),
+                r#type: Some(AxisType::Space),
+                unit: None,
+            },
+            Axis {
+                name: "c2".to_string(),
+                r#type: Some(AxisType::Custom("spade".into())),
+                unit: None,
+            },
+            Axis {
+                name: "c3".to_string(),
+                r#type: Some(AxisType::Custom("orange".into())),
+                unit: None,
+            },
+        ];
+
+        let dataset = MultiscaleImageDataset {
+            path: "0".into(),
+            coordinate_transformations: vec![CoordinateTransform::Scale(
+                CoordinateTransformScale::List {
+                    scale: vec![0.0, 0.0, 0.0],
+                },
+            )],
+        };
+        dataset.validate().expect("inner dataset should be valid");
+
+        let mim = MultiscaleImage {
+            version: super::super::ConstrainedVersion::default(),
+            name: None,
+            axes: axes.clone(),
+            datasets: vec![dataset],
+            coordinate_transformations: None,
+            r#type: None,
+            metadata: None,
+        };
+
+        mim.validate().unwrap();
+    }
+}
