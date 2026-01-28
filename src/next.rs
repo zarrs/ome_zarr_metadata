@@ -2,13 +2,13 @@ pub use crate::v0_5::{self, *};
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
-crate::constrained_version!(VersionNext, ">=0.6.dev0", "0.6.dev3");
+crate::constrained_version!(ConstrainedVersion, ">=0.6.dev0", "0.6.dev3");
 
 /// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeFields {
     /// OME-Zarr version.
-    pub version: VersionNext,
+    pub version: ConstrainedVersion,
     /// Transitional `bioformats2raw` metadata.
     #[serde(flatten, skip_serializing_if = "Option::is_none")]
     pub bioformats2raw: Option<Bioformats2Raw>,

@@ -22,13 +22,13 @@ pub use well::*;
 
 use serde::de::Error;
 
-crate::constrained_version!(Version0_5, ">=0.5.dev0,<0.6.0", "0.5");
+crate::constrained_version!(ConstrainedVersion, ">=0.5.dev0,<0.6.0", "0.5");
 
 /// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeFields {
     /// OME-Zarr version.
-    pub version: Version0_5,
+    pub version: ConstrainedVersion,
     /// Transitional `bioformats2raw` metadata.
     #[serde(flatten, skip_serializing_if = "Option::is_none")]
     pub bioformats2raw: Option<Bioformats2Raw>,
@@ -146,7 +146,7 @@ pub fn get_ome_attribute_from_zarr_group_metadata(
             let version = ome.get("version").ok_or(serde_json::Error::custom(
                 "the ome metadata does not contain the version key.".to_string(),
             ))?;
-            let _version: Version0_5 = serde_json::from_value(version.clone())?;
+            let _version: ConstrainedVersion = serde_json::from_value(version.clone())?;
             Ok(ome)
         } else {
             Err(serde_json::Error::custom(

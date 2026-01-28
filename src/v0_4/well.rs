@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 pub struct Well {
     /// The version of the "well" schema.
-    pub version: super::Version0_4,
+    pub version: super::ConstrainedVersion,
     /// Specifies the fields of views of the well.
     pub images: Vec<WellImage>,
 }
