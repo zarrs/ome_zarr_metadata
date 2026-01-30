@@ -26,7 +26,7 @@ pub type OmeFields = OmeNgffGroupAttributes;
 /// (OME-NGFF was renamed to OME-Zarr coinciding with v0.5).
 pub type OmeZarrGroupAttributes = OmeNgffGroupAttributes;
 
-crate::constrained_version!(ConstrainedVersion, ">=0.4.dev0,<0.5.0", "0.4");
+crate::constrained_version!(ConstrainedVersion, "==0.4", "0.4");
 
 /// OME-NGFF top-level group attributes.
 ///
