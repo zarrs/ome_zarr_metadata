@@ -22,7 +22,7 @@ pub use well::*;
 
 use serde::de::Error;
 
-crate::constrained_version!(ConstrainedVersion, ">=0.5.dev0,<0.6.0", "0.5");
+crate::constrained_version!(ConstrainedVersion, "==0.5", "0.5");
 
 /// OME-Zarr "ome" fields.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
