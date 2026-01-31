@@ -40,11 +40,11 @@ impl Validate for Channel {
 /// Color defined as a hexadecimal RGB string.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Color {
-    /// Red value [0,255]
+    /// Red value `[0,255]`
     pub r: u8,
-    /// Green value [0,255]
+    /// Green value `[0,255]`
     pub g: u8,
-    /// Blue value [0,255]
+    /// Blue value `[0,255]`
     pub b: u8,
 }
 

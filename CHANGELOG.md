@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `Result` and `Error` types (by [@clbarnes])
 - Add `MaybeNDim` and `NDim` traits for types with dimensionality (by [@clbarnes])
 - Implement `From<AxisUnitSpace>` and `From<AxisUnitTime>` for `AxisUnit` (by [@clbarnes])
+- Add `AnyOmeFields` for deserialising any supported version ([#13] by [@clbarnes])
+- Add `v0_4::OmeFields` and `v0_4::OmeZarrGroupAttributes` type aliases for consistency with later versions (by [@clbarnes])
 
 ### Changed
 
@@ -34,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - See https://github.com/ome/ngff/issues/209
 
 [#12]: https://github.com/zarrs/ome_zarr_metadata/pull/12
+[#13]: https://github.com/zarrs/ome_zarr_metadata/pull/13
 
 ## [0.2.5] - 2025-08-29
 

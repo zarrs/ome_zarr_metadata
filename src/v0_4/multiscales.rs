@@ -16,7 +16,7 @@ use super::{Axis, CoordinateTransform};
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImage {
     /// The version of the multiscale metadata of the image.
-    pub version: monostate::MustBe!("0.4"),
+    pub version: super::ConstrainedVersion,
     /// The name of the multiscale image (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
