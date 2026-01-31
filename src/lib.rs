@@ -14,7 +14,7 @@ pub(crate) mod version;
 /// <https://ngff.openmicroscopy.org/0.4/>.
 pub mod v0_4;
 
-/// Version `0.5` metadata.
+/// Version `0.5` (OME-Zarr) metadata.
 ///
 /// <https://ngff.openmicroscopy.org/0.5/>.
 pub mod v0_5;
