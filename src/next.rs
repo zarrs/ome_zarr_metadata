@@ -15,7 +15,7 @@ pub struct OmeFields {
     pub bioformats2raw: Option<Bioformats2Raw>,
     /// Multiscales image metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub multiscales: Option<Vec<MultiscaleImage>>,
+    pub multiscales: Option<MultiscaleImage>,
     /// Labels metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<Labels>,
@@ -36,12 +36,7 @@ pub struct OmeFields {
 impl Validate for OmeFields {
     fn validate_inner(&self, accum: &mut Accumulator) {
         if let Some(m) = self.multiscales.as_ref() {
-            accum.with_key("multiscales", |a| {
-                if m.is_empty() {
-                    a.add_failure("empty multiscales");
-                }
-                a.validate_iter(m);
-            });
+            accum.validate_member_at("multiscales", m);
         }
 
         if let Some(i) = self.image_label.as_ref() {
@@ -73,26 +68,42 @@ impl Validate for OmeZarrGroupAttributes {
     }
 }
 
-impl From<prev::OmeFields> for OmeFields {
-    fn from(value: prev::OmeFields) -> Self {
-        Self {
+impl TryFrom<prev::OmeFields> for OmeFields {
+    type Error = crate::Error;
+
+    fn try_from(value: prev::OmeFields) -> Result<Self, Self::Error> {
+        let multiscales = match value.multiscales {
+            Some(v) => {
+                if v.len() > 1 {
+                    return Err(Self::Error::General(
+                        "multiscales must have length 0 or 1".to_string(),
+                    ));
+                }
+                v.into_iter().next()
+            }
+            None => None,
+        };
+
+        Ok(Self {
             version: Default::default(),
             bioformats2raw: value.bioformats2raw,
-            multiscales: value.multiscales.map(|v| v.into_iter().collect()),
+            multiscales,
             labels: value.labels,
             image_label: value.image_label,
             plate: value.plate,
             well: value.well,
             omero: value.omero,
-        }
+        })
     }
 }
 
-impl From<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
-    fn from(value: prev::OmeZarrGroupAttributes) -> Self {
-        Self {
-            ome: value.ome.into(),
-        }
+impl TryFrom<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
+    type Error = crate::Error;
+
+    fn try_from(value: prev::OmeZarrGroupAttributes) -> Result<Self, Self::Error> {
+        Ok(Self {
+            ome: OmeFields::try_from(value.ome)?,
+        })
     }
 }
 

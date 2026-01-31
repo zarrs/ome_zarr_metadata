@@ -19,9 +19,6 @@ pub mod v0_4;
 /// <https://ngff.openmicroscopy.org/0.5/>.
 pub mod v0_5;
 
-/// Version `0.6` metadata.
-pub mod v0_6;
-
 /// Future version of OME-Zarr metadata.
 ///
 /// May not be up to date with the latest development specification.
