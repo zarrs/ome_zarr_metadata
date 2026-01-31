@@ -73,9 +73,11 @@ impl Validate for OmeZarrGroupAttributes {
     }
 }
 
-impl From<prev::OmeFields> for OmeFields {
-    fn from(value: prev::OmeFields) -> Self {
-        Self {
+impl TryFrom<prev::OmeFields> for OmeFields {
+    type Error = crate::Error;
+
+    fn try_from(value: prev::OmeFields) -> Result<Self, Self::Error> {
+        Ok(Self {
             version: Default::default(),
             bioformats2raw: value.bioformats2raw,
             multiscales: value.multiscales.map(|v| v.into_iter().collect()),
@@ -84,15 +86,17 @@ impl From<prev::OmeFields> for OmeFields {
             plate: value.plate,
             well: value.well,
             omero: value.omero,
-        }
+        })
     }
 }
 
-impl From<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
-    fn from(value: prev::OmeZarrGroupAttributes) -> Self {
-        Self {
-            ome: value.ome.into(),
-        }
+impl TryFrom<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
+    type Error = crate::Error;
+
+    fn try_from(value: prev::OmeZarrGroupAttributes) -> Result<Self, Self::Error> {
+        Ok(Self {
+            ome: OmeFields::try_from(value.ome)?,
+        })
     }
 }
 
