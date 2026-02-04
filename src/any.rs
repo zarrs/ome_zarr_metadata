@@ -4,7 +4,7 @@ use validatrix::Validate;
 
 /// OME-Zarr metadata in any supported version.
 #[derive(Debug, Deserialize, Clone)]
-#[serde(untagged, from = "AnyOmeZarrAttributes")]
+#[serde(from = "AnyOmeZarrAttributes")]
 pub enum AnyOmeFields {
     /// Version 0.4 metadata
     V0_4(v0_4::OmeNgffGroupAttributes),
