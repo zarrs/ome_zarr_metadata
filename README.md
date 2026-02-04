@@ -13,13 +13,14 @@ A changelog can be found [here](https://github.com/zarrs/ome_zarr_metadata/blob/
 
 - [x] [0.4](https://ngff.openmicroscopy.org/0.4/)
 - [x] [0.5](https://ngff.openmicroscopy.org/0.5/) (22 November 2024)
+- [x] Possibly some unreleased RFCs (`--features next`)
 
 ## Features
 
 - [x] Serialisation and deserialisation
 - [x] Validation
 - [x] Forward conversion
-- [x] CLI
+- [x] CLI for validating OME-Zarr metadata contained in Zarr attributes
 
 ## Licence
 
