@@ -4,9 +4,34 @@
 #![cfg(feature = "cli")]
 
 use clap::Parser;
-use ome_zarr_metadata::{pep440_rs::Version, pep440_rs::VersionSpecifier, AnyOmeFields, Valid};
-use serde::Serialize;
-use std::error::Error;
+#[cfg(feature = "next")]
+use ome_zarr_metadata::next;
+use ome_zarr_metadata::{v0_4, v0_5, AnyOmeFields, Valid};
+use serde::{de::DeserializeOwned, Serialize};
+use std::{error::Error, str::FromStr};
+use validatrix::Validate;
+
+#[derive(Debug, Clone)]
+enum VersionSelection {
+    V0_4,
+    V0_5,
+    #[cfg(feature = "next")]
+    VNext,
+}
+
+impl FromStr for VersionSelection {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "0.4" => Ok(VersionSelection::V0_4),
+            "0.5" => Ok(VersionSelection::V0_5),
+            #[cfg(feature = "next")]
+            "next" => Ok(VersionSelection::VNext),
+            _ => Err(format!("Unsupported version selection: {}", s)),
+        }
+    }
+}
 
 /// Command-line arguments for the conformance CLI
 #[derive(Debug, Parser)]
@@ -14,7 +39,7 @@ use std::error::Error;
 struct CliArgs {
     /// Optional OME-Zarr version constraint as a PEP440 specifier (e.g., '>=0.4,<0.5')
     #[arg(short = 'o', long = "ome-zarr-version")]
-    ome_zarr_version: Option<VersionSpecifier>,
+    ome_zarr_version: Option<VersionSelection>,
 
     /// JSON string representing the `attributes` field of a Zarr metadata document; for OME-Zar v0.5 and later, this should include the "ome" key
     #[arg(value_name = "JSON")]
@@ -49,40 +74,34 @@ impl<T, E: Error> From<Result<Valid<T>, E>> for Output {
     }
 }
 
+fn parse_type<O: DeserializeOwned + Validate>(s: &str) -> Output {
+    match serde_json::from_str::<Valid<O>>(s) {
+        Ok(_) => Output {
+            valid: true,
+            message: None,
+        },
+        Err(e) => Output {
+            valid: false,
+            message: Some(e.to_string()),
+        },
+    }
+}
+
+fn get_output(parsed: &CliArgs) -> Output {
+    let s = parsed.json.as_str();
+
+    match parsed.ome_zarr_version {
+        Some(VersionSelection::V0_4) => parse_type::<v0_4::OmeNgffGroupAttributes>(s),
+        Some(VersionSelection::V0_5) => parse_type::<v0_5::OmeZarrGroupAttributes>(s),
+        #[cfg(feature = "next")]
+        Some(VersionSelection::VNext) => parse_type::<next::OmeZarrGroupAttributes>(s),
+        None => parse_type::<AnyOmeFields>(s),
+    }
+}
+
 fn main() {
     let parsed = CliArgs::parse();
 
-    let fields: AnyOmeFields = match serde_json::from_str(&parsed.json) {
-        Ok(f) => f,
-        Err(e) => {
-            Output {
-                valid: false,
-                message: Some(e.to_string()),
-            }
-            .print();
-            return;
-        }
-    };
-
-    if let Some(version_spec) = parsed.ome_zarr_version {
-        let version_str = fields.version();
-        let version: Version = version_str.parse().unwrap();
-        if !version_spec.contains(&version) {
-            Output {
-                valid: false,
-                message: Some(format!(
-                    "Version {} does not match constraint {}",
-                    version, version_spec
-                )),
-            }
-            .print();
-            return;
-        }
-    }
-
-    Output {
-        valid: true,
-        message: Some(format!("OME-Zarr v{}", fields.version())),
-    }
-    .print();
+    let output = get_output(&parsed);
+    output.print();
 }

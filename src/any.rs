@@ -77,11 +77,33 @@ impl From<FreeOmeFields> for AnyOmeFields {
 /// Intermediate type used for deserialising either pre- or post-0.5
 /// OME-Zarr metadata, which stored their fields freely in the zarr attributes,
 /// or within the "ome" namespace respectively.
-#[derive(Debug, Deserialize, Clone)]
-#[serde(untagged)]
+#[derive(Debug, Clone)]
+// this could be achieved by deriving Deserialize with #[serde(untagged)],
+// but that would mean that any failure in a namespaced variant
+// would fall through to trying the free variant,
+// leading to uninformative error messages
 enum AnyOmeZarrAttributes {
     Namespaced { ome: NamespacedOmeFields },
     Free(FreeOmeFields),
+}
+
+impl<'de> Deserialize<'de> for AnyOmeZarrAttributes {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        // First try to deserialize as namespaced
+        let helper = serde_json::Value::deserialize(deserializer)?;
+        if helper.get("ome").is_some() {
+            let ome: NamespacedOmeFields =
+                serde_json::from_value(helper).map_err(serde::de::Error::custom)?;
+            Ok(AnyOmeZarrAttributes::Namespaced { ome })
+        } else {
+            let free: FreeOmeFields =
+                serde_json::from_value(helper).map_err(serde::de::Error::custom)?;
+            Ok(AnyOmeZarrAttributes::Free(free))
+        }
+    }
 }
 
 impl From<AnyOmeZarrAttributes> for AnyOmeFields {
