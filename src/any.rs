@@ -94,9 +94,9 @@ impl<'de> Deserialize<'de> for AnyOmeZarrAttributes {
     {
         // First try to deserialize as namespaced
         let helper = serde_json::Value::deserialize(deserializer)?;
-        if helper.get("ome").is_some() {
+        if let Some(ome) = helper.get("ome") {
             let ome: NamespacedOmeFields =
-                serde_json::from_value(helper).map_err(serde::de::Error::custom)?;
+                serde_json::from_value(ome.clone()).map_err(serde::de::Error::custom)?;
             Ok(AnyOmeZarrAttributes::Namespaced { ome })
         } else {
             let free: FreeOmeFields =
@@ -117,13 +117,19 @@ impl From<AnyOmeZarrAttributes> for AnyOmeFields {
 
 #[cfg(test)]
 mod tests {
-    use serde::Serialize;
+    use serde::{de::DeserializeOwned, Serialize};
+    use validatrix::Valid;
 
     use super::*;
 
-    fn can_roundtrip<T: Serialize>(expected_version: &str, group_attrs: &T) {
+    fn can_roundtrip_specific<T: Serialize + DeserializeOwned + Validate>(group_attrs: &T) {
         let s = serde_json::to_string(group_attrs).unwrap();
-        let attrs2: AnyOmeFields = serde_json::from_str(&s).unwrap();
+        let _attrs2: Valid<T> = serde_json::from_str(&s).unwrap();
+    }
+
+    fn can_roundtrip_any<T: Serialize>(expected_version: &str, group_attrs: &T) {
+        let s = serde_json::to_string(group_attrs).unwrap();
+        let attrs2: Valid<AnyOmeFields> = serde_json::from_str(&s).unwrap();
         assert_eq!(attrs2.version(), expected_version);
     }
 
@@ -133,15 +139,34 @@ mod tests {
             multiscales: Some(vec![v0_4::MultiscaleImage {
                 version: Default::default(),
                 name: Some("test".into()),
-                axes: vec![],
-                datasets: vec![],
+                axes: vec![
+                    v0_4::Axis {
+                        name: "y".into(),
+                        r#type: Some(v0_4::AxisType::Space),
+                        unit: None,
+                    },
+                    v0_4::Axis {
+                        name: "x".into(),
+                        r#type: Some(v0_4::AxisType::Space),
+                        unit: None,
+                    },
+                ],
+                datasets: vec![v0_4::MultiscaleImageDataset {
+                    path: "s0".into(),
+                    coordinate_transformations: vec![v0_4::CoordinateTransform::Scale(
+                        v0_4::CoordinateTransformScale::List {
+                            scale: vec![1.0, 1.0],
+                        },
+                    )],
+                }],
                 coordinate_transformations: None,
                 r#type: None,
                 metadata: Default::default(),
             }]),
             ..Default::default()
         };
-        can_roundtrip("0.4", &val);
+        can_roundtrip_specific(&val);
+        can_roundtrip_any("0.4", &val);
     }
 
     #[test]
@@ -150,8 +175,26 @@ mod tests {
             ome: v0_5::OmeFields {
                 multiscales: Some(vec![v0_5::MultiscaleImage {
                     name: Some("test".into()),
-                    axes: vec![],
-                    datasets: vec![],
+                    axes: vec![
+                        v0_5::Axis {
+                            name: "y".into(),
+                            r#type: Some(v0_5::AxisType::Space),
+                            unit: None,
+                        },
+                        v0_5::Axis {
+                            name: "x".into(),
+                            r#type: Some(v0_5::AxisType::Space),
+                            unit: None,
+                        },
+                    ],
+                    datasets: vec![v0_5::MultiscaleImageDataset {
+                        path: "s0".into(),
+                        coordinate_transformations: vec![v0_5::CoordinateTransform::Scale(
+                            v0_5::CoordinateTransformScale::List {
+                                scale: vec![1.0, 1.0],
+                            },
+                        )],
+                    }],
                     coordinate_transformations: None,
                     r#type: None,
                     metadata: Default::default(),
@@ -159,6 +202,7 @@ mod tests {
                 ..Default::default()
             },
         };
-        can_roundtrip("0.5", &val);
+        can_roundtrip_specific(&val);
+        can_roundtrip_any("0.5", &val);
     }
 }
