@@ -11,8 +11,6 @@ use crate::v0_5::multiscales::{valid_datasets, valid_transforms};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct MultiscaleImage {
-    /// The version of the multiscale metadata of the image.
-    pub version: super::ConstrainedVersion,
     /// The name of the multiscale image (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -64,7 +62,6 @@ impl NDim for &MultiscaleImage {
 impl From<v0_5::MultiscaleImage> for MultiscaleImage {
     fn from(value: v0_5::MultiscaleImage) -> Self {
         Self {
-            version: super::ConstrainedVersion::default(),
             name: value.name,
             axes: value.axes,
             datasets: value.datasets,
@@ -127,7 +124,6 @@ mod tests {
         dataset.validate().expect("inner dataset should be valid");
 
         let mim = MultiscaleImage {
-            version: super::super::ConstrainedVersion::default(),
             name: None,
             axes: axes.clone(),
             datasets: vec![dataset],
