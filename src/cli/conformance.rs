@@ -1,4 +1,6 @@
-//! CLI for testing with <https://github.com/clbarnes/ome_zarr_conformance>
+//! CLI for validating OME-Zarr metadata, compatible with ome_zarr_conformance.py [1].
+//!!
+//! 1: https://github.com/ome/ngff-spec/blob/main/conformance/ome_zarr_conformance.py
 #![cfg(feature = "cli")]
 
 use clap::Parser;
@@ -8,13 +10,13 @@ use std::error::Error;
 
 /// Command-line arguments for the conformance CLI
 #[derive(Debug, Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about = "CLI for validating OME-Zarr metadata, compatible with ome_zarr_conformance.py.", long_about = None)]
 struct CliArgs {
-    /// OME-Zarr version constraint as a PEP440 specifier (e.g., '>=0.4,<0.5')
+    /// Optional OME-Zarr version constraint as a PEP440 specifier (e.g., '>=0.4,<0.5')
     #[arg(short = 'o', long = "ome-zarr-version")]
     ome_zarr_version: Option<VersionSpecifier>,
 
-    /// Attributes JSON
+    /// JSON string representing the `attributes` field of a Zarr metadata document; for OME-Zar v0.5 and later, this should include the "ome" key
     #[arg(value_name = "JSON")]
     json: String,
 }

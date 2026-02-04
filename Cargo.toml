@@ -37,6 +37,6 @@ next = []
 cli = ["clap"]
 
 [[bin]]
-name = "ome_zarr_conformance"
+name = "ome_zarr_metadata_validate"
 path = "src/cli/conformance.rs"
 required-features = ["cli"]
