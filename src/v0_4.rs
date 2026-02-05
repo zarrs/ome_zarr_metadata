@@ -109,5 +109,16 @@ impl Validate for OmeNgffGroupAttributes {
         if let Some(o) = self.omero.as_ref() {
             accum.validate_member_at("omero", o);
         }
+
+        if self.bioformats2raw.is_none()
+            && self.multiscales.is_none()
+            && self.labels.is_none()
+            && self.image_label.is_none()
+            && self.plate.is_none()
+            && self.well.is_none()
+            && self.omero.is_none()
+        {
+            accum.add_failure("no OME-NGFF fields present");
+        }
     }
 }
