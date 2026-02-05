@@ -4,7 +4,7 @@ use validatrix::Validate;
 
 /// OME-Zarr metadata in any supported version.
 #[derive(Debug, Deserialize, Clone)]
-#[serde(untagged, from = "AnyOmeZarrAttributes")]
+#[serde(from = "AnyOmeZarrAttributes")]
 pub enum AnyOmeFields {
     /// Version 0.4 metadata
     V0_4(v0_4::OmeNgffGroupAttributes),
@@ -77,11 +77,33 @@ impl From<FreeOmeFields> for AnyOmeFields {
 /// Intermediate type used for deserialising either pre- or post-0.5
 /// OME-Zarr metadata, which stored their fields freely in the zarr attributes,
 /// or within the "ome" namespace respectively.
-#[derive(Debug, Deserialize, Clone)]
-#[serde(untagged)]
+#[derive(Debug, Clone)]
+// this could be achieved by deriving Deserialize with #[serde(untagged)],
+// but that would mean that any failure in a namespaced variant
+// would fall through to trying the free variant,
+// leading to uninformative error messages
 enum AnyOmeZarrAttributes {
     Namespaced { ome: NamespacedOmeFields },
     Free(FreeOmeFields),
+}
+
+impl<'de> Deserialize<'de> for AnyOmeZarrAttributes {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        // First try to deserialize as namespaced
+        let helper = serde_json::Value::deserialize(deserializer)?;
+        if let Some(ome) = helper.get("ome") {
+            let ome: NamespacedOmeFields =
+                serde_json::from_value(ome.clone()).map_err(serde::de::Error::custom)?;
+            Ok(AnyOmeZarrAttributes::Namespaced { ome })
+        } else {
+            let free: FreeOmeFields =
+                serde_json::from_value(helper).map_err(serde::de::Error::custom)?;
+            Ok(AnyOmeZarrAttributes::Free(free))
+        }
+    }
 }
 
 impl From<AnyOmeZarrAttributes> for AnyOmeFields {
@@ -95,13 +117,19 @@ impl From<AnyOmeZarrAttributes> for AnyOmeFields {
 
 #[cfg(test)]
 mod tests {
-    use serde::Serialize;
+    use serde::{de::DeserializeOwned, Serialize};
+    use validatrix::Valid;
 
     use super::*;
 
-    fn can_roundtrip<T: Serialize>(expected_version: &str, group_attrs: &T) {
+    fn can_roundtrip_specific<T: Serialize + DeserializeOwned + Validate>(group_attrs: &T) {
         let s = serde_json::to_string(group_attrs).unwrap();
-        let attrs2: AnyOmeFields = serde_json::from_str(&s).unwrap();
+        let _attrs2: Valid<T> = serde_json::from_str(&s).unwrap();
+    }
+
+    fn can_roundtrip_any<T: Serialize>(expected_version: &str, group_attrs: &T) {
+        let s = serde_json::to_string(group_attrs).unwrap();
+        let attrs2: Valid<AnyOmeFields> = serde_json::from_str(&s).unwrap();
         assert_eq!(attrs2.version(), expected_version);
     }
 
@@ -111,15 +139,34 @@ mod tests {
             multiscales: Some(vec![v0_4::MultiscaleImage {
                 version: Default::default(),
                 name: Some("test".into()),
-                axes: vec![],
-                datasets: vec![],
+                axes: vec![
+                    v0_4::Axis {
+                        name: "y".into(),
+                        r#type: Some(v0_4::AxisType::Space),
+                        unit: None,
+                    },
+                    v0_4::Axis {
+                        name: "x".into(),
+                        r#type: Some(v0_4::AxisType::Space),
+                        unit: None,
+                    },
+                ],
+                datasets: vec![v0_4::MultiscaleImageDataset {
+                    path: "s0".into(),
+                    coordinate_transformations: vec![v0_4::CoordinateTransform::Scale(
+                        v0_4::CoordinateTransformScale::List {
+                            scale: vec![1.0, 1.0],
+                        },
+                    )],
+                }],
                 coordinate_transformations: None,
                 r#type: None,
                 metadata: Default::default(),
             }]),
             ..Default::default()
         };
-        can_roundtrip("0.4", &val);
+        can_roundtrip_specific(&val);
+        can_roundtrip_any("0.4", &val);
     }
 
     #[test]
@@ -128,8 +175,26 @@ mod tests {
             ome: v0_5::OmeFields {
                 multiscales: Some(vec![v0_5::MultiscaleImage {
                     name: Some("test".into()),
-                    axes: vec![],
-                    datasets: vec![],
+                    axes: vec![
+                        v0_5::Axis {
+                            name: "y".into(),
+                            r#type: Some(v0_5::AxisType::Space),
+                            unit: None,
+                        },
+                        v0_5::Axis {
+                            name: "x".into(),
+                            r#type: Some(v0_5::AxisType::Space),
+                            unit: None,
+                        },
+                    ],
+                    datasets: vec![v0_5::MultiscaleImageDataset {
+                        path: "s0".into(),
+                        coordinate_transformations: vec![v0_5::CoordinateTransform::Scale(
+                            v0_5::CoordinateTransformScale::List {
+                                scale: vec![1.0, 1.0],
+                            },
+                        )],
+                    }],
                     coordinate_transformations: None,
                     r#type: None,
                     metadata: Default::default(),
@@ -137,6 +202,7 @@ mod tests {
                 ..Default::default()
             },
         };
-        can_roundtrip("0.5", &val);
+        can_roundtrip_specific(&val);
+        can_roundtrip_any("0.5", &val);
     }
 }
