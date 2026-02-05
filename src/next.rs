@@ -1,7 +1,16 @@
 pub use crate::v0_5 as prev;
-pub use prev::*;
+pub use prev::{
+    Axis, AxisType, AxisUnit, AxisUnitSpace, AxisUnitTime, Bioformats2Raw, Channel, Color,
+    CoordinateTransform, CoordinateTransformScale, CoordinateTransformTranslation, ImageLabel,
+    Labels, MultiscaleImageDataset, MultiscaleImageMetadata, Omero, Plate, PlateAcquisition,
+    PlateColumn, PlateRow, PlateWell, Well, WellImage, Window,
+};
+
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
+
+mod multiscales;
+pub use multiscales::*;
 
 crate::constrained_version!(ConstrainedVersion, ">=0.6.dev0", "0.6.dev3");
 
@@ -80,7 +89,9 @@ impl TryFrom<prev::OmeFields> for OmeFields {
         Ok(Self {
             version: Default::default(),
             bioformats2raw: value.bioformats2raw,
-            multiscales: value.multiscales.map(|v| v.into_iter().collect()),
+            multiscales: value
+                .multiscales
+                .map(|v| v.into_iter().map(Into::into).collect()),
             labels: value.labels,
             image_label: value.image_label,
             plate: value.plate,

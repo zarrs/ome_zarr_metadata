@@ -8,7 +8,7 @@ use validatrix::{Accumulator, Validate};
 use crate::{MaybeNDim, NDim};
 
 use super::{Axis, CoordinateTransform, MultiscaleImageDataset, MultiscaleImageMetadata};
-use crate::v0_4::multiscales::{valid_axes, valid_datasets, valid_transforms};
+pub(crate) use crate::v0_4::multiscales::{valid_axes, valid_datasets, valid_transforms};
 
 /// `multiscales` element metadata. Describes a multiscale image.
 #[derive(Serialize, Deserialize, Debug, Clone)]
