@@ -78,7 +78,7 @@ mod tests {
     fn multiscales_example() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.5/examples/multiscales_strict/multiscales_example.json"
+            "/ome-zarr/specifications/0.5/examples/multiscales_strict/multiscales_example.json"
         ))
         .lines()
         .filter(|line| !line.contains("//")) // Remove comments
@@ -91,7 +91,7 @@ mod tests {
     fn multiscales_transformations() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.5/examples/multiscales_strict/multiscales_transformations.json"
+            "/ome-zarr/specifications/0.5/examples/multiscales_strict/multiscales_transformations.json"
         ));
         let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
         let _multiscales: Vec<MultiscaleImage> = ome_metadata.attributes.ome.multiscales.unwrap();

@@ -65,7 +65,7 @@ mod tests {
     fn labels_color_properties() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.5/examples/label_strict/colors_properties.json"
+            "/ome-zarr/specifications/0.5/examples/label_strict/colors_properties.json"
         ));
         let ome_metadata: OmeZarrGroupMetadata = serde_json::from_str(json).unwrap();
         let _image_label: ImageLabel = ome_metadata.attributes.ome.image_label.unwrap();
