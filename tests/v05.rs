@@ -29,7 +29,7 @@ fn v05_test_case(
 #[rstest]
 fn v05_examples(
     #[files("**/*.json")]
-    #[base_dir = "ome-zarr/0.5/examples"]
+    #[base_dir = "ome-zarr/specifications/0.5/examples"]
     #[exclude("ome/series-2")]
     #[mode = bytes]
     bytes: &[u8],
@@ -40,7 +40,7 @@ fn v05_examples(
 #[rstest]
 fn v04_to_v05(
     #[files("**/*.json")]
-    #[base_dir = "ome-zarr/0.4/examples"]
+    #[base_dir = "ome-zarr/specifications/0.4/examples"]
     #[exclude("ome/series-2")]
     #[mode = bytes]
     bytes: &[u8],

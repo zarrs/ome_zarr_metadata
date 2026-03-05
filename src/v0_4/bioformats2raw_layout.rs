@@ -24,7 +24,7 @@ mod tests {
     fn bioformats2raw_layout_image() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/bf2raw/image.json"
+            "/ome-zarr/specifications/0.4/examples/bf2raw/image.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _bioformats2raw: Bioformats2Raw = ome_metadata.bioformats2raw.unwrap();
@@ -34,7 +34,7 @@ mod tests {
     fn bioformats2raw_layout_plate() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/bf2raw/plate.json"
+            "/ome-zarr/specifications/0.4/examples/bf2raw/plate.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _bioformats2raw: Bioformats2Raw = ome_metadata.bioformats2raw.unwrap();

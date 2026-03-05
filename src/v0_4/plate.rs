@@ -226,7 +226,7 @@ mod tests {
     fn plate_2wells() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/plate_strict/plate_2wells.json"
+            "/ome-zarr/specifications/0.4/examples/plate_strict/plate_2wells.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _plate: Plate = ome_metadata.plate.unwrap();
@@ -236,7 +236,7 @@ mod tests {
     fn plate_6wells() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/plate_strict/plate_6wells.json"
+            "/ome-zarr/specifications/0.4/examples/plate_strict/plate_6wells.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _plate: Plate = ome_metadata.plate.unwrap();

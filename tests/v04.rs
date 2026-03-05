@@ -25,7 +25,7 @@ fn v04_test_case(
 #[rstest]
 fn v04_examples(
     #[files("**/*.json")]
-    #[base_dir = "ome-zarr/0.4/examples"]
+    #[base_dir = "ome-zarr/specifications/0.4/examples"]
     #[exclude("ome/series-2")]
     #[mode = bytes]
     bytes: &[u8],
