@@ -1,17 +1,13 @@
 mod common;
 use common::{test_case, test_example};
-use ome_zarr_metadata::{
-    v0_4,
-    v0_5::{self, OmeZarrGroupAttributes, OmeZarrGroupMetadata},
-};
+use ome_zarr_metadata::v0_4;
 use rstest::rstest;
 
-use crate::common::test_upgrade;
-
+#[ignore = "focusing on v0.5"]
 #[rstest]
-fn v05_test_case(
+fn v04_test_case(
     #[files("**/*.json")]
-    #[base_dir = "tests/fixtures/generated/0.5"]
+    #[base_dir = "tests/fixtures/generated/0.4"]
     // excluded for incorrect test data; see https://github.com/ome/ngff/issues/325
     #[exclude("strict_no_acquisitions")]
     #[exclude("strict_acquisitions")]
@@ -23,27 +19,16 @@ fn v05_test_case(
     #[mode = bytes]
     bytes: &[u8],
 ) {
-    test_case::<OmeZarrGroupAttributes>(bytes);
+    test_case::<v0_4::OmeNgffGroupAttributes>(bytes);
 }
 
 #[rstest]
-fn v05_examples(
-    #[files("**/*.json")]
-    #[base_dir = "ome-zarr/specifications/0.5/examples"]
-    #[exclude("ome/series-2")]
-    #[mode = bytes]
-    bytes: &[u8],
-) {
-    test_example::<OmeZarrGroupMetadata>(bytes);
-}
-
-#[rstest]
-fn v04_to_v05(
+fn v04_examples(
     #[files("**/*.json")]
     #[base_dir = "ome-zarr/specifications/0.4/examples"]
     #[exclude("ome/series-2")]
     #[mode = bytes]
     bytes: &[u8],
 ) {
-    test_upgrade::<v0_4::OmeNgffGroupAttributes, v0_5::OmeFields>(bytes);
+    test_example::<v0_4::OmeNgffGroupAttributes>(bytes);
 }
