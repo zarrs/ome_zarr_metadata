@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
-use crate::{ndim::validate_ndims, v0_4::AxisType, MaybeNDim, NDim};
+use crate::{MaybeNDim, NDim, ndim::validate_ndims, v0_4::AxisType};
 
 use super::{Axis, CoordinateTransform};
 
