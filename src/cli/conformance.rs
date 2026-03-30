@@ -6,8 +6,8 @@
 use clap::Parser;
 #[cfg(feature = "next")]
 use ome_zarr_metadata::next;
-use ome_zarr_metadata::{v0_4, v0_5, AnyOmeFields, Valid};
-use serde::{de::DeserializeOwned, Serialize};
+use ome_zarr_metadata::{AnyOmeFields, Valid, v0_4, v0_5};
+use serde::{Serialize, de::DeserializeOwned};
 use std::{error::Error, str::FromStr};
 use validatrix::Validate;
 
