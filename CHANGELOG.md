@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking**: Make the `colors` field of `ImageLabel` an `Option` to match the specification (by [@clbarnes])
 - **Breaking**: Rename `PlateAcquisition` fields to snake case (by [@clbarnes])
 - **Breaking**: Add `omero` field to `OmeFields` and `OmeNgffGroupAttributes` (by [@clbarnes])
-- **Breaking**: Increase MSRV to 1.82 (by [@clbarnes])
+- **Breaking**: Increase MSRV to 1.85
 
 ### Fixed
 

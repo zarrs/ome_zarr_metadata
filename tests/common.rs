@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use ome_zarr_metadata::{Valid, Validate};
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::{Deserialize, de::DeserializeOwned};
 
 #[allow(unused)]
 #[derive(Debug, Deserialize)]
