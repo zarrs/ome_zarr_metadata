@@ -1,7 +1,10 @@
 [package]
 name = "ome_zarr_metadata"
-version = "0.3.0-dev"
-authors = ["Lachlan Deakin <ljdgit@gmail.com>"]
+version = "0.3.0"
+authors = [
+    "Lachlan Deakin <ljdgit@gmail.com>",
+    "Chris Barnes <chris.barnes@gerbi-gmb.de>",
+]
 edition = "2024"
 rust-version = "1.85"
 description = "A library for OME-Zarr (previously OME-NGFF) metadata"
