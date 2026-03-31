@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
-use crate::{ndim::validate_ndims, v0_4::AxisType, MaybeNDim, NDim};
+use crate::{MaybeNDim, NDim, ndim::validate_ndims, v0_4::AxisType};
 
 use super::{Axis, CoordinateTransform};
 
@@ -207,7 +207,7 @@ mod tests {
     fn multiscales_example() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/multiscales_strict/multiscales_example.json"
+            "/ome-zarr/specifications/0.4/examples/multiscales_strict/multiscales_example.json"
         ))
         .lines()
         .filter(|line| !line.contains("//")) // Remove comments
@@ -220,7 +220,7 @@ mod tests {
     fn multiscales_transformations() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/multiscales_strict/multiscales_transformations.json"
+            "/ome-zarr/specifications/0.4/examples/multiscales_strict/multiscales_transformations.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _multiscales: Vec<MultiscaleImage> = ome_metadata.multiscales.unwrap();
