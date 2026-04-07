@@ -1,6 +1,6 @@
 //! CLI for validating OME-Zarr metadata, compatible with ome_zarr_conformance.py [1].
-//!!
-//! 1: https://github.com/ome/ngff-spec/blob/main/conformance/ome_zarr_conformance.py
+//!
+//! [1]: https://github.com/ome/ngff-spec/blob/main/conformance/ome_zarr_conformance.py
 #![cfg(feature = "cli")]
 
 use clap::Parser;

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/zarrs/ome_zarr_metadata/compare/v0.3.0...HEAD)
 
+### Fixed
+- Replace use of removed `doc_auto_cfg` feature with `doc_cfg` (fixes `docs.rs` build)
+
 ## [0.3.0](https://github.com/zarrs/ome_zarr_metadata/compare/v0.2.5...v0.3.0) - 2026-03-31
 
 ### Added
