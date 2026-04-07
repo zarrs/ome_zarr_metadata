@@ -51,7 +51,7 @@ impl Validate for MultiscaleImage {
     }
 }
 
-fn unique_axis_names(accum: &mut Accumulator, axes: &[Axis]) {
+pub(crate) fn unique_axis_names(accum: &mut Accumulator, axes: &[Axis]) {
     let mut names = BTreeSet::default();
     for (idx, a) in axes.iter().enumerate() {
         if !names.insert(a.name.as_str()) {
