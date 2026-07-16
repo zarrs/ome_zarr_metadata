@@ -2,7 +2,7 @@ use std::{collections::BTreeSet, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{next::TransformationType, MaybeNDim};
+use crate::{MaybeNDim, next::TransformationType};
 
 /// Matrix transformation from N-dimensional inputs to M-dimensional outputs.
 #[derive(Debug, Clone, Serialize, Deserialize)]

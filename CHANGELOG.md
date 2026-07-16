@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased](https://github.com/zarrs/ome_zarr_metadata/compare/v0.3.1...HEAD)
+
+## [0.3.1](https://github.com/zarrs/ome_zarr_metadata/compare/v0.3.0...v0.3.1) - 2026-04-07
+
+### Fixed
+- Replace use of removed `doc_auto_cfg` feature with `doc_cfg` (fixes `docs.rs` build)
+
+## [0.3.0](https://github.com/zarrs/ome_zarr_metadata/compare/v0.2.5...v0.3.0) - 2026-03-31
 
 ### Added
 
@@ -27,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking**: Make the `colors` field of `ImageLabel` an `Option` to match the specification (by [@clbarnes])
 - **Breaking**: Rename `PlateAcquisition` fields to snake case (by [@clbarnes])
 - **Breaking**: Add `omero` field to `OmeFields` and `OmeNgffGroupAttributes` (by [@clbarnes])
-- **Breaking**: Increase MSRV to 1.82 (by [@clbarnes])
+- **Breaking**: Increase MSRV to 1.85
 
 ### Fixed
 
@@ -106,7 +113,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial public release
 
-[unreleased]: https://github.com/zarrs/ome_zarr_metadata/compare/v0.2.5...HEAD
 [0.2.5]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.5
 [0.2.4]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.4
 [0.2.3]: https://github.com/zarrs/ome_zarr_metadata/releases/tag/v0.2.3

@@ -1,0 +1,51 @@
+name: Validate release version
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'release/') || startsWith(github.ref, 'refs/heads/release/')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from Cargo.toml
+        id: version
+        run: |
+          VERSION=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[0].version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          echo "Validating version: $VERSION"
+          echo ""
+
+          if [[ "$VERSION" == *-* ]] || [[ "$VERSION" == *+* ]]; then
+            echo "❌ ERROR: Version '$VERSION' contains a suffix"
+            echo ""
+            echo "Release branches must have a stable version without any suffixes."
+            echo ""
+            echo "Disallowed suffixes:"
+            echo "  - '-dev', '-alpha', '-beta', '-rc.X' (pre-release identifiers)"
+            echo "  - '+build.123' (build metadata)"
+            echo ""
+            echo "Current version: $VERSION"
+            echo "Expected format: X.Y.Z (e.g., 1.0.0, 0.3.0)"
+            echo ""
+            echo "Please update the 'version' field in Cargo.toml to remove the suffix."
+            exit 1
+          fi
+
+          echo "✅ SUCCESS: Version '$VERSION' is valid for release"
+          echo "Version format: X.Y.Z (stable semantic version)"

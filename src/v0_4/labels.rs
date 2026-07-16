@@ -15,7 +15,7 @@ pub type Labels = Vec<String>;
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// The version of the OME-NGFF "image-label" schema.
-    pub version: monostate::MustBe!("0.4"),
+    pub version: super::ConstrainedVersion,
     /// Describes the color information for the unique label values.
     pub colors: Option<Vec<ImageLabelColor>>,
     /// Arbitrary metadata associated with each unique label (optional).
@@ -115,7 +115,7 @@ mod tests {
     fn labels_color_properties() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/label_strict/colors_properties.json"
+            "/ome-zarr/specifications/0.4/examples/label_strict/colors_properties.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _image_label: ImageLabel = ome_metadata.image_label.unwrap();

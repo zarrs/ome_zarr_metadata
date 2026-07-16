@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields)]
 pub struct Well {
     /// The version of the "well" schema.
-    pub version: monostate::MustBe!("0.4"),
+    pub version: super::ConstrainedVersion,
     /// Specifies the fields of views of the well.
     pub images: Vec<WellImage>,
 }
@@ -41,7 +41,7 @@ mod tests {
     fn well_2fields() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/well_strict/well_2fields.json"
+            "/ome-zarr/specifications/0.4/examples/well_strict/well_2fields.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _well: Well = ome_metadata.well.unwrap();
@@ -51,7 +51,7 @@ mod tests {
     fn well_4fields() {
         let json = include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/ome-zarr/0.4/examples/well_strict/well_4fields.json"
+            "/ome-zarr/specifications/0.4/examples/well_strict/well_4fields.json"
         ));
         let ome_metadata: OmeNgffGroupAttributes = serde_json::from_str(json).unwrap();
         let _well: Well = ome_metadata.well.unwrap();

@@ -15,7 +15,25 @@ pub enum Error {
     /// Invalid OMERO color.
     #[error("invalid hex RGB color")]
     InvalidColor,
+    /// Version string could not be parsed.
+    #[error(transparent)]
+    VersionParse(#[from] pep440_rs::VersionParseError),
+    /// Version does not satisfy constraint.
+    #[error("version {version} does not satisfy constraint {constraint}")]
+    VersionConstraint {
+        /// Version constraint string.
+        constraint: &'static str,
+        /// The version which failed to satisfy the constraint.
+        version: pep440_rs::Version,
+    },
     /// General error.
     #[error("{0}")]
     General(String),
+}
+
+impl Error {
+    /// Create a general error from a string message.
+    pub fn general<S: Into<String>>(msg: S) -> Self {
+        Error::General(msg.into())
+    }
 }

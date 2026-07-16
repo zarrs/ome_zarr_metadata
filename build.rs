@@ -125,7 +125,7 @@ fn main() {
         std::fs::remove_dir_all(&tgt_root).unwrap_or(());
 
         for ver in ["0.4", "0.5"] {
-            let src_dir = src_root.join(format!("{ver}/tests"));
+            let src_dir = src_root.join(format!("specifications/{ver}/tests"));
             let tgt_dir = tgt_root.join(ver);
             let proc = Processor::new(src_dir, tgt_dir);
             proc.process_all();

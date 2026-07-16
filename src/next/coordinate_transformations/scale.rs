@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{next::TransformationType, MaybeNDim};
+use crate::{MaybeNDim, next::TransformationType};
 
 /// [`CoordinateTransform`] `scale` type metadata.
 #[allow(missing_docs)]

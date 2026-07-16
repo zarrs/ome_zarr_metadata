@@ -26,6 +26,8 @@ pub type OmeFields = OmeNgffGroupAttributes;
 /// (OME-NGFF was renamed to OME-Zarr coinciding with v0.5).
 pub type OmeZarrGroupAttributes = OmeNgffGroupAttributes;
 
+crate::constrained_version!(ConstrainedVersion, "==0.4", "0.4");
+
 /// OME-NGFF top-level group attributes.
 ///
 /// Has aliases [OmeFields] and [OmeZarrGroupAttributes] for consistency with later versions.
@@ -59,6 +61,32 @@ pub struct OmeNgffGroupAttributes {
     pub omero: Option<Omero>,
 }
 
+impl OmeNgffGroupAttributes {
+    /// Get the first available version string for the OME-NGFF metadata.
+    ///
+    /// Checks `multiscales`, `image-label`, `plate`, and `well` fields in that order; falls back to `"0.4"`.
+    pub fn version(&self) -> String {
+        if let Some(v) = self
+            .multiscales
+            .as_ref()
+            .and_then(|ms| ms.first())
+            .map(|ms| ms.version.to_string())
+        {
+            return v;
+        }
+        if let Some(v) = self.image_label.as_ref().map(|ms| ms.version.to_string()) {
+            return v;
+        }
+        if let Some(v) = self.plate.as_ref().map(|ms| ms.version.to_string()) {
+            return v;
+        }
+        if let Some(v) = self.well.as_ref().map(|ms| ms.version.to_string()) {
+            return v;
+        }
+        "0.4".into()
+    }
+}
+
 impl Validate for OmeNgffGroupAttributes {
     fn validate_inner(&self, accum: &mut Accumulator) {
         if let Some(m) = self.multiscales.as_ref() {
@@ -80,6 +108,17 @@ impl Validate for OmeNgffGroupAttributes {
 
         if let Some(o) = self.omero.as_ref() {
             accum.validate_member_at("omero", o);
+        }
+
+        if self.bioformats2raw.is_none()
+            && self.multiscales.is_none()
+            && self.labels.is_none()
+            && self.image_label.is_none()
+            && self.plate.is_none()
+            && self.well.is_none()
+            && self.omero.is_none()
+        {
+            accum.add_failure("no OME-NGFF fields present");
         }
     }
 }

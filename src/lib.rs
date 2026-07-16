@@ -2,7 +2,12 @@
 #![warn(unused_variables)]
 #![warn(dead_code)]
 #![deny(missing_docs)]
-#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+pub use pep440_rs;
+
+/// Utilities for working with OME-Zarr version strings.
+pub(crate) mod version;
 
 /// Version `0.4` (OME-NGFF) metadata.
 ///
@@ -13,6 +18,14 @@ pub mod v0_4;
 ///
 /// <https://ngff.openmicroscopy.org/0.5/>.
 pub mod v0_5;
+
+/// Future version of OME-Zarr metadata.
+///
+/// May not be up to date with the latest development specification.
+/// May implement not-yet-stabilised RFCs.
+/// Breaking API changes may be made at any time.
+#[cfg(feature = "next")]
+pub mod next;
 
 mod errors;
 pub use errors::{Error, Result};
