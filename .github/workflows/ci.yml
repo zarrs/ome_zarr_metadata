@@ -66,6 +66,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
-      - run: RUSTDOCFLAGS="--deny warnings" cargo doc --no-deps
+      - run: RUSTDOCFLAGS="--cfg docsrs --deny warnings" cargo doc --no-deps --all-features
