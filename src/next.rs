@@ -1,11 +1,11 @@
-pub use crate::v0_5 as prev;
+pub use crate::v0_6 as prev;
 pub use prev::*;
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
-crate::constrained_version!(ConstrainedVersion, ">=0.6.dev0", "0.6.dev3");
+crate::constrained_version!(ConstrainedVersion, ">0.9.dev0", "0.9.dev2");
 
-/// OME-Zarr "ome" fields.
+/// OME-Zarr fields found in the `"ome"` object of OME-Zarr attributes.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OmeFields {
     /// OME-Zarr version.
@@ -28,6 +28,9 @@ pub struct OmeFields {
     /// Well metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub well: Option<Well>,
+    /// Scene metadata.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scene: Option<Scene>,
     /// Transitional OMERO metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub omero: Option<Omero>,
@@ -45,15 +48,35 @@ impl Validate for OmeFields {
         }
 
         if let Some(i) = self.image_label.as_ref() {
-            accum.validate_member_at("imageLabel", i);
+            accum.validate_member_at("image-label", i);
         }
 
         if let Some(p) = self.plate.as_ref() {
             accum.validate_member_at("plate", p);
         }
 
+        if let Some(s) = self.scene.as_ref() {
+            accum.validate_member_at("scene", s);
+        }
+
         if let Some(o) = self.omero.as_ref() {
             accum.validate_member_at("omero", o);
+        }
+    }
+}
+
+impl From<prev::OmeFields> for OmeFields {
+    fn from(value: prev::OmeFields) -> Self {
+        Self {
+            version: Default::default(),
+            bioformats2raw: value.bioformats2raw,
+            multiscales: value.multiscales,
+            labels: value.labels,
+            image_label: value.image_label,
+            plate: value.plate,
+            well: value.well,
+            scene: value.scene,
+            omero: value.omero,
         }
     }
 }
@@ -73,30 +96,11 @@ impl Validate for OmeZarrGroupAttributes {
     }
 }
 
-impl TryFrom<prev::OmeFields> for OmeFields {
-    type Error = crate::Error;
-
-    fn try_from(value: prev::OmeFields) -> Result<Self, Self::Error> {
-        Ok(Self {
-            version: Default::default(),
-            bioformats2raw: value.bioformats2raw,
-            multiscales: value.multiscales.map(|v| v.into_iter().collect()),
-            labels: value.labels,
-            image_label: value.image_label,
-            plate: value.plate,
-            well: value.well,
-            omero: value.omero,
-        })
-    }
-}
-
-impl TryFrom<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
-    type Error = crate::Error;
-
-    fn try_from(value: prev::OmeZarrGroupAttributes) -> Result<Self, Self::Error> {
-        Ok(Self {
-            ome: OmeFields::try_from(value.ome)?,
-        })
+impl From<prev::OmeZarrGroupAttributes> for OmeZarrGroupAttributes {
+    fn from(value: prev::OmeZarrGroupAttributes) -> Self {
+        Self {
+            ome: value.ome.into(),
+        }
     }
 }
 
@@ -113,5 +117,13 @@ pub struct OmeZarrGroupMetadata {
 impl Validate for OmeZarrGroupMetadata {
     fn validate_inner(&self, accum: &mut Accumulator) {
         accum.validate_member_at("attributes", &self.attributes);
+    }
+}
+
+impl From<prev::OmeZarrGroupMetadata> for OmeZarrGroupMetadata {
+    fn from(value: prev::OmeZarrGroupMetadata) -> Self {
+        Self {
+            attributes: value.attributes.into(),
+        }
     }
 }

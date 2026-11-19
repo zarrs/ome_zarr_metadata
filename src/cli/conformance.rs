@@ -6,7 +6,7 @@
 use clap::Parser;
 #[cfg(feature = "next")]
 use ome_zarr_metadata::next;
-use ome_zarr_metadata::{AnyOmeFields, Valid, v0_4, v0_5};
+use ome_zarr_metadata::{AnyOmeFields, Valid, v0_4, v0_5, v0_6};
 use serde::{Serialize, de::DeserializeOwned};
 use std::{error::Error, str::FromStr};
 use validatrix::Validate;
@@ -15,6 +15,7 @@ use validatrix::Validate;
 enum VersionSelection {
     V0_4,
     V0_5,
+    V0_6,
     #[cfg(feature = "next")]
     VNext,
 }
@@ -26,6 +27,7 @@ impl FromStr for VersionSelection {
         match s {
             "0.4" => Ok(VersionSelection::V0_4),
             "0.5" => Ok(VersionSelection::V0_5),
+            "0.6" => Ok(VersionSelection::V0_6),
             #[cfg(feature = "next")]
             "next" => Ok(VersionSelection::VNext),
             _ => Err(format!("Unsupported version selection: {}", s)),
@@ -93,6 +95,7 @@ fn get_output(parsed: &CliArgs) -> Output {
     match parsed.ome_zarr_version {
         Some(VersionSelection::V0_4) => parse_type::<v0_4::OmeNgffGroupAttributes>(s),
         Some(VersionSelection::V0_5) => parse_type::<v0_5::OmeZarrGroupAttributes>(s),
+        Some(VersionSelection::V0_6) => parse_type::<v0_6::OmeZarrGroupAttributes>(s),
         #[cfg(feature = "next")]
         Some(VersionSelection::VNext) => parse_type::<next::OmeZarrGroupAttributes>(s),
         None => parse_type::<AnyOmeFields>(s),
