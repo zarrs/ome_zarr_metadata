@@ -12,11 +12,13 @@ mod core;
 mod dimension;
 mod matrix;
 mod vector_field;
+mod wrapper;
 
-pub use self::core::*;
-pub use dimension::*;
-pub use matrix::*;
-pub use vector_field::*;
+pub use self::core::{Identity, Scale, Translation};
+pub use dimension::{MapAxis, ProjectAxis};
+pub use matrix::{Affine, Rotation};
+pub use vector_field::{Coordinates, Displacements, Interpolation};
+pub use wrapper::{Bijection, ByDimension, Sequence};
 
 /// Reference to a coordinate system, used for the `input` and `output` of a transformation.
 ///

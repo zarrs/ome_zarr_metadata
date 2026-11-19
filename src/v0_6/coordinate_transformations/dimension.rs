@@ -1,13 +1,13 @@
-//! Dimension-manipulating transformations: mapAxis, projectAxis, and byDimension.
+//! Dimension-manipulating transformations: mapAxis and projectAxis.
 
 use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
-use super::{Transform, TransformType};
+use super::TransformType;
 
-fn unique_indices(
+pub(super) fn unique_indices(
     accum: &mut Accumulator,
     key: &'static str,
     indices: &[usize],
@@ -83,92 +83,5 @@ impl TransformType for ProjectAxis {
 
     fn output_ndim(&self) -> Option<usize> {
         None
-    }
-}
-
-/// `byDimension` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ByDimension {
-    /// Transformations applied to subsets of axes.
-    pub transformations: Vec<ByDimensionItem>,
-}
-
-impl Validate for ByDimension {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        accum.with_key("transformations", |a| {
-            if self.transformations.is_empty() {
-                a.add_failure("empty");
-            }
-            a.validate_iter(&self.transformations);
-            let mut outputs = BTreeSet::default();
-            for (idx, t) in self.transformations.iter().enumerate() {
-                for o in t.output_axes.iter() {
-                    if !outputs.insert(*o) {
-                        a.with_keys(&[idx.into(), "outputAxes".into()], |a2| {
-                            a2.add_failure(format!("output axis {o} already produced"))
-                        });
-                    }
-                }
-            }
-            if let Some(max) = outputs.last() {
-                if *max + 1 != outputs.len() {
-                    a.add_failure("output axes are not contiguous from 0");
-                }
-            }
-        });
-    }
-}
-
-impl TransformType for ByDimension {
-    fn input_ndim(&self) -> Option<usize> {
-        self.transformations
-            .iter()
-            .flat_map(|s| s.input_axes.iter())
-            .max()
-            .map(|m| m + 1)
-    }
-
-    fn output_ndim(&self) -> Option<usize> {
-        self.transformations
-            .iter()
-            .flat_map(|s| s.output_axes.iter())
-            .max()
-            .map(|m| m + 1)
-    }
-}
-
-/// Item of a [`ByDimension`] transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ByDimensionItem {
-    /// Indices of the input axes this transformation consumes.
-    pub input_axes: Vec<usize>,
-    /// Indices of the output axes this transformation produces.
-    pub output_axes: Vec<usize>,
-    /// Transformation to apply.
-    pub transformation: Transform,
-}
-
-impl Validate for ByDimensionItem {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        accum.validate_member_at("transformation", &self.transformation);
-        unique_indices(accum, "inputAxes", &self.input_axes);
-        unique_indices(accum, "outputAxes", &self.output_axes);
-        if let Some(n) = self.transformation.input_ndim() {
-            if n != self.input_axes.len() {
-                accum.add_failure_at(
-                    "inputAxes",
-                    format!("length does not match transformation input dimensionality {n}"),
-                );
-            }
-        }
-        if let Some(n) = self.transformation.output_ndim() {
-            if n != self.output_axes.len() {
-                accum.add_failure_at(
-                    "outputAxes",
-                    format!("length does not match transformation output dimensionality {n}"),
-                );
-            }
-        }
     }
 }
