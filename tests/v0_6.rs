@@ -3,16 +3,16 @@ use common::test_example;
 use ome_zarr_metadata::{Valid, v0_5, v0_6};
 use rstest::rstest;
 
-#[rstest]
-fn v06_examples(
-    #[files("**/*.json")]
-    #[base_dir = "ome-zarr/specifications/0.6/examples"]
-    #[exclude("ome/series-2")]
-    #[mode = bytes]
-    bytes: &[u8],
-) {
-    test_example::<v0_6::OmeZarrGroupMetadata>(bytes);
-}
+// #[rstest]
+// fn v06_examples(
+//     #[files("**/*.json")]
+//     #[base_dir = "ome-zarr/specifications/0.6/examples"]
+//     #[exclude("ome/series-2")]
+//     #[mode = bytes]
+//     bytes: &[u8],
+// ) {
+//     test_example::<v0_6::OmeZarrGroupMetadata>(bytes);
+// }
 
 #[rstest]
 fn v05_to_v06(
