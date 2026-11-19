@@ -47,7 +47,7 @@ impl MaybeNDim for CoordinateTransform {
 #[serde(untagged)]
 pub enum CoordinateTransformTranslation {
     /// A list of floats.
-    List { translation: Vec<f32> },
+    List { translation: Vec<f64> },
     /// A path to binary data at a location in this container.
     Path { path: PathBuf },
 }
@@ -62,8 +62,8 @@ impl MaybeNDim for CoordinateTransformTranslation {
     }
 }
 
-impl From<Vec<f32>> for CoordinateTransformTranslation {
-    fn from(translation: Vec<f32>) -> Self {
+impl From<Vec<f64>> for CoordinateTransformTranslation {
+    fn from(translation: Vec<f64>) -> Self {
         CoordinateTransformTranslation::List { translation }
     }
 }
@@ -80,7 +80,7 @@ impl From<PathBuf> for CoordinateTransformTranslation {
 #[serde(untagged)]
 pub enum CoordinateTransformScale {
     /// A list of floats.
-    List { scale: Vec<f32> },
+    List { scale: Vec<f64> },
     /// A path to binary data at a location in this container.
     Path { path: PathBuf },
 }
@@ -95,8 +95,8 @@ impl MaybeNDim for CoordinateTransformScale {
     }
 }
 
-impl From<Vec<f32>> for CoordinateTransformScale {
-    fn from(scale: Vec<f32>) -> Self {
+impl From<Vec<f64>> for CoordinateTransformScale {
+    fn from(scale: Vec<f64>) -> Self {
         CoordinateTransformScale::List { scale }
     }
 }
