@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
 use super::TransformType;
-use crate::v0_5 as prev;
+use crate::{util::ValidNum, v0_5 as prev};
 
 /// `identity` transformation.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq)]
@@ -45,6 +45,11 @@ impl Validate for Translation {
         if self.translation.is_empty() {
             accum.add_failure_at("translation", "empty");
         }
+        accum.with_key("translation", |a| {
+            for (i, &v) in self.translation.iter().enumerate() {
+                a.validate_member_at(i, &ValidNum(v));
+            }
+        });
     }
 }
 
@@ -85,6 +90,11 @@ impl Validate for Scale {
         if self.scale.is_empty() {
             accum.add_failure_at("scale", "empty");
         }
+        accum.with_key("scale", |a| {
+            for (i, &v) in self.scale.iter().enumerate() {
+                a.validate_member_at(i, &ValidNum(v));
+            }
+        });
     }
 }
 

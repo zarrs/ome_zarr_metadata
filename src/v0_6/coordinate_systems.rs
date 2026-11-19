@@ -32,6 +32,16 @@ pub enum AxisType {
     Custom(String),
 }
 
+impl AxisType {
+    /// Whether this axis type is discrete.
+    pub fn must_be_discrete(&self) -> bool {
+        matches!(
+            self,
+            Self::Array | Self::Channel | Self::Coordinate | Self::Displacement
+        )
+    }
+}
+
 impl From<crate::v0_5::AxisType> for AxisType {
     fn from(value: crate::v0_5::AxisType) -> Self {
         match value {
@@ -77,7 +87,9 @@ impl Validate for Axis {
         if self.name.is_empty() {
             accum.add_failure_at("name", "empty axis name");
         }
-        if matches!(self.r#type, Some(AxisType::Array)) && self.discrete == Some(false) {
+        if self.discrete == Some(false)
+            && self.r#type.as_ref().is_some_and(|t| t.must_be_discrete())
+        {
             accum.add_failure_at("discrete", "array axes are discrete");
         }
         let (Some(t), Some(u)) = (&self.r#type, &self.unit) else {
