@@ -782,11 +782,6 @@ impl Validate for Bijection {
     }
 }
 
-fn f32_to_f64(v: f32) -> f64 {
-    // round-trip via string to avoid e.g. 0.1f32 -> 0.10000000149011612
-    v.to_string().parse().unwrap_or(v as f64)
-}
-
 /// Convert a list of v0.4/v0.5 transformations into a single v0.6 transformation.
 pub(crate) fn convert_prev_transforms(
     cts: Vec<crate::v0_5::CoordinateTransform>,
@@ -799,15 +794,9 @@ pub(crate) fn convert_prev_transforms(
     for ct in cts {
         out.push(match ct {
             Prev::Identity => continue,
-            Prev::Translation(PT::List { translation }) => Transform::Translation(
-                translation
-                    .into_iter()
-                    .map(f32_to_f64)
-                    .collect::<Vec<_>>()
-                    .into(),
-            ),
+            Prev::Translation(PT::List { translation }) => Translation::from(translation).into(),
             Prev::Scale(PS::List { scale }) => {
-                Transform::Scale(scale.into_iter().map(f32_to_f64).collect::<Vec<_>>().into())
+                Scale::from(scale).into()
             }
             Prev::Translation(PT::Path { .. }) | Prev::Scale(PS::Path { .. }) => {
                 return Err(Error::general(
