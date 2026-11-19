@@ -1,0 +1,51 @@
+# Hooks for prek (https://github.com/j178/prek).
+# Install with `prek install`; run manually with `prek run --all-files`.
+exclude = "^(ome-zarr/|target/|tests/fixtures/generated/)"
+default_install_hook_types = ["pre-commit", "pre-push"]
+default_stages = ["pre-commit"]
+
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "trailing-whitespace" },
+    { id = "end-of-file-fixer" },
+    { id = "check-toml" },
+    { id = "check-yaml" },
+    { id = "check-merge-conflict" },
+    { id = "mixed-line-ending" },
+]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "cargo-fmt"
+name = "cargo fmt"
+entry = "cargo fmt --all --"
+language = "system"
+types = ["rust"]
+
+[[repos.hooks]]
+id = "cargo-clippy"
+name = "cargo clippy"
+entry = "cargo clippy --all-features --all-targets -- -D warnings"
+language = "system"
+types = ["rust"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "cargo-check-no-default-features"
+name = "cargo check (no default features)"
+entry = "cargo check --no-default-features"
+language = "system"
+types = ["rust"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "cargo-test"
+name = "cargo test"
+entry = "cargo test --all-features"
+language = "system"
+types = ["rust"]
+pass_filenames = false
+stages = ["pre-push"]
