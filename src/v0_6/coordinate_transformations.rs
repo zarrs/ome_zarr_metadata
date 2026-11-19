@@ -2,12 +2,21 @@
 //!
 //! <https://ngff.openmicroscopy.org/specifications/0.6/#trafo-md>.
 
-use std::collections::BTreeSet;
-
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
 use crate::Error;
+use crate::v0_5 as prev;
+
+mod core;
+mod dimension;
+mod matrix;
+mod vector_field;
+
+pub use self::core::*;
+pub use dimension::*;
+pub use matrix::*;
+pub use vector_field::*;
 
 /// Reference to a coordinate system, used for the `input` and `output` of a transformation.
 ///
@@ -249,111 +258,6 @@ pub trait TransformType: Into<Transform> + Validate {
     }
 }
 
-/// `identity` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub struct Identity {}
-
-impl Validate for Identity {
-    fn validate_inner(&self, _accum: &mut Accumulator) {}
-}
-
-impl TransformType for Identity {
-    fn input_ndim(&self) -> Option<usize> {
-        None
-    }
-}
-
-impl TransformType for MapAxis {
-    fn input_ndim(&self) -> Option<usize> {
-        Some(self.map_axis.len())
-    }
-}
-
-impl TransformType for ProjectAxis {
-    fn input_ndim(&self) -> Option<usize> {
-        None
-    }
-
-    fn output_ndim(&self) -> Option<usize> {
-        None
-    }
-}
-
-impl TransformType for Translation {
-    fn input_ndim(&self) -> Option<usize> {
-        Some(self.translation.len())
-    }
-}
-
-impl TransformType for Scale {
-    fn input_ndim(&self) -> Option<usize> {
-        Some(self.scale.len())
-    }
-}
-
-impl TransformType for Affine {
-    fn input_ndim(&self) -> Option<usize> {
-        match self {
-            Affine::Inline { affine } => affine.first().map(|r| r.len().saturating_sub(1)),
-            _ => None,
-        }
-    }
-
-    fn output_ndim(&self) -> Option<usize> {
-        match self {
-            Affine::Inline { affine } => Some(affine.len()),
-            _ => None,
-        }
-    }
-}
-
-impl TransformType for Rotation {
-    fn input_ndim(&self) -> Option<usize> {
-        match self {
-            Rotation::Inline { rotation } => Some(rotation.len()),
-            _ => None,
-        }
-    }
-}
-
-impl TransformType for Sequence {
-    fn input_ndim(&self) -> Option<usize> {
-        self.transformations.first().and_then(|t| t.input_ndim())
-    }
-
-    fn output_ndim(&self) -> Option<usize> {
-        self.transformations.last().and_then(|t| t.output_ndim())
-    }
-}
-
-impl TransformType for ByDimension {
-    fn input_ndim(&self) -> Option<usize> {
-        self.transformations
-            .iter()
-            .flat_map(|s| s.input_axes.iter())
-            .max()
-            .map(|m| m + 1)
-    }
-
-    fn output_ndim(&self) -> Option<usize> {
-        self.transformations
-            .iter()
-            .flat_map(|s| s.output_axes.iter())
-            .max()
-            .map(|m| m + 1)
-    }
-}
-
-impl TransformType for Bijection {
-    fn input_ndim(&self) -> Option<usize> {
-        self.forward.input_ndim().or(self.inverse.output_ndim())
-    }
-
-    fn output_ndim(&self) -> Option<usize> {
-        self.forward.output_ndim().or(self.inverse.input_ndim())
-    }
-}
-
 impl_from_variant!(
     Identity(Identity),
     Coordinates(Coordinates),
@@ -385,399 +289,33 @@ impl Validate for Transform {
     }
 }
 
-fn unique_indices(
-    accum: &mut Accumulator,
-    key: &'static str,
-    indices: &[usize],
-) -> BTreeSet<usize> {
-    let mut seen = BTreeSet::default();
-    for (idx, i) in indices.iter().enumerate() {
-        if !seen.insert(*i) {
-            accum.with_keys(&[key.into(), idx.into()], |a| {
-                a.add_failure(format!("duplicate index {i}"))
-            });
+impl TryFrom<prev::CoordinateTransform> for Transform {
+    type Error = crate::Error;
+
+    fn try_from(value: prev::CoordinateTransform) -> Result<Self, Self::Error> {
+        match value {
+            prev::CoordinateTransform::Identity => Ok(Self::Identity(Identity {})),
+            prev::CoordinateTransform::Translation(t) => Ok(Self::Translation(t.try_into()?)),
+            prev::CoordinateTransform::Scale(s) => Ok(Self::Scale(s.try_into()?)),
         }
     }
-    seen
 }
 
-/// `mapAxis` transformation: an axis permutation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct MapAxis {
-    /// The value at position `i` is the index of the input axis which becomes the `i`th output axis.
-    pub map_axis: Vec<usize>,
-}
-
-impl Validate for MapAxis {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        let n = self.map_axis.len();
-        if n == 0 {
-            accum.add_failure_at("mapAxis", "empty");
-        }
-        unique_indices(accum, "mapAxis", &self.map_axis);
-        for (idx, i) in self.map_axis.iter().enumerate() {
-            if *i >= n {
-                accum.with_keys(&["mapAxis".into(), idx.into()], |a| {
-                    a.add_failure(format!("index {i} out of range for {n} axes"))
-                });
+impl FromIterator<Transform> for Transform {
+    fn from_iter<T: IntoIterator<Item = Transform>>(iter: T) -> Self {
+        let mut out = Vec::new();
+        for t in iter {
+            match t {
+                Transform::Identity(_) => continue,
+                _ => out.push(t),
             }
         }
-    }
-}
-
-/// `projectAxis` transformation: add and/or drop dimensions.
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct ProjectAxis {
-    /// Indices of input dimensions to drop.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub dropped_inputs: Vec<usize>,
-    /// Indices of output dimensions which are newly created (with value 0).
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub created_outputs: Vec<usize>,
-}
-
-impl Validate for ProjectAxis {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        if self.dropped_inputs.is_empty() && self.created_outputs.is_empty() {
-            accum.add_failure("neither droppedInputs nor createdOutputs given");
-        }
-        unique_indices(accum, "droppedInputs", &self.dropped_inputs);
-        unique_indices(accum, "createdOutputs", &self.created_outputs);
-    }
-}
-
-/// `translation` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Translation {
-    /// Values to add to each coordinate.
-    pub translation: Vec<f64>,
-}
-
-impl Validate for Translation {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        if self.translation.is_empty() {
-            accum.add_failure_at("translation", "empty");
-        }
-    }
-}
-
-impl From<Vec<f64>> for Translation {
-    fn from(translation: Vec<f64>) -> Self {
-        Self { translation }
-    }
-}
-
-/// `scale` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Scale {
-    /// Values to multiply each coordinate by.
-    pub scale: Vec<f64>,
-}
-
-impl Validate for Scale {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        if self.scale.is_empty() {
-            accum.add_failure_at("scale", "empty");
-        }
-    }
-}
-
-impl From<Vec<f64>> for Scale {
-    fn from(scale: Vec<f64>) -> Self {
-        Self { scale }
-    }
-}
-
-/// `affine` transformation: either an inline matrix or a path to a zarr array.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(untagged)]
-pub enum Affine {
-    /// Rows of the upper `M x (N+1)` part of a homogeneous affine matrix.
-    Inline {
-        /// Matrix rows.
-        affine: Vec<Vec<f64>>,
-    },
-    /// Path to a 2D zarr array containing the matrix.
-    Path {
-        /// Path to the array.
-        path: String,
-    },
-}
-
-impl Validate for Affine {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        match self {
-            Affine::Inline { affine } => accum.with_key("affine", |a| {
-                let Some(first) = affine.first() else {
-                    a.add_failure("empty matrix");
-                    return;
-                };
-                if first.len() < 2 {
-                    a.add_failure("rows must have at least 2 columns");
-                }
-                for (idx, row) in affine.iter().enumerate() {
-                    if row.len() != first.len() {
-                        a.add_failure_at(idx, "inconsistent row length");
-                    }
-                }
+        match out.len() {
+            0 => Identity.into(),
+            1 => out.pop().unwrap(),
+            _ => Transform::Sequence(Sequence {
+                transformations: out,
             }),
-            Affine::Path { path } => {
-                if path.is_empty() {
-                    accum.add_failure_at("path", "empty");
-                }
-            }
-        }
-    }
-}
-
-/// `rotation` transformation: either an inline matrix or a path to a zarr array.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(untagged)]
-pub enum Rotation {
-    /// Rows of an `N x N` rotation matrix.
-    Inline {
-        /// Matrix rows.
-        rotation: Vec<Vec<f64>>,
-    },
-    /// Path to a 2D zarr array containing the matrix.
-    Path {
-        /// Path to the array.
-        path: String,
-    },
-}
-
-impl Validate for Rotation {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        match self {
-            Rotation::Inline { rotation } => accum.with_key("rotation", |a| {
-                let n = rotation.len();
-                if n == 0 {
-                    a.add_failure("empty matrix");
-                }
-                for (idx, row) in rotation.iter().enumerate() {
-                    if row.len() != n {
-                        a.add_failure_at(idx, "matrix is not square");
-                    }
-                }
-            }),
-            Rotation::Path { path } => {
-                if path.is_empty() {
-                    accum.add_failure_at("path", "empty");
-                }
-            }
-        }
-    }
-}
-
-/// `sequence` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Sequence {
-    /// Transformations to apply in order.
-    pub transformations: Vec<Transform>,
-}
-
-impl Validate for Sequence {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        accum.with_key("transformations", |a| {
-            if self.transformations.is_empty() {
-                a.add_failure("empty");
-            }
-            a.validate_iter(&self.transformations);
-            for (idx, pair) in self.transformations.windows(2).enumerate() {
-                if let (Some(o), Some(i)) = (pair[0].output_ndim(), pair[1].input_ndim()) {
-                    if o != i {
-                        a.add_failure_at(
-                            idx + 1,
-                            format!("input dimensionality {i} does not match previous output {o}"),
-                        );
-                    }
-                }
-            }
-        });
-    }
-}
-
-/// Interpolation method for coordinate and displacement fields.
-#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, Hash)]
-#[non_exhaustive]
-pub enum Interpolation {
-    /// Nearest-neighbour interpolation.
-    #[serde(rename = "nearest")]
-    Nearest,
-    /// Linear interpolation (default).
-    #[default]
-    #[serde(rename = "linear")]
-    Linear,
-    /// Cubic B-spline interpolation.
-    #[serde(rename = "bspline-cubic")]
-    BsplineCubic,
-    /// Other interpolation method.
-    #[serde(untagged)]
-    Custom(String),
-}
-
-/// `coordinates` or `displacements` transformation, stored in a zarr array.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FieldTransform {
-    /// Path to the multiscale group containing the field.
-    pub path: String,
-    /// Interpolation used between field values; defaults to linear.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub interpolation: Option<Interpolation>,
-}
-
-impl Validate for FieldTransform {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        if self.path.is_empty() {
-            accum.add_failure_at("path", "empty");
-        }
-    }
-}
-
-macro_rules! field_transform_newtype {
-    ($(#[$meta:meta])* $name:ident) => {
-        $(#[$meta])*
-        #[derive(Serialize, Deserialize, Debug, Clone)]
-        #[serde(transparent)]
-        pub struct $name(pub FieldTransform);
-
-        impl std::ops::Deref for $name {
-            type Target = FieldTransform;
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
-        }
-
-        impl std::ops::DerefMut for $name {
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
-            }
-        }
-
-        impl From<FieldTransform> for $name {
-            fn from(value: FieldTransform) -> Self {
-                Self(value)
-            }
-        }
-
-        impl Validate for $name {
-            fn validate_inner(&self, accum: &mut Accumulator) {
-                self.0.validate_inner(accum);
-            }
-        }
-
-        impl TransformType for $name {
-            fn input_ndim(&self) -> Option<usize> {
-                None
-            }
-        }
-    };
-}
-
-field_transform_newtype!(
-    /// `coordinates` transformation: a coordinate field stored in a zarr array.
-    Coordinates
-);
-field_transform_newtype!(
-    /// `displacements` transformation: a displacement field stored in a zarr array.
-    Displacements
-);
-
-/// `byDimension` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ByDimension {
-    /// Transformations applied to subsets of axes.
-    pub transformations: Vec<ByDimensionItem>,
-}
-
-impl Validate for ByDimension {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        accum.with_key("transformations", |a| {
-            if self.transformations.is_empty() {
-                a.add_failure("empty");
-            }
-            a.validate_iter(&self.transformations);
-            let mut outputs = BTreeSet::default();
-            for (idx, t) in self.transformations.iter().enumerate() {
-                for o in t.output_axes.iter() {
-                    if !outputs.insert(*o) {
-                        a.with_keys(&[idx.into(), "outputAxes".into()], |a2| {
-                            a2.add_failure(format!("output axis {o} already produced"))
-                        });
-                    }
-                }
-            }
-            if let Some(max) = outputs.last() {
-                if *max + 1 != outputs.len() {
-                    a.add_failure("output axes are not contiguous from 0");
-                }
-            }
-        });
-    }
-}
-
-/// Item of a [`ByDimension`] transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ByDimensionItem {
-    /// Indices of the input axes this transformation consumes.
-    pub input_axes: Vec<usize>,
-    /// Indices of the output axes this transformation produces.
-    pub output_axes: Vec<usize>,
-    /// Transformation to apply.
-    pub transformation: Transform,
-}
-
-impl Validate for ByDimensionItem {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        accum.validate_member_at("transformation", &self.transformation);
-        unique_indices(accum, "inputAxes", &self.input_axes);
-        unique_indices(accum, "outputAxes", &self.output_axes);
-        if let Some(n) = self.transformation.input_ndim() {
-            if n != self.input_axes.len() {
-                accum.add_failure_at(
-                    "inputAxes",
-                    format!("length does not match transformation input dimensionality {n}"),
-                );
-            }
-        }
-        if let Some(n) = self.transformation.output_ndim() {
-            if n != self.output_axes.len() {
-                accum.add_failure_at(
-                    "outputAxes",
-                    format!("length does not match transformation output dimensionality {n}"),
-                );
-            }
-        }
-    }
-}
-
-/// `bijection` transformation.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Bijection {
-    /// Forward transformation.
-    pub forward: Box<Transform>,
-    /// Inverse transformation.
-    pub inverse: Box<Transform>,
-}
-
-impl Validate for Bijection {
-    fn validate_inner(&self, accum: &mut Accumulator) {
-        accum.validate_member_at("forward", self.forward.as_ref());
-        accum.validate_member_at("inverse", self.inverse.as_ref());
-        let dims = [
-            self.forward.input_ndim(),
-            self.forward.output_ndim(),
-            self.inverse.input_ndim(),
-            self.inverse.output_ndim(),
-        ];
-        let known: BTreeSet<_> = dims.into_iter().flatten().collect();
-        if known.len() > 1 {
-            accum.add_failure(format!(
-                "inconsistent dimensionality between forward and inverse: {known:?}"
-            ));
         }
     }
 }
@@ -786,27 +324,12 @@ impl Validate for Bijection {
 pub(crate) fn convert_prev_transforms(
     cts: Vec<crate::v0_5::CoordinateTransform>,
 ) -> Result<Transform, Error> {
-    use crate::v0_5::{
-        CoordinateTransform as Prev, CoordinateTransformScale as PS,
-        CoordinateTransformTranslation as PT,
-    };
     let mut out = Vec::with_capacity(cts.len());
     for ct in cts {
-        out.push(match ct {
-            Prev::Identity => continue,
-            Prev::Translation(PT::List { translation }) => Translation::from(translation).into(),
-            Prev::Scale(PS::List { scale }) => {
-                Scale::from(scale).into()
-            }
-            Prev::Translation(PT::Path { .. }) | Prev::Scale(PS::Path { .. }) => {
-                return Err(Error::general(
-                    "path-based scale/translation transformations are not supported in 0.6",
-                ));
-            }
-        });
+        out.push(ct.try_into()?);
     }
     Ok(match out.len() {
-        0 => Identity::default().into(),
+        0 => Identity.into(),
         1 => out.pop().unwrap(),
         _ => Transform::Sequence(Sequence {
             transformations: out,

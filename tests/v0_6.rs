@@ -1,5 +1,4 @@
 mod common;
-use common::test_example;
 use ome_zarr_metadata::{Valid, v0_5, v0_6};
 use rstest::rstest;
 
@@ -11,7 +10,7 @@ use rstest::rstest;
 //     #[mode = bytes]
 //     bytes: &[u8],
 // ) {
-//     test_example::<v0_6::OmeZarrGroupMetadata>(bytes);
+//     common::test_example::<v0_6::OmeZarrGroupMetadata>(bytes);
 // }
 
 #[rstest]

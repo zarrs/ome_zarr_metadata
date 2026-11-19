@@ -1,3 +1,4 @@
+#![cfg(test)]
 use std::io::Read;
 
 use ome_zarr_metadata::{Valid, Validate};
@@ -11,6 +12,8 @@ struct TestCase {
     test: Test,
 }
 
+// not actually unused, but only used in tests
+#[allow(unused)]
 #[derive(Debug, Deserialize)]
 struct Test {
     description: String,
@@ -18,6 +21,8 @@ struct Test {
     valid: bool,
 }
 
+// not actually unused, but only used in tests
+#[allow(unused)]
 pub fn test_case<T: DeserializeOwned + Validate>(bytes: &[u8]) {
     let case: TestCase = serde_json::from_slice(bytes).unwrap();
     let should_be_valid = case.test.valid;
@@ -43,6 +48,8 @@ fn strip_comments(jsonc: &[u8]) -> Vec<u8> {
     s
 }
 
+// not actually unused, but only used in tests
+#[allow(unused)]
 pub fn test_example<T: DeserializeOwned + Validate>(bytes: &[u8]) {
     serde_json::from_slice::<Valid<T>>(&strip_comments(bytes)).unwrap();
 }
