@@ -80,7 +80,6 @@ impl From<v0_4::OmeNgffGroupAttributes> for AnyOmeFields {
     }
 }
 
-
 /// Intermediate type used for deserialising either pre- or post-0.5
 /// OME-Zarr metadata, which stored their fields freely in the zarr attributes,
 /// or within the "ome" namespace respectively.
