@@ -1,6 +1,6 @@
-//! CLI for validating OME-Zarr metadata, compatible with oztest[1].
+//! CLI for validating OME-Zarr metadata, compatible with oztest [^oztest].
 //!
-//! 1: https://github.com/German-BioImaging/oztest
+//! [^oztest]: <https://github.com/German-BioImaging/oztest>
 #![cfg(feature = "cli")]
 use clap::Parser;
 #[cfg(feature = "next")]

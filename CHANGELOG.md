@@ -10,9 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - v0.6 support
-- oztest support
+- oztest support, including updating/ fixing a lot of validation
 - justfile
 - prek configuration
+
+### Changed
+
+- BREAKING: bump MSRV to 1.88
 
 ## [0.3.1](https://github.com/zarrs/ome_zarr_metadata/compare/v0.3.0...v0.3.1) - 2026-04-07
 

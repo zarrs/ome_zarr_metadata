@@ -42,6 +42,14 @@ types = ["rust"]
 pass_filenames = false
 
 [[repos.hooks]]
+id = "cargo-rustdoc"
+name = "cargo rustdoc"
+entry = "cargo rustdoc --all-features --lib -- --deny warnings"
+language = "system"
+types = ["rust"]
+pass_filenames = false
+
+[[repos.hooks]]
 id = "cargo-test"
 name = "cargo test"
 entry = "cargo test --all-features"
