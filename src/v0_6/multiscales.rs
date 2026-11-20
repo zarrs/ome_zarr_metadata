@@ -63,13 +63,13 @@ fn check_ndim(
     got: Option<usize>,
     expected: Option<usize>,
 ) {
-    if let (Some(g), Some(e)) = (got, expected) {
-        if g != e {
-            accum.add_failure_at(
-                key,
-                format!("dimensionality {g} does not match coordinate system dimensionality {e}"),
-            );
-        }
+    if let (Some(g), Some(e)) = (got, expected)
+        && g != e
+    {
+        accum.add_failure_at(
+            key,
+            format!("dimensionality {g} does not match coordinate system dimensionality {e}"),
+        );
     }
 }
 

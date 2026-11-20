@@ -44,14 +44,12 @@ impl Validate for Scene {
                     require_named_io(a2, ct);
                     for (key, r) in [("input", &ct.input), ("output", &ct.output)] {
                         // without a path, the name refers to a system in this scene
-                        if let (None, Some(name)) = (r.path.as_ref(), r.name.as_deref()) {
-                            if self.get_coordinate_system(name).is_none() {
-                                a2.with_keys(&[key.into(), "name".into()], |a3| {
-                                    a3.add_failure(format!(
-                                        "unknown scene coordinate system '{name}'"
-                                    ))
-                                });
-                            }
+                        if let (None, Some(name)) = (r.path.as_ref(), r.name.as_deref())
+                            && self.get_coordinate_system(name).is_none()
+                        {
+                            a2.with_keys(&[key.into(), "name".into()], |a3| {
+                                a3.add_failure(format!("unknown scene coordinate system '{name}'"))
+                            });
                         }
                     }
                 });

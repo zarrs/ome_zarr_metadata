@@ -163,10 +163,10 @@ pub struct PlateAcquisition {
 
 impl Validate for PlateAcquisition {
     fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
-        if let (Some(start), Some(end)) = (self.start_time, self.end_time) {
-            if end < start {
-                accum.add_failure_at("endtime", "before starttime");
-            }
+        if let (Some(start), Some(end)) = (self.start_time, self.end_time)
+            && end < start
+        {
+            accum.add_failure_at("endtime", "before starttime");
         }
     }
 }

@@ -23,13 +23,13 @@ impl Validate for Sequence {
             }
             a.validate_iter(&self.transformations);
             for (idx, pair) in self.transformations.windows(2).enumerate() {
-                if let (Some(o), Some(i)) = (pair[0].output_ndim(), pair[1].input_ndim()) {
-                    if o != i {
-                        a.add_failure_at(
-                            idx + 1,
-                            format!("input dimensionality {i} does not match previous output {o}"),
-                        );
-                    }
+                if let (Some(o), Some(i)) = (pair[0].output_ndim(), pair[1].input_ndim())
+                    && o != i
+                {
+                    a.add_failure_at(
+                        idx + 1,
+                        format!("input dimensionality {i} does not match previous output {o}"),
+                    );
                 }
             }
         });
@@ -123,10 +123,10 @@ impl Validate for ByDimension {
                     }
                 }
             }
-            if let Some(max) = outputs.last() {
-                if *max + 1 != outputs.len() {
-                    a.add_failure("output axes are not contiguous from 0");
-                }
+            if let Some(max) = outputs.last()
+                && *max + 1 != outputs.len()
+            {
+                a.add_failure("output axes are not contiguous from 0");
             }
         });
     }
@@ -167,21 +167,21 @@ impl Validate for ByDimensionItem {
         accum.validate_member_at("transformation", &self.transformation);
         unique_indices(accum, "inputAxes", &self.input_axes);
         unique_indices(accum, "outputAxes", &self.output_axes);
-        if let Some(n) = self.transformation.input_ndim() {
-            if n != self.input_axes.len() {
-                accum.add_failure_at(
-                    "inputAxes",
-                    format!("length does not match transformation input dimensionality {n}"),
-                );
-            }
+        if let Some(n) = self.transformation.input_ndim()
+            && n != self.input_axes.len()
+        {
+            accum.add_failure_at(
+                "inputAxes",
+                format!("length does not match transformation input dimensionality {n}"),
+            );
         }
-        if let Some(n) = self.transformation.output_ndim() {
-            if n != self.output_axes.len() {
-                accum.add_failure_at(
-                    "outputAxes",
-                    format!("length does not match transformation output dimensionality {n}"),
-                );
-            }
+        if let Some(n) = self.transformation.output_ndim()
+            && n != self.output_axes.len()
+        {
+            accum.add_failure_at(
+                "outputAxes",
+                format!("length does not match transformation output dimensionality {n}"),
+            );
         }
     }
 }
