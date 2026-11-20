@@ -2,18 +2,20 @@ pub(crate) mod coordinate_systems;
 pub(crate) mod coordinate_transformations;
 pub(crate) mod multiscales;
 pub(crate) mod scene;
+pub(crate) mod well;
 
 use crate::v0_5 as prev;
 pub use prev::{
     Bioformats2Raw, Channel, Color, ImageLabel, ImageLabelColor, ImageLabelProperties,
     ImageLabelSource, Labels, Omero, Plate, PlateAcquisition, PlateColumn, PlateRow, PlateWell,
-    Well, WellImage, Window,
+    Window,
 };
 
 pub use coordinate_systems::*;
 pub use coordinate_transformations::*;
 pub use multiscales::*;
 pub use scene::*;
+pub use well::{Well, WellImage};
 
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
@@ -76,6 +78,10 @@ impl Validate for OmeFields {
             accum.validate_member_at("plate", p);
         }
 
+        if let Some(w) = self.well.as_ref() {
+            accum.validate_member_at("well", w);
+        }
+
         if let Some(s) = self.scene.as_ref() {
             accum.validate_member_at("scene", s);
         }
@@ -100,7 +106,7 @@ impl TryFrom<prev::OmeFields> for OmeFields {
             labels: value.labels,
             image_label: value.image_label,
             plate: value.plate,
-            well: value.well,
+            well: value.well.map(Into::into),
             scene: None,
             omero: value.omero,
         })

@@ -5,6 +5,8 @@
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
 
+use crate::v0_6::validate_local_transform_graph;
+
 use super::coordinate_systems::{find_system, validate_coordinate_systems};
 use super::coordinate_transformations::require_named_io;
 use super::{CoordinateSystem, CoordinateTransform};
@@ -54,6 +56,11 @@ impl Validate for Scene {
                     }
                 });
             }
+            validate_local_transform_graph(
+                a,
+                &self.coordinate_systems,
+                &self.coordinate_transformations,
+            );
         });
     }
 }

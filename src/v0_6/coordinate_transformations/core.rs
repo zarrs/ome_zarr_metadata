@@ -18,6 +18,10 @@ impl TransformType for Identity {
     fn input_ndim(&self) -> Option<usize> {
         None
     }
+
+    fn check_ndim(&self, input: usize, output: usize) -> Option<bool> {
+        Some(input == output)
+    }
 }
 
 /// `translation` transformation.

@@ -185,6 +185,93 @@ pub(crate) fn require_named_io(accum: &mut Accumulator, ct: &CoordinateTransform
     }
 }
 
+/// Validate references from transformations to coordinate systems defined in the same document.
+///
+/// For each transformation whose `input` or `output` refers to a coordinate system
+/// by `name` only (i.e. without `path`), check that the system exists in `systems`.
+///
+/// If both systems are resolved, check the transformation's dimensionality against them
+/// with [`TransformType::check_ndim`].
+/// If only one is resolved, compare it with the transformation's dimensionality on that side,
+/// where that can be determined.
+///
+/// References with a `path` are not resolved, as they refer to other zarr nodes.
+/// Keys are relative to the transformations array.
+pub(crate) fn validate_local_transform_graph(
+    accum: &mut Accumulator,
+    systems: &[super::CoordinateSystem],
+    transforms: &[CoordinateTransform],
+) {
+    use crate::NDim;
+
+    // TODO: validate graph connectedness
+
+    for (idx, ct) in transforms.iter().enumerate() {
+        let mut resolve = |terminal_key: &'static str, system_ref: &CoordinateSystemRef| {
+            let name = system_ref.as_local()?;
+            let cs = systems.iter().find(|cs| cs.name == name);
+            if cs.is_none() {
+                accum.with_keys(&[idx.into(), terminal_key.into(), "name".into()], |a| {
+                    a.add_failure(format!("unknown coordinate system '{name}'"))
+                });
+            }
+            cs
+        };
+        let input_cs = resolve("input", &ct.input);
+        let output_cs = resolve("output", &ct.output);
+
+        match (input_cs, output_cs) {
+            (Some(i), Some(o)) => {
+                if ct.transform.check_ndim(i.ndim(), o.ndim()) == Some(false) {
+                    accum.add_failure_at(
+                        idx,
+                        format!(
+                            "transformation is not compatible with input coordinate system \
+                             '{}' ({}D) and output coordinate system '{}' ({}D)",
+                            i.name,
+                            i.ndim(),
+                            o.name,
+                            o.ndim()
+                        ),
+                    );
+                }
+            }
+            (Some(cs), None) => {
+                check_one_side(accum, idx, "input", ct.input_ndim(), cs);
+            }
+            (None, Some(cs)) => {
+                check_one_side(accum, idx, "output", ct.output_ndim(), cs);
+            }
+            (None, None) => (),
+        }
+    }
+}
+
+/// Compare a transformation's dimensionality on one side with that of a coordinate system.
+fn check_one_side(
+    accum: &mut Accumulator,
+    idx: usize,
+    terminal_key: &'static str,
+    transform_ndim: Option<usize>,
+    cs: &super::CoordinateSystem,
+) {
+    use crate::NDim;
+
+    let Some(n) = transform_ndim else {
+        return;
+    };
+    let expected = cs.ndim();
+    if n != expected {
+        accum.with_keys(&[idx.into(), terminal_key.into()], |a| {
+            a.add_failure(format!(
+                "transformation {terminal_key} dimensionality {n} does not match \
+                 coordinate system '{}' dimensionality {expected}",
+                cs.name
+            ))
+        });
+    }
+}
+
 /// Type-specific parameters of a coordinate transformation, discriminated by the `type` field.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
@@ -258,6 +345,11 @@ pub trait TransformType: Into<Transform> + Validate {
     fn output_ndim(&self) -> Option<usize> {
         self.input_ndim()
     }
+
+    /// Check whether the transformation is valid for the given input and output dimensionalities.
+    fn check_ndim(&self, input: usize, output: usize) -> Option<bool> {
+        Some(self.input_ndim()? == input && self.output_ndim()? == output)
+    }
 }
 
 impl_from_variant!(
@@ -282,6 +374,10 @@ impl TransformType for Transform {
 
     fn output_ndim(&self) -> Option<usize> {
         dispatch_transform_type!(self, t => TransformType::output_ndim(t))
+    }
+
+    fn check_ndim(&self, input: usize, output: usize) -> Option<bool> {
+        dispatch_transform_type!(self, t => TransformType::check_ndim(t, input, output))
     }
 }
 

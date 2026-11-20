@@ -116,6 +116,10 @@ impl Validate for OmeNgffGroupAttributes {
             accum.validate_member_at("omero", o);
         }
 
+        if let Some(w) = self.well.as_ref() {
+            accum.validate_member_at("well", w);
+        }
+
         if self.bioformats2raw.is_none()
             && self.multiscales.is_none()
             && self.labels.is_none()

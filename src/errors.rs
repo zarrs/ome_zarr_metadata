@@ -32,6 +32,16 @@ pub enum Error {
     /// General error.
     #[error("{0}")]
     General(String),
+    /// Error relating to matrix construction.
+    #[error("invalid matrix: {numel} elements for {rows} rows and {cols} columns")]
+    InvalidMatrix {
+        /// Number of elements intended for the matrix.
+        numel: usize,
+        /// Number of rows intended for the matrix.
+        rows: usize,
+        /// Number of columns intended for the matrix.
+        cols: usize,
+    },
 }
 
 impl Error {

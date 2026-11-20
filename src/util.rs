@@ -1,7 +1,7 @@
 use validatrix::{Accumulator, Validate};
 
 #[derive(Debug, Clone, Copy)]
-pub struct ValidNum(pub f64);
+pub(crate) struct ValidNum(pub f64);
 
 impl Validate for ValidNum {
     fn validate_inner(&self, accum: &mut Accumulator) {

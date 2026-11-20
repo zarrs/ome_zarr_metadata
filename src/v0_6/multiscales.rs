@@ -128,6 +128,7 @@ impl Validate for MultiscaleImage {
                     self.validate_additional_transform(a2, ct, intrinsic)
                 });
             }
+            super::validate_local_transform_graph(a, &self.coordinate_systems, cts);
         });
     }
 }
@@ -145,48 +146,27 @@ impl MultiscaleImage {
             |r: &CoordinateSystemRef| r.path.is_none() && r.name.as_deref() == intrinsic;
 
         let other = if is_intrinsic(input) {
-            ("output", output)
+            output
         } else if is_intrinsic(output) {
-            ("input", input)
+            input
         } else {
             accum.add_failure("neither input nor output is the intrinsic coordinate system");
             return;
         };
 
-        match (other.1.path.as_ref(), other.1.name.as_deref()) {
+        // Name lookup and dimensionality of same-document references
+        // are checked by `validate_local_transform_graph`.
+        if other.path.is_some()
+            && !matches!(
+                ct.transform,
+                Transform::Identity(_) | Transform::Scale(_) | Transform::Translation(_)
+            )
+        {
             // coordinate system in a child labels group
-            (Some(_), _) => {
-                if !matches!(
-                    ct.transform,
-                    Transform::Identity(_) | Transform::Scale(_) | Transform::Translation(_)
-                ) {
-                    accum.add_failure_at(
-                        "type",
-                        "transformations to labels must be identity, scale, or translation",
-                    );
-                }
-            }
-            (None, Some(name)) => match self.get_coordinate_system(name) {
-                None => accum.with_keys(&[other.0.into(), "name".into()], |a| {
-                    a.add_failure(format!("unknown coordinate system '{name}'"))
-                }),
-                Some(cs) => {
-                    let got = if other.0 == "input" {
-                        ct.input_ndim()
-                    } else {
-                        ct.output_ndim()
-                    };
-                    check_ndim(accum, other.0, got, Some(cs.ndim()));
-                }
-            },
-            (None, None) => (), // already reported
-        }
-
-        let intrinsic_ndim = self.maybe_ndim();
-        if other.0 == "output" {
-            check_ndim(accum, "input", ct.input_ndim(), intrinsic_ndim);
-        } else {
-            check_ndim(accum, "output", ct.output_ndim(), intrinsic_ndim);
+            accum.add_failure_at(
+                "type",
+                "transformations to labels must be identity, scale, or translation",
+            );
         }
     }
 }

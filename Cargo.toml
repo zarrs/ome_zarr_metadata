@@ -14,7 +14,8 @@ license = "MIT OR Apache-2.0"
 keywords = ["ome", "zarr", "ome-zarr", "ome-ngff", "ngff"]
 categories = ["parsing", "science", "science::bioinformatics"]
 exclude = [
-    "ome-zarr"
+    "ome-zarr",
+    "oztest",
 ]
 
 [dependencies]
@@ -26,7 +27,6 @@ serde_json = { version = "1.0.71", features = ["float_roundtrip", "preserve_orde
 thiserror = "2.0.16"
 validatrix = { version = "0.3.1", features = ["serde"] }
 clap = { version = "4.5.57", features = ["derive"], optional = true }
-test-log = "0.2.21"
 log = "0.4.35"
 env_logger = { version = "0.11.11", optional = true }
 clap-verbosity-flag = { version = "3.0.4", optional = true }
@@ -34,6 +34,7 @@ clap-verbosity-flag = { version = "3.0.4", optional = true }
 [dev-dependencies]
 json_comments = "0.2.2"
 rstest = { version = "0.26.1", default-features = false }
+test-log = "0.2.21"
 
 [build-dependencies]
 serde = { version = "1.0.184", features = ["derive"] }

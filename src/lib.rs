@@ -45,4 +45,6 @@ pub use validatrix::{Valid, Validate};
 mod any;
 pub use any::AnyOmeFields;
 
+mod linalg;
+
 pub(crate) mod util;

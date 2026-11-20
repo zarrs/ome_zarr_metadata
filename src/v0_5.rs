@@ -77,6 +77,10 @@ impl Validate for OmeFields {
             accum.validate_member_at("plate", p);
         }
 
+        if let Some(w) = self.well.as_ref() {
+            accum.validate_member_at("well", w);
+        }
+
         if let Some(o) = self.omero.as_ref() {
             accum.validate_member_at("omero", o);
         }

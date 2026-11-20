@@ -84,4 +84,18 @@ impl TransformType for ProjectAxis {
     fn output_ndim(&self) -> Option<usize> {
         None
     }
+
+    fn check_ndim(&self, input: usize, output: usize) -> Option<bool> {
+        if let Some(di) = self.dropped_inputs.iter().max()
+            && *di >= input
+        {
+            return Some(false);
+        }
+        if let Some(co) = self.created_outputs.iter().max()
+            && *co >= output
+        {
+            return Some(false);
+        }
+        Some(true)
+    }
 }
