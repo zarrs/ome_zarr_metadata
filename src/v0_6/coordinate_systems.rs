@@ -96,11 +96,17 @@ impl Validate for Axis {
             return;
         };
         match u {
-            AxisUnit::Space(_) if t != &AxisType::Space => {
-                accum.add_failure_at("unit", "got space unit for non-space axis");
+            AxisUnit::Space(u) if t != &AxisType::Space => {
+                log::warn!(
+                    "got space unit {u:?} for {t:?} axis with name '{}'",
+                    self.name
+                );
             }
-            AxisUnit::Time(_) if t != &AxisType::Time => {
-                accum.add_failure_at("unit", "got time unit for non-time axis");
+            AxisUnit::Time(u) if t != &AxisType::Time => {
+                log::warn!(
+                    "got time unit {u:?} for {t:?} axis with name '{}'",
+                    self.name
+                );
             }
             _ => (),
         }
@@ -141,19 +147,72 @@ impl Validate for CoordinateSystem {
             accum.add_failure_at("name", "empty coordinate system name");
         }
         accum.with_key("axes", |a| {
+            valid_axes(a, &self.axes);
+
             if self.axes.is_empty() {
                 a.add_failure("no axes");
             }
             a.validate_iter(&self.axes);
-            let mut names = BTreeSet::default();
-            for (idx, ax) in self.axes.iter().enumerate() {
-                if !names.insert(ax.name.as_str()) {
-                    a.with_keys(&[idx.into(), "name".into()], |a2| {
-                        a2.add_failure(format!("duplicate axis name '{}'", ax.name))
-                    });
-                }
+        });
+    }
+}
+
+/// Validate the axes of a coordinate system.
+///
+/// - each axis is internally valid
+/// - axis names are unique
+/// - axes are in order ?time, ?, ?space, space, space
+pub(crate) fn valid_axes(accum: &mut Accumulator, axes: &[Axis]) {
+    if axes.len() < 2 || axes.len() > 5 {
+        accum.add_failure(format!("got {} axes, expected 2-5", axes.len()));
+    }
+
+    let mut done_time = false;
+    let mut done_channel_custom = false;
+    let mut n_space = 0;
+    let mut names: BTreeSet<&str> = BTreeSet::default();
+
+    for (idx, ax) in axes.iter().enumerate() {
+        accum.with_key(idx, |a| {
+            ax.validate_inner(a);
+            if !names.insert(ax.name.as_str()) {
+                a.add_failure(format!("duplicate axis name '{}'", ax.name));
             }
         });
+        match ax.r#type {
+            Some(AxisType::Space) => {
+                n_space += 1;
+                if n_space > 3 {
+                    accum.add_failure_at(
+                        idx,
+                        format!("at least {n_space} space axes, should be max 3"),
+                    );
+                }
+                done_time = true;
+                done_channel_custom = true;
+            }
+            Some(AxisType::Time) => {
+                if done_time || done_channel_custom || n_space > 0 {
+                    accum.add_failure_at(idx, "unexpected time axis");
+                }
+                done_time = true;
+            }
+            None
+            | Some(AxisType::Channel)
+            | Some(AxisType::Coordinate)
+            | Some(AxisType::Displacement)
+            | Some(AxisType::Array)
+            | Some(AxisType::Custom(_)) => {
+                if done_channel_custom || n_space > 0 {
+                    accum.add_failure_at(idx, "unexpected channel/custom/unknown axis");
+                }
+                done_channel_custom = true;
+                done_time = true;
+            }
+        }
+    }
+    if n_space < 2 {
+        accum.add_failure(format!("got {n_space} space axes, expected 2-3"));
     }
 }
 

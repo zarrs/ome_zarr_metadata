@@ -1,3 +1,6 @@
 [submodule "ome-zarr"]
 	path = ome-zarr
 	url = https://github.com/ome/ngff.git
+[submodule "oztest"]
+	path = oztest
+	url = https://github.com/German-BioImaging/oztest.git

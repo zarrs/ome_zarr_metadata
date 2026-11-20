@@ -20,19 +20,25 @@ pub struct Axis {
 }
 
 impl Validate for Axis {
-    fn validate_inner(&self, accum: &mut Accumulator) {
+    fn validate_inner(&self, _accum: &mut Accumulator) {
         let (Some(t), Some(u)) = (&self.r#type, &self.unit) else {
             return;
         };
         match u {
-            AxisUnit::Space(_) => {
+            AxisUnit::Space(u) => {
                 if t != &AxisType::Space {
-                    accum.add_failure("got space unit for non-space axis");
+                    log::warn!(
+                        "got space unit {u:?} for {t:?} axis with name '{}'",
+                        self.name
+                    );
                 }
             }
-            AxisUnit::Time(_) => {
+            AxisUnit::Time(u) => {
                 if t != &AxisType::Time {
-                    accum.add_failure("got time unit for non-time axis");
+                    log::warn!(
+                        "got time unit {u:?} for {t:?} axis with name '{}'",
+                        self.name
+                    );
                 }
             }
             AxisUnit::Custom(_) => (),

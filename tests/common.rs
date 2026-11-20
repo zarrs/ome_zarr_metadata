@@ -1,5 +1,5 @@
 #![cfg(test)]
-use std::io::Read;
+use std::{fmt::Debug, io::Read};
 
 use ome_zarr_metadata::{Valid, Validate};
 use serde::{Deserialize, de::DeserializeOwned};
@@ -61,4 +61,19 @@ pub fn test_upgrade<Src: DeserializeOwned + Validate, Tgt: From<Src> + Validate>
     lower.validate().expect("source should be valid");
     let upper = Tgt::from(lower);
     upper.validate().unwrap();
+}
+
+#[allow(unused)]
+pub fn test_oztest_case<T: DeserializeOwned + Validate + Debug>(
+    content: &[u8],
+    expect_invalid: bool,
+) {
+    let res = serde_json::from_slice::<Valid<T>>(content);
+    match (expect_invalid, res) {
+        (true, Ok(v)) => panic!("Expected invalid, but got valid: {v:#?}"),
+        (false, Err(e)) => panic!("Expected valid, but got invalid: {e}"),
+        (_, res) => {
+            log::debug!("Test result: {res:#?}");
+        }
+    }
 }

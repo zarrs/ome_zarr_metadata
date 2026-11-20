@@ -26,6 +26,10 @@ serde_json = { version = "1.0.71", features = ["float_roundtrip", "preserve_orde
 thiserror = "2.0.16"
 validatrix = { version = "0.3.1", features = ["serde"] }
 clap = { version = "4.5.57", features = ["derive"], optional = true }
+test-log = "0.2.21"
+log = "0.4.35"
+env_logger = { version = "0.11.11", optional = true }
+clap-verbosity-flag = { version = "3.0.4", optional = true }
 
 [dev-dependencies]
 json_comments = "0.2.2"
@@ -37,9 +41,14 @@ serde_json = "1.0.71"
 
 [features]
 next = []
-cli = ["clap"]
+cli = ["dep:clap", "dep:env_logger", "dep:clap-verbosity-flag"]
 
 [[bin]]
 name = "ome_zarr_metadata_validate"
 path = "src/cli/conformance.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "ome_zarr_metadata_dingus"
+path = "src/cli/oztest_dingus.rs"
 required-features = ["cli"]

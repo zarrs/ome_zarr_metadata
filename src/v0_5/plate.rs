@@ -2,7 +2,11 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.5/#plate-md>.
 
-use std::{collections::HashSet, num::NonZeroU64};
+use std::{
+    collections::{BTreeSet, HashSet},
+    num::NonZeroU64,
+    path::Path,
+};
 
 use serde::{Deserialize, Serialize};
 use validatrix::Validate;
@@ -72,8 +76,15 @@ impl Validate for Plate {
         });
 
         accum.with_key("wells", |acc| {
+            let mut plate_well_paths: BTreeSet<&Path> = Default::default();
             for (idx, well) in self.wells.iter().enumerate() {
                 acc.with_key(idx, |w_acc| {
+                    if !plate_well_paths.insert(&well.path) {
+                        w_acc.with_key("path", |a| {
+                            a.add_failure(format!("duplicate well path: {}", well.path.display()));
+                        });
+                    }
+
                     let col_name_opt = self.columns.get(well.column_index).map(|c| c.name.as_str());
                     if col_name_opt.is_none() {
                         w_acc.add_failure_at(
