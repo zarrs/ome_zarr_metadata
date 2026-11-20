@@ -34,7 +34,7 @@ fn v04_examples(
     test_example::<v0_4::OmeNgffGroupAttributes>(bytes);
 }
 
-#[ignore = "focusing on v0.5+"]
+// #[ignore = "focusing on v0.5+"]
 #[rstest]
 #[test_log::test]
 fn v04_oztest_valid(
@@ -47,13 +47,16 @@ fn v04_oztest_valid(
     test_oztest_case::<v0_4::OmeNgffGroupAttributes>(bytes, false);
 }
 
-#[ignore = "focusing on v0.5+"]
+// #[ignore = "focusing on v0.5+"]
 #[rstest]
 #[test_log::test]
 fn v04_oztest_invalid(
     #[files("**/*.json")]
     #[base_dir = "oztest/cases/parse_attributes/v0.4"]
     #[exclude("(^strict)|(/valid/)")]
+    // The spec doesn't preclude empty images:
+    // see https://github.com/German-BioImaging/oztest/issues/59
+    #[exclude("invalid/well/empty_images")]
     #[mode = bytes]
     bytes: &[u8],
 ) {

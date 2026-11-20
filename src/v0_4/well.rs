@@ -12,6 +12,7 @@ use validatrix::Validate;
 #[serde(deny_unknown_fields)]
 pub struct Well {
     /// The version of the "well" schema.
+    #[serde(default)]
     pub version: super::ConstrainedVersion,
     /// Specifies the fields of views of the well.
     pub images: Vec<WellImage>,
