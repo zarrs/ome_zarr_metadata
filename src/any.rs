@@ -1,15 +1,19 @@
-use super::{v0_4, v0_5};
+#[cfg(feature = "next")]
+use super::next;
+use super::{v0_4, v0_5, v0_6};
 use serde::Deserialize;
 use validatrix::Validate;
 
 /// OME-Zarr metadata in any supported version.
 #[derive(Debug, Deserialize, Clone)]
-#[serde(from = "AnyOmeZarrAttributes")]
+#[serde(from = "AnyOmeZarrAttributes", into = "AnyOmeZarrAttributes")]
 pub enum AnyOmeFields {
     /// Version 0.4 metadata
     V0_4(v0_4::OmeNgffGroupAttributes),
     /// Version 0.5 metadata
     V0_5(v0_5::OmeFields),
+    /// Version 0.6 metadata
+    V0_6(v0_6::OmeFields),
     #[cfg(feature = "next")]
     /// Future version metadata
     VNext(super::next::OmeFields),
@@ -21,6 +25,7 @@ impl AnyOmeFields {
         match self {
             AnyOmeFields::V0_4(m) => m.version(),
             AnyOmeFields::V0_5(m) => m.version.to_string(),
+            AnyOmeFields::V0_6(m) => m.version.to_string(),
             #[cfg(feature = "next")]
             AnyOmeFields::VNext(m) => m.version.to_string(),
         }
@@ -32,6 +37,7 @@ impl Validate for AnyOmeFields {
         match self {
             AnyOmeFields::V0_4(attrs) => attrs.validate_inner(accum),
             AnyOmeFields::V0_5(fields) => accum.validate_member_at("ome", fields),
+            AnyOmeFields::V0_6(fields) => accum.validate_member_at("ome", fields),
             #[cfg(feature = "next")]
             AnyOmeFields::VNext(fields) => accum.validate_member_at("ome", fields),
         }
@@ -44,14 +50,16 @@ impl Validate for AnyOmeFields {
 #[serde(untagged)]
 enum NamespacedOmeFields {
     V0_5(v0_5::OmeFields),
+    V0_6(v0_6::OmeFields),
     #[cfg(feature = "next")]
-    VNext(super::next::OmeFields),
+    VNext(next::OmeFields),
 }
 
 impl From<NamespacedOmeFields> for AnyOmeFields {
     fn from(value: NamespacedOmeFields) -> Self {
         match value {
             NamespacedOmeFields::V0_5(ome) => Self::V0_5(ome),
+            NamespacedOmeFields::V0_6(ome) => Self::V0_6(ome),
             #[cfg(feature = "next")]
             NamespacedOmeFields::VNext(ome) => Self::VNext(ome),
         }
@@ -66,11 +74,9 @@ enum FreeOmeFields {
     V0_4(v0_4::OmeNgffGroupAttributes),
 }
 
-impl From<FreeOmeFields> for AnyOmeFields {
-    fn from(value: FreeOmeFields) -> Self {
-        match value {
-            FreeOmeFields::V0_4(ome) => Self::V0_4(ome),
-        }
+impl From<v0_4::OmeNgffGroupAttributes> for AnyOmeFields {
+    fn from(value: v0_4::OmeNgffGroupAttributes) -> Self {
+        Self::V0_4(value)
     }
 }
 
@@ -102,6 +108,14 @@ impl<'de> Deserialize<'de> for AnyOmeZarrAttributes {
             let free: FreeOmeFields =
                 serde_json::from_value(helper).map_err(serde::de::Error::custom)?;
             Ok(AnyOmeZarrAttributes::Free(free))
+        }
+    }
+}
+
+impl From<FreeOmeFields> for AnyOmeFields {
+    fn from(value: FreeOmeFields) -> Self {
+        match value {
+            FreeOmeFields::V0_4(attrs) => Self::V0_4(attrs),
         }
     }
 }

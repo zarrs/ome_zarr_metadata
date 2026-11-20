@@ -64,11 +64,21 @@ impl Validate for OmeFields {
         }
 
         if let Some(i) = self.image_label.as_ref() {
-            accum.validate_member_at("imageLabel", i);
+            accum.validate_member_at("image-label", i);
+            if self.multiscales.is_none() {
+                accum.add_failure_at(
+                    "multiscales",
+                    "image-label is present but multiscales is missing",
+                );
+            }
         }
 
         if let Some(p) = self.plate.as_ref() {
             accum.validate_member_at("plate", p);
+        }
+
+        if let Some(w) = self.well.as_ref() {
+            accum.validate_member_at("well", w);
         }
 
         if let Some(o) = self.omero.as_ref() {

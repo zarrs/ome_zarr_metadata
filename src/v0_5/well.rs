@@ -2,7 +2,10 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.5/#well-md>.
 
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
+use validatrix::Validate;
 
 use super::WellImage;
 
@@ -12,6 +15,20 @@ use super::WellImage;
 pub struct Well {
     /// Specifies the fields of views of the well.
     pub images: Vec<WellImage>,
+}
+
+impl Validate for Well {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        accum.validate_iter_at("images", &self.images);
+        let mut paths = BTreeSet::new();
+        for (idx, p) in self.images.iter().map(|i| &i.path).enumerate() {
+            if !paths.insert(p) {
+                accum.with_keys(&["images".into(), idx.into(), "path".into()], |a| {
+                    a.add_failure(format!("duplicate path '{}'", p.display()));
+                });
+            }
+        }
+    }
 }
 
 impl From<crate::v0_4::Well> for Well {

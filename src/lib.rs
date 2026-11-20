@@ -11,19 +11,26 @@ pub(crate) mod version;
 
 /// Version `0.4` (OME-NGFF) metadata.
 ///
-/// <https://ngff.openmicroscopy.org/0.4/>.
+/// <https://ngff.openmicroscopy.org/specifications/0.4/>.
 pub mod v0_4;
 
 /// Version `0.5` (OME-Zarr) metadata.
 ///
-/// <https://ngff.openmicroscopy.org/0.5/>.
+/// <https://ngff.openmicroscopy.org/specifications/0.5/>.
 pub mod v0_5;
+
+/// Version `0.6` (OME-Zarr) metadata.
+///
+/// <https://ngff.openmicroscopy.org/specifications/0.6/>.
+pub mod v0_6;
 
 /// Future version of OME-Zarr metadata.
 ///
 /// May not be up to date with the latest development specification.
 /// May implement not-yet-stabilised RFCs.
 /// Breaking API changes may be made at any time.
+///
+/// <https://ngff.openmicroscopy.org/specifications/dev/>
 #[cfg(feature = "next")]
 pub mod next;
 
@@ -37,3 +44,7 @@ pub use validatrix::{Valid, Validate};
 
 mod any;
 pub use any::AnyOmeFields;
+
+mod linalg;
+
+pub(crate) mod util;

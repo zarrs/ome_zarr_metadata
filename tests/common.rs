@@ -1,4 +1,5 @@
-use std::io::Read;
+#![cfg(test)]
+use std::{fmt::Debug, io::Read};
 
 use ome_zarr_metadata::{Valid, Validate};
 use serde::{Deserialize, de::DeserializeOwned};
@@ -11,6 +12,8 @@ struct TestCase {
     test: Test,
 }
 
+// not actually unused, but only used in tests
+#[allow(unused)]
 #[derive(Debug, Deserialize)]
 struct Test {
     description: String,
@@ -18,6 +21,8 @@ struct Test {
     valid: bool,
 }
 
+// not actually unused, but only used in tests
+#[allow(unused)]
 pub fn test_case<T: DeserializeOwned + Validate>(bytes: &[u8]) {
     let case: TestCase = serde_json::from_slice(bytes).unwrap();
     let should_be_valid = case.test.valid;
@@ -43,6 +48,8 @@ fn strip_comments(jsonc: &[u8]) -> Vec<u8> {
     s
 }
 
+// not actually unused, but only used in tests
+#[allow(unused)]
 pub fn test_example<T: DeserializeOwned + Validate>(bytes: &[u8]) {
     serde_json::from_slice::<Valid<T>>(&strip_comments(bytes)).unwrap();
 }
@@ -54,4 +61,19 @@ pub fn test_upgrade<Src: DeserializeOwned + Validate, Tgt: From<Src> + Validate>
     lower.validate().expect("source should be valid");
     let upper = Tgt::from(lower);
     upper.validate().unwrap();
+}
+
+#[allow(unused)]
+pub fn test_oztest_case<T: DeserializeOwned + Validate + Debug>(
+    content: &[u8],
+    expect_invalid: bool,
+) {
+    let res = serde_json::from_slice::<Valid<T>>(content);
+    match (expect_invalid, res) {
+        (true, Ok(v)) => panic!("Expected invalid, but got valid: {v:#?}"),
+        (false, Err(e)) => panic!("Expected valid, but got invalid: {e}"),
+        (_, res) => {
+            log::debug!("Test result: {res:#?}");
+        }
+    }
 }

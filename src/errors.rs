@@ -26,14 +26,32 @@ pub enum Error {
         /// The version which failed to satisfy the constraint.
         version: pep440_rs::Version,
     },
+    /// Where an operation fails because Zarr IO is required.
+    #[error("requires zarr IO: {0}")]
+    RequiresZarr(String),
     /// General error.
     #[error("{0}")]
     General(String),
+    /// Error relating to matrix construction.
+    #[error("invalid matrix: {numel} elements for {rows} rows and {cols} columns")]
+    InvalidMatrix {
+        /// Number of elements intended for the matrix.
+        numel: usize,
+        /// Number of rows intended for the matrix.
+        rows: usize,
+        /// Number of columns intended for the matrix.
+        cols: usize,
+    },
 }
 
 impl Error {
     /// Create a general error from a string message.
-    pub fn general<S: Into<String>>(msg: S) -> Self {
+    pub fn general(msg: impl Into<String>) -> Self {
         Error::General(msg.into())
+    }
+
+    /// Create an error where metadata cannot be operated on without Zarr IO.
+    pub fn requires_zarr(msg: impl Into<String>) -> Self {
+        Error::RequiresZarr(msg.into())
     }
 }

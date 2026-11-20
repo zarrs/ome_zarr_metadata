@@ -6,15 +6,16 @@
 use clap::Parser;
 #[cfg(feature = "next")]
 use ome_zarr_metadata::next;
-use ome_zarr_metadata::{AnyOmeFields, Valid, v0_4, v0_5};
+use ome_zarr_metadata::{AnyOmeFields, Valid, v0_4, v0_5, v0_6};
 use serde::{Serialize, de::DeserializeOwned};
-use std::{error::Error, str::FromStr};
+use std::{error::Error, fmt::Debug, str::FromStr};
 use validatrix::Validate;
 
 #[derive(Debug, Clone)]
 enum VersionSelection {
     V0_4,
     V0_5,
+    V0_6,
     #[cfg(feature = "next")]
     VNext,
 }
@@ -26,6 +27,7 @@ impl FromStr for VersionSelection {
         match s {
             "0.4" => Ok(VersionSelection::V0_4),
             "0.5" => Ok(VersionSelection::V0_5),
+            "0.6" => Ok(VersionSelection::V0_6),
             #[cfg(feature = "next")]
             "next" => Ok(VersionSelection::VNext),
             _ => Err(format!("Unsupported version selection: {}", s)),
@@ -40,6 +42,8 @@ struct CliArgs {
     /// Optional OME-Zarr version constraint as a PEP440 specifier (e.g., '>=0.4,<0.5')
     #[arg(short = 'o', long = "ome-zarr-version")]
     ome_zarr_version: Option<VersionSelection>,
+    #[clap(flatten)]
+    verbosity: clap_verbosity_flag::Verbosity,
 
     /// JSON string representing the `attributes` field of a Zarr metadata document; for OME-Zar v0.5 and later, this should include the "ome" key
     #[arg(value_name = "JSON")]
@@ -74,17 +78,11 @@ impl<T, E: Error> From<Result<Valid<T>, E>> for Output {
     }
 }
 
-fn parse_type<O: DeserializeOwned + Validate>(s: &str) -> Output {
-    match serde_json::from_str::<Valid<O>>(s) {
-        Ok(_) => Output {
-            valid: true,
-            message: None,
-        },
-        Err(e) => Output {
-            valid: false,
-            message: Some(e.to_string()),
-        },
-    }
+fn parse_type<O: DeserializeOwned + Validate + Debug>(s: &str) -> Output {
+    log::debug!("Parsing string: {s}");
+    let res = serde_json::from_str::<Valid<O>>(s);
+    log::info!("Parse result: {res:#?}");
+    res.into()
 }
 
 fn get_output(parsed: &CliArgs) -> Output {
@@ -93,6 +91,7 @@ fn get_output(parsed: &CliArgs) -> Output {
     match parsed.ome_zarr_version {
         Some(VersionSelection::V0_4) => parse_type::<v0_4::OmeNgffGroupAttributes>(s),
         Some(VersionSelection::V0_5) => parse_type::<v0_5::OmeZarrGroupAttributes>(s),
+        Some(VersionSelection::V0_6) => parse_type::<v0_6::OmeZarrGroupAttributes>(s),
         #[cfg(feature = "next")]
         Some(VersionSelection::VNext) => parse_type::<next::OmeZarrGroupAttributes>(s),
         None => parse_type::<AnyOmeFields>(s),
@@ -101,6 +100,9 @@ fn get_output(parsed: &CliArgs) -> Output {
 
 fn main() {
     let parsed = CliArgs::parse();
+    env_logger::Builder::new()
+        .filter_level(parsed.verbosity.into())
+        .init();
 
     let output = get_output(&parsed);
     output.print();

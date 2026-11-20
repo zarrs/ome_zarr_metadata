@@ -15,6 +15,7 @@ pub type Labels = Vec<String>;
 #[serde(deny_unknown_fields)]
 pub struct ImageLabel {
     /// The version of the OME-NGFF "image-label" schema.
+    #[serde(default)]
     pub version: super::ConstrainedVersion,
     /// Describes the color information for the unique label values.
     pub colors: Option<Vec<ImageLabelColor>>,

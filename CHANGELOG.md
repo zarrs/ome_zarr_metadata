@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/zarrs/ome_zarr_metadata/compare/v0.3.1...HEAD)
 
+### Added
+
+- v0.6 support
+- oztest support, including updating/ fixing a lot of validation
+- justfile
+- prek configuration
+
+### Changed
+
+- BREAKING: bump MSRV to 1.88
+
 ## [0.3.1](https://github.com/zarrs/ome_zarr_metadata/compare/v0.3.0...v0.3.1) - 2026-04-07
 
 ### Fixed
+
 - Replace use of removed `doc_auto_cfg` feature with `doc_cfg` (fixes `docs.rs` build)
 
 ## [0.3.0](https://github.com/zarrs/ome_zarr_metadata/compare/v0.2.5...v0.3.0) - 2026-03-31
@@ -40,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Deserialisation of custom axis types in `AxisType` (by [@clbarnes])
 - Permit unknown fields in `v0_5::MultiscaleImage` (by [@clbarnes])
-  - See https://github.com/ome/ngff/issues/209
+  - See <https://github.com/ome/ngff/issues/209>
 
 [#12]: https://github.com/zarrs/ome_zarr_metadata/pull/12
 [#13]: https://github.com/zarrs/ome_zarr_metadata/pull/13
@@ -103,9 +115,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Remove the OME-Zarr `0.5-dev1` interim version https://github.com/ome/ngff/pull/249
+- Remove the OME-Zarr `0.5-dev1` interim version <https://github.com/ome/ngff/pull/249>
 - Remove the OME-Zarr `0.5-dev` interim version
-- Remove the OME-Zarr `0.5+RFC-2` interim version https://github.com/ome/ngff/pull/242
+- Remove the OME-Zarr `0.5+RFC-2` interim version <https://github.com/ome/ngff/pull/242>
 
 ## [0.1.0] - 2024-07-24
 

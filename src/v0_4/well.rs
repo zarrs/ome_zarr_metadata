@@ -2,18 +2,34 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.4/#well-md>.
 
-use std::path::PathBuf;
+use std::{collections::BTreeSet, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
+use validatrix::Validate;
 
 /// `well` metadata. Describes all fields of views under a given well.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Well {
     /// The version of the "well" schema.
+    #[serde(default)]
     pub version: super::ConstrainedVersion,
     /// Specifies the fields of views of the well.
     pub images: Vec<WellImage>,
+}
+
+impl Validate for Well {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        accum.validate_iter_at("images", &self.images);
+        let mut paths = BTreeSet::new();
+        for (idx, p) in self.images.iter().map(|i| &i.path).enumerate() {
+            if !paths.insert(p.clone()) {
+                accum.with_keys(&["images".into(), idx.into(), "path".into()], |a| {
+                    a.add_failure(format!("duplicate path '{}'", p.display()));
+                });
+            }
+        }
+    }
 }
 
 /// [`Well`] `images` element metadata. Specifies a field of view for a given well.
@@ -29,6 +45,24 @@ pub struct WellImage {
     /// If multiple acquisitions were performed in the plate, it MUST contain an acquisition key whose value MUST be an integer identifying the acquisition which MUST match one of the acquisition JSON objects defined in the plate metadata
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acquisition: Option<u64>,
+}
+
+impl Validate for WellImage {
+    fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
+        let Some(s) = self.path.as_os_str().to_str() else {
+            accum.add_failure_at("path", "path is not valid UTF-8");
+            return;
+        };
+        if s.is_empty() {
+            accum.add_failure_at("path", "path is empty");
+        }
+        for c in s.chars() {
+            if !c.is_alphanumeric() {
+                accum.add_failure_at("path", format!("path contains invalid character '{c}'"));
+                break;
+            }
+        }
+    }
 }
 
 #[cfg(test)]

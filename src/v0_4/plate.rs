@@ -2,7 +2,11 @@
 //!
 //! <https://ngff.openmicroscopy.org/0.4/#plate-md>.
 
-use std::{collections::HashSet, num::NonZeroU64, path::PathBuf};
+use std::{
+    collections::{BTreeSet, HashSet},
+    num::NonZeroU64,
+    path::{Path, PathBuf},
+};
 
 use serde::{Deserialize, Serialize};
 use validatrix::{Accumulator, Validate};
@@ -12,6 +16,7 @@ use validatrix::{Accumulator, Validate};
 #[serde(deny_unknown_fields)]
 pub struct Plate {
     /// The version of the multiscale metadata of the image.
+    #[serde(default)]
     pub version: super::ConstrainedVersion,
     /// A list of JSON objects defining the acquisitions for a given plate to which wells can refer to
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,8 +77,14 @@ impl Validate for Plate {
         });
 
         accum.with_key("wells", |acc| {
+            let mut plate_well_paths: BTreeSet<&Path> = Default::default();
             for (idx, well) in self.wells.iter().enumerate() {
                 acc.with_key(idx, |w_acc| {
+                    if !plate_well_paths.insert(&well.path) {
+                        w_acc.with_key("path", |a| {
+                            a.add_failure(format!("duplicate well path: {}", well.path.display()));
+                        });
+                    }
                     let col_name_opt = self.columns.get(well.column_index).map(|c| c.name.as_str());
                     if col_name_opt.is_none() {
                         w_acc.add_failure_at(
@@ -153,10 +164,10 @@ pub struct PlateAcquisition {
 
 impl Validate for PlateAcquisition {
     fn validate_inner(&self, accum: &mut validatrix::Accumulator) {
-        if let (Some(start), Some(end)) = (self.start_time, self.end_time) {
-            if end < start {
-                accum.add_failure_at("endtime", "before starttime");
-            }
+        if let (Some(start), Some(end)) = (self.start_time, self.end_time)
+            && end < start
+        {
+            accum.add_failure_at("endtime", "before starttime");
         }
     }
 }

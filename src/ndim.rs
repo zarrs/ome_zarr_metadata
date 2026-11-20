@@ -14,10 +14,10 @@ pub trait MaybeNDim {
     /// If both objects have a dimensionality defined, but it's different,
     /// return Some with the two dimensionalities. Otherwise, return None.
     fn ndim_conflicts<T: MaybeNDim>(&self, other: &T) -> Option<(usize, usize)> {
-        if let (Some(d1), Some(d2)) = (self.maybe_ndim(), other.maybe_ndim()) {
-            if d1 != d2 {
-                return Some((d1, d2));
-            }
+        if let (Some(d1), Some(d2)) = (self.maybe_ndim(), other.maybe_ndim())
+            && d1 != d2
+        {
+            return Some((d1, d2));
         }
         None
     }
