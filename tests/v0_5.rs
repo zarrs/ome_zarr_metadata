@@ -70,6 +70,9 @@ fn v05_oztest_invalid(
     #[files("**/*.json")]
     #[base_dir = "oztest/cases/parse_attributes/v0.5"]
     #[exclude("(^strict)|(/valid/)")]
+    // The spec doesn't preclude empty images:
+    // see https://github.com/German-BioImaging/oztest/issues/59
+    #[exclude("invalid/well/empty_images")]
     #[mode = bytes]
     bytes: &[u8],
 ) {

@@ -33,7 +33,11 @@ fn v06_oztest_invalid(
     #[files("**/*.json")]
     #[base_dir = "oztest/cases/parse_attributes/v0.6"]
     #[exclude("(^strict)|(/valid/)")]
+    // Without a scene, this is just interpreted as empty attributes, which is not invalid.
     #[exclude("scene/missing_scene")]
+    // The spec doesn't preclude empty images:
+    // see https://github.com/German-BioImaging/oztest/issues/59
+    #[exclude("invalid/well/empty_images")]
     #[mode = bytes]
     bytes: &[u8],
 ) {
